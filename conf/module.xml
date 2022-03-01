@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<grants />
+	<permissions>
+		<permission action="dispSvmarketAdminContentModify" target="manager" />
+		<permission action="procSvmarketAdminInsert" target="manager" />
+		<permission action="procSvmarketAdminInsertContent" target="manager" />
+	</permissions>
+	<actions>
+		<action name="dispSvmarketIndex" type="view" index="true" />
+
+		<!-- admin -->
+		<action name="dispSvmarketAdminModList" type="view" admin_index="true" menu_name="page" menu_index="true" />
+        <action name="dispSvmarketAdminInsertMod" type="view" />
+        <action name="dispSvmarketAdminAppListByModule" type="view" />
+        <action name="dispSvmarketAdminInsertApp" type="view" />
+
+        <action name="procSvmarketAdminInsertModInst" type="controller" />
+	</actions>
+</module>

@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<lang>
+    <item name="appstore_management">
+		<value xml:lang="ko"><![CDATA[싱글뷰 앱스토어 관리]]></value>
+	</item>
+	<item name="about_page_type">
+		<value xml:lang="ko"><![CDATA[페이지 타입을 선택하여 원하는 화면을 구성할 수 있습니다. <ol><li>위젯형 : 여러가지 위젯들을 생성하여 화면을 구성합니다.</li><li>문서형 : 제목, 내용, 태그를 갖는 문서를 제작하여 포스팅 형식의 페이지를 작성합니다. </li><li>외부페이지형 : 외부 HTML 또는 PHP 파일을 XE에서 사용할 수 있습니다.</li></ol>]]></value>
+	</item>
+	<item name="msg_not_selected_page">
+		<value xml:lang="ko"><![CDATA[선택한 페이지가 없습니다.]]></value>
+	</item>
+</lang>
