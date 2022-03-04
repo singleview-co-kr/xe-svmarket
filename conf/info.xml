@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module version="0.2">
     <title xml:lang="ko">싱글뷰 시장</title>
-    <description xml:lang="ko">싱글뷰가 제공하는 모듈/스킨/레이아웃/위젯/위젯스타일 등을 관리하는 모듈입니다.</description>
+    <description xml:lang="ko">싱글뷰가 제공하는 모듈/스킨/레이아웃/위젯/위젯스타일 등의 버전을 관리합니다.</description>
     <version>0.1</version>
     <date>2022-02-28</date>
     <category>service</category>

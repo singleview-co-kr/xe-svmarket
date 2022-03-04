@@ -28,7 +28,6 @@ class svmarketView extends svmarket
 	 */
 	function dispSvmarketIndex()
 	{
-        //echo __FILE__.':'.__LINE__.'<BR>';
 		// Force the result output to be of XMLRPC
         Context::setResponseMethod("XMLRPC");
         $oArg = Context::getRequestVars();
@@ -49,8 +48,20 @@ class svmarketView extends svmarket
 	 */
     function _checkUpdateDate()
     {
-		$aParams = [];
-		$aParams["updatedate"] = "20210805151519";
+        $aParams = [];
+        $oRst = executeQuery('svmarket.getLatestUpdatedDate');
+        if(!$oRst->toBool())
+        {
+            unset($oRst);
+            $aParams["updatedate"] = "error";
+        }
+        if(count((array)$oRst->data) == 0)
+        {
+            unset($oRst);
+            $aParams["updatedate"] = "error";
+        }
+        else
+        	$aParams["updatedate"] = $oRst->data->updatetime;
 		$sXmlResp = svmarketXmlGenerater::generate($aParams);
 		echo $sXmlResp;
         /*'<?xml version="1.0" encoding="UTF-8"?>
@@ -63,6 +74,11 @@ class svmarketView extends svmarket
     
     function _pushAppList()
     {
+        $oRst = executeQuery('svmarket.getLatestApps');
+        $sXmlResp = svmarketXmlGenerater::generateAppList($oRst->data);
+		echo $sXmlResp;
+       
+/*
         echo '<?xml version="1.0" encoding="UTF-8"?>
 <response>
 	<error>0</error>
@@ -121,6 +137,7 @@ class svmarketView extends svmarket
 		<point>0</point>
 	</page_navigation>
 </response>';
+*/
         
         // exit;
 		// // Variables used in the template Context:: set()

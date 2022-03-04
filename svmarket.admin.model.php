@@ -21,14 +21,6 @@ class svmarketAdminModel extends svmarket
      **/
     public function getSvmarketAdminAppList($oParam)
     {
-        $oRst = $this->_getAppList($oParam);
-        return $oRst;
-    }
-    /**
-    * @brief
-    **/
-    private function _getAppList($oParam)
-    {
         $oArg = new stdClass();
         if(!is_null($oParam->module_srl) && $oParam->module_srl != 0)
             $oArg->module_srl = $oParam->module_srl;
@@ -40,18 +32,8 @@ class svmarketAdminModel extends svmarket
             $oArg->list_count = $oParam->list_count;
         if(!is_null($oParam->sort_index) && $oParam->sort_index != 0)
             $oArg->sort_index = $oParam->sort_index;
-        if(!is_null($oParam->order_type) && $oParam->order_type != 0)
-            $oArg->order_type = $oParam->order_type;
-        if(!is_null($oParam->item_name) && strlen($oParam->item_name) > 0)
-            $oArg->item_name = $oParam->item_name;
-
-    //dispSvpromotionAdminItemDiscountList 위해서 임시 유지 시작
-        if(is_null($oArg->module_srl) || $oArg->module_srl == 0)
-            $oArg->module_srl = Context::get('module_srl');
-        if(!is_null($oParam->page) && $oParam->page != 0)
-            $oArg->page = Context::get('page');
-    //dispSvpromotionAdminItemDiscountList 위해서 임시 유지 끝
-        
+        if(!is_null($oParam->title) && strlen($oParam->title) > 0)
+            $oArg->title = $oParam->title;
         $oRst = executeQueryArray('svmarket.getAdminAppList', $oArg);
         unset($oArg);
         // $oSvmarketModel = getModel('svmarket');

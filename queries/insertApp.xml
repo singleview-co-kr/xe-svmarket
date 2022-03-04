@@ -1,0 +1,18 @@
+<query id="insertApp" action="insert">
+	<tables>
+		<table name="svmarket_apps" />
+	</tables>
+	<columns>
+		<column name="module_srl" var="module_srl" notnull="notnull" />
+        <column name="title" var="title" notnull="notnull" />
+        <column name="thumb_file_srl" var="thumb_file_srl" />
+        <column name="description" var="description" />
+		<column name="github_url" var="github_url"/>
+		<column name="homepage" var="homepage" />
+		<column name="display" var="display" />
+        <column name="pkg_tags" var="pkg_tags" />
+		<column name="list_order" var="list_order" />
+		<column name="updatetime" var="updatetime" default="curdate()" />
+		<column name="regdate" var="regdate" default="curdate()" />
+	</columns>
+</query>

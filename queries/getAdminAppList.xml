@@ -3,17 +3,15 @@
 		<table name="svmarket_apps" />
 	</tables>
 	<columns>
-		<column name="app_srl" />
-		<column name="app_name" />
+		<column name="pkg_srl" />
 		<column name="module_srl" />
-		<column name="display" />
-		<column name="list_order" />
+        <column name="title" />
 		<column name="regdate" />
 	</columns>
 	<conditions>
 		<condition operation="equal" column="module_srl" var="module_srl" />
 		<condition operation="equal" column="category_node_srl" var="category_node_srl" pipe="and" />
-		<condition operation="like" column="app_name" var="app_name" pipe="and" />
+		<condition operation="like" column="title" var="title" pipe="and" />
 	</conditions>
 	<navigation>
 		<index var="sort_index" default="list_order" order="asc" />

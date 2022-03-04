@@ -16,5 +16,6 @@
         <action name="dispSvmarketAdminInsertApp" type="view" />
 
         <action name="procSvmarketAdminInsertModInst" type="controller" />
+        <action name="procSvmarketAdminInsertApp" type="controller" />
 	</actions>
 </module>

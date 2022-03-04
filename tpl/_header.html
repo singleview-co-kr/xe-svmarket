@@ -5,7 +5,7 @@
 		<a href="#aboutModule" data-toggle class="x_icon-question-sign">{$lang->help}</a>
 	</h1>
 </div>
-<p class="x_alert x_alert-info" id="aboutModule" hidden>{$lang->about_svitem}</p>
+<p class="x_alert x_alert-info" id="aboutModule" hidden>{$lang->about_svmarket}</p>
 <ul cond="$module_info" class="x_nav x_nav-tabs">
 	<li class="x_active"|cond="$act=='dispSvmarketAdminModList'"><a href="{getUrl('','module',$module,'act','dispSvmarketAdminModList')}">{$lang->page_list}</a></li>
 	<li cond="$module_srl" class="x_active"><a href="{getUrl('','module',$module,'act','dispSvmarketAdminAppListByModule','module_srl',$module_srl)}">{$module_info->mid} {$lang->page_management}</a></li>
@@ -16,8 +16,8 @@
 </ul>
 <ul cond="$module_srl" class="x_nav x_nav-tabs">
 	<li class="x_active"|cond="$act=='dispSvmarketAdminAppListByModule'"><a href="{getUrl('act','dispSvmarketAdminAppListByModule')}">{$lang->product_list}</a></li>
-	<li cond="$act=='dispSvmarketAdminUpdateApp'" class="x_active"><a href="{getUrl('act','dispSvmarketAdminUpdateApp')}">{$lang->product_modification}</a></li>
-	<li class="x_active"|cond="$act=='dispSvmarketAdminInsertApp'"><a href="{getUrl('act','dispSvmarketAdminInsertApp')}">{$lang->product_registration}</a></li>
+	<li cond="$act=='dispSvmarketAdminUpdateApp'" class="x_active"><a href="{getUrl('act','dispSvmarketAdminUpdateApp')}">{$lang->update_app}</a></li>
+	<li class="x_active"|cond="$act=='dispSvmarketAdminInsertApp'"><a href="{getUrl('act','dispSvmarketAdminInsertApp')}">{$lang->add_app}</a></li>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminShowWindowCatalog'"><a href="{getUrl('act','dispSvmarketAdminShowWindowCatalog')}">{$lang->show_window_catalog}</a></li>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminExtendVarSetup'"><a href="{getUrl('act','dispSvmarketAdminExtendVarSetup')}">{$lang->extended_var_setting}</a></li>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminListDisplaySetup'"><a href="{getUrl('act','dispSvmarketAdminListDisplaySetup')}">{$lang->fielddisplay_settings}</a></li>
