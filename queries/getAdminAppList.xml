@@ -6,6 +6,7 @@
 		<column name="pkg_srl" />
 		<column name="module_srl" />
         <column name="title" />
+        <column name="thumb_file_srl" />
 		<column name="regdate" />
 	</columns>
 	<conditions>

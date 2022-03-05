@@ -7,20 +7,12 @@
  */
 class svmarketView extends svmarket
 {
-	var $module_srl = 0;
-	var $list_count = 20;
-	var $page_count = 10;
-	var $cache_file;
-	var $interval;
-	var $path;
-
 	/**
 	 * @brief Initialization
 	 */
 	function init()
 	{
-		// Get a template path (page in the administrative template tpl putting together)
-		// $this->setTemplatePath($this->module_path.'tpl');
+		$this->setTemplatePath($this->module_path.'skins/'.$this->module_info->skin);
 	}
 
 	/**
@@ -28,25 +20,39 @@ class svmarketView extends svmarket
 	 */
 	function dispSvmarketIndex()
 	{
-		// Force the result output to be of XMLRPC
-        Context::setResponseMethod("XMLRPC");
         $oArg = Context::getRequestVars();
         switch($oArg->mode)
         {
             case 'checkdate':
-                $this->_checkUpdateDate();
-                break;
+				// Force the result output to be of XMLRPC
+				Context::setResponseMethod("XMLRPC");
+                $this->_checkUpdateDateXml();
+                exit;
             case 'applist':
-                $this->_pushAppList();
-                break;
+				// Force the result output to be of XMLRPC
+				Context::setResponseMethod("XMLRPC");
+                $this->_pushAppListXml();
+                exit;
         }
-        exit;
+		$this->_showAppList();
     }
-
 	/**
 	 * @brief svmarket server active status 통지
 	 */
-    function _checkUpdateDate()
+    function _showAppList()
+    {
+		$oRst = executeQuery('svmarket.getLatestApps');
+		foreach($oRst->data as $nIdx => $oApp)
+		{
+			$oApp->item_screenshot_url = svmarketView::dispThumbnailUrl($oApp->item_screenshot_url,80);
+		}
+		Context::set('aAppList', $oRst->data);
+        $this->setTemplateFile('content');
+    }
+	/**
+	 * @brief svmarket server active status 통지
+	 */
+    function _checkUpdateDateXml()
     {
         $aParams = [];
         $oRst = executeQuery('svmarket.getLatestUpdatedDate');
@@ -71,13 +77,11 @@ class svmarketView extends svmarket
         <updatedate><![CDATA[20210805151519]]></updatedate>
         </response>';*/
     }
-    
-    function _pushAppList()
+    function _pushAppListXml()
     {
         $oRst = executeQuery('svmarket.getLatestApps');
         $sXmlResp = svmarketXmlGenerater::generateAppList($oRst->data);
 		echo $sXmlResp;
-       
 /*
         echo '<?xml version="1.0" encoding="UTF-8"?>
 <response>
@@ -138,96 +142,41 @@ class svmarketView extends svmarket
 	</page_navigation>
 </response>';
 */
-        
-        // exit;
-		// // Variables used in the template Context:: set()
-		// if($this->module_srl) Context::set('module_srl',$this->module_srl);
-
-		// // $page_type_name = strtolower($this->module_info->page_type);
-		// // $method = '_get' . ucfirst($page_type_name) . 'Content';
-		// // if(method_exists($this, $method)) $page_content = $this->{$method}();
-		// // else return new BaseObject(-1, sprintf('%s method is not exists', $method));
-
-		// Context::set('module_info', $this->module_info);
-		// Context::set('page_content', $page_content);
-
-		// $this->setTemplateFile('content');
 	}
-
-	/**
-	 * @brief Create a cache file in order to include if it is an internal file
-	 */
-	function executeFile($target_file, $caching_interval, $cache_file)
+/**
+ * @brief 스킨에서 호출하는 메쏘드
+ * will be deprecated
+ */	
+	public static function dispThumbnailUrl($nThumbFileSrl, $nWidth = 80, $nHeight = 0, $sThumbnailType = 'crop')
 	{
-		// Cancel if the file doesn't exist
-		if(!file_exists(FileHandler::getRealPath($target_file))) return;
+		$sNoimgUrl = Context::getRequestUri().'/modules/svmarket/tpl/imgs/no_img_80x80.jpg';
+		if(!$nThumbFileSrl) // 기본 이미지 반환
+			return $sNoimgUrl;
+		if(!$nHeight)
+			$nHeight = $nWidth;
+		
+		// Define thumbnail information
+		$sThumbnailPath = 'files/cache/thumbnails/'.getNumberingPath($nThumbFileSrl, 3);
+		$sThumbnailFile = $sThumbnailPath.$nWidth.'x'.$nHeight.'.'.$sThumbnailType.'.jpg';
+		$sThumbnailUrl = Context::getRequestUri().$sThumbnailFile; //http://127.0.0.1/files/cache/thumbnails/840/80x80.crop.jpg"
+		// Return false if thumbnail file exists and its size is 0. Otherwise, return its path
+		if(file_exists($sThumbnailFile) && filesize($sThumbnailFile) > 1) 
+			return $sThumbnailUrl;
 
-		// Get a path and filename
-		$tmp_path = explode('/',$cache_file);
-		$filename = $tmp_path[count($tmp_path)-1];
-		$filepath = preg_replace('/'.$filename."$/i","",$cache_file);
-		$cache_file = FileHandler::getRealPath($cache_file);
-
-		$level = ob_get_level();
-		// Verify cache
-		if($caching_interval <1 || !file_exists($cache_file) || filemtime($cache_file) + $caching_interval*60 <= $_SERVER['REQUEST_TIME'] || filemtime($cache_file)<filemtime($target_file))
-		{
-			if(file_exists($cache_file)) FileHandler::removeFile($cache_file);
-
-			// Read a target file and get content
-			ob_start();
-			include(FileHandler::getRealPath($target_file));
-			$content = ob_get_clean();
-			// Replace relative path to the absolute path 
-			$this->path = str_replace('\\', '/', realpath(dirname($target_file))) . '/';
-			$content = preg_replace_callback('/(target=|src=|href=|url\()("|\')?([^"\'\)]+)("|\'\))?/is',array($this,'_replacePath'),$content);
-			$content = preg_replace_callback('/(<!--%import\()(\")([^"]+)(\")/is',array($this,'_replacePath'),$content);
-
-			FileHandler::writeFile($cache_file, $content);
-			// Include and then Return the result
-			if(!file_exists($cache_file)) return;
-			// Attempt to compile
-			$oTemplate = &TemplateHandler::getInstance();
-			$script = $oTemplate->compileDirect($filepath, $filename);
-
-			FileHandler::writeFile($cache_file, $script);
-		}
-
-		$__Context = &$GLOBALS['__Context__'];
-		$__Context->tpl_path = $filepath;
-
-		ob_start();
-		include($cache_file);
-
-		$contents = '';
-		while (ob_get_level() - $level > 0) {
-			$contents .= ob_get_contents();
-			ob_end_clean();
-		}
-		return $contents;
-	}
-
-	function _replacePath($matches)
-	{
-		$val = trim($matches[3]);
-		// Pass if the path is external or starts with /, #, { characters
-		// /=absolute path, #=hash in a page, {=Template syntax
-		if(strpos($val, '.') === FALSE || preg_match('@^((?:http|https|ftp|telnet|mms)://|(?:mailto|javascript):|[/#{])@i',$val))
-		{
-				return $matches[0];
-			// In case of  .. , get a path
-		}
-		else if(strncasecmp('..', $val, 2) === 0)
-		{
-			$p = Context::pathToUrl($this->path);
-			return sprintf("%s%s%s%s",$matches[1],$matches[2],$p.$val,$matches[4]);
-		}
-
-		if(strncasecmp('..', $val, 2) === 0) $val = substr($val,2);
-		$p = Context::pathToUrl($this->path);
-		$path = sprintf("%s%s%s%s",$matches[1],$matches[2],$p.$val,$matches[4]);
-
-		return $path;
+		// Target File
+		$oFileModel = &getModel('file');
+		$sSourceFile = NULL;
+		$sFile = $oFileModel->getFile($nThumbFileSrl);
+		if($sFile) 
+			$sSourceFile = $sFile->uploaded_filename;
+		if($sSourceFile)
+			$oOutput = FileHandler::createImageFile($sSourceFile, $sThumbnailFile, $nWidth, $nHeight, 'jpg', $sThumbnailType);
+		// Return its path if a thumbnail is successfully genetated
+		if($oOutput) 
+			return $sThumbnailUrl;
+		else
+			FileHandler::writeFile($sThumbnailFile, '','w'); // Create an empty file not to re-generate the thumbnail
+		return $sNoimgUrl;
 	}
 }
 /* End of file svmarket.view.php */

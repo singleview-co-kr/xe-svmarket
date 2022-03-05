@@ -57,11 +57,15 @@ class svmarketXmlGenerater
             $sXmlDoc .= '<item>';
             foreach($oApp as $key => $val)
             {
+				if($key == 'item_screenshot_url')
+					$val = svmarketView::dispThumbnailUrl($val,80);
+
                 if(is_string($val))
                     $sXmlDoc .= sprintf("<%s><![CDATA[%s]]></%s>", $key, $val, $key);
                 else
                     $sXmlDoc .= sprintf("<%s>%s</%s>", $key, $val, $key);
             }
+
             $sXmlDoc .= "<path>";
 			$sXmlDoc .= "	<![CDATA[./addons/xdt_google_analytics]]>";
 			$sXmlDoc .= "</path>";
@@ -72,9 +76,6 @@ class svmarketXmlGenerater
 			$sXmlDoc .= "	<![CDATA[도라미]]>";
 			$sXmlDoc .= "</nick_name>";
 			$sXmlDoc .= "<item_srl>22756278</item_srl>";
-			$sXmlDoc .= "<item_screenshot_url>";
-			$sXmlDoc .= "	<![CDATA[https://download.xpressengine.com/xedownload/app/22657234/thumbnails/md.png]]>";
-			$sXmlDoc .= "</item_screenshot_url>";
 			$sXmlDoc .= "<item_version>";
 			$sXmlDoc .= "	<![CDATA[1.2]]>";
 			$sXmlDoc .= "</item_version>";

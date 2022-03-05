@@ -36,12 +36,11 @@ class svmarketAdminController extends svmarket
 		}
 		if(!$oRst->toBool())
 			return $oRst;
-		
 		unset($oRst);
 		unset($oArgs);
 		$this->add('module_srl', $nModuleSrl);
 		$this->setMessage($sMsgCode);
-		$sReturnUrl = getNotEncodedUrl('', 'module', Context::get('module'), 'act', 'dispSvmarketAdminInsertModInst','module_srl',$nModuleSrl);
+		$sReturnUrl = getNotEncodedUrl('', 'module', Context::get('module'), 'act', 'dispSvmarketAdminInsertMod','module_srl',$nModuleSrl);
 		$this->setRedirectUrl($sReturnUrl);
 	}
     /**
@@ -50,39 +49,7 @@ class svmarketAdminController extends svmarket
 	public function procSvmarketAdminInsertApp() 
 	{
 		$oArgs = Context::getRequestVars();
-        var_dump($oArgs);
 
-        // save representative thumbnail
-		// if($this->_g_oNewItemHeader->thumbnail_image['tmp_name']) 
-		// {
-		// 	$oFileController = &getController('file');
-		// 	if(is_uploaded_file($this->_g_oNewItemHeader->thumbnail_image['tmp_name'])) // single upload via web interface mode
-		// 	{
-		// 		$oFileRst = $oFileController->insertFile($this->_g_oNewItemHeader->thumbnail_image, $this->_g_oNewItemHeader->module_srl, $this->_g_oNewItemHeader->item_srl);
-		// 		if(!$oFileRst || !$oFileRst->toBool())
-		// 			return $oFileRst;
-		// 		$oFileController->setFilesValid($this->_g_oNewItemHeader->item_srl);
-		// 		$oArgs->thumb_file_srl = $oFileRst->get('file_srl');
-		// 		unset($oFileRst);
-		// 		unset($oFileController);
-		// 	}
-		// 	elseif( $this->_g_oNewItemHeader->thumbnail_image['size'] ) // excel bulk mode
-		// 	{
-		// 		echo 'yes img->'.$this->_g_oNewItemHeader->thumbnail_image['name'].'<BR>';
-		// 		$oFileRst = $oFileController->insertFile($this->_g_oNewItemHeader->thumbnail_image, $this->_g_oNewItemHeader->module_srl, $this->_g_oNewItemHeader->item_srl, 0, true);
-		// 		if(!$oFileRst || !$oFileRst->toBool())
-		// 			return $oFileRst;
-		// 		$oFileController->setFilesValid($this->_g_oNewItemHeader->item_srl);
-		// 		$oArgs->thumb_file_srl = $oFileRst->get('file_srl');
-		// 		unset($oFileRst);
-		// 		unset($oFileController);
-		// 	}
-		// 	else
-		// 	{
-		// 		echo 'no img->'.$oArgs->thumbnail_image['name'].'<BR>';
-		// 		$oArgs->thumb_file_srl = 0;
-		// 	}
-		// }
         $oParam = new stdClass();
         $oParam->module_srl = $oArgs->module_srl;
         $oParam->title = $oArgs->app_title;
@@ -97,17 +64,74 @@ class svmarketAdminController extends svmarket
 			return $oInsertRst;
         }
         $oDB = DB::getInstance();
-		$nAppSrl = $oDB->db_insert_id();
+		$nPkgSrl = $oDB->db_insert_id();
+        unset($oInsertRst);
+        unset($oParam);
+        // save representative thumbnail
+        if($oArgs->thumbnail_image['tmp_name'])
+        {
+			$oFileController = &getController('file');
+			if(is_uploaded_file($oArgs->thumbnail_image['tmp_name'])) // single upload via web interface mode
+			{
+				$oFileRst = $oFileController->insertFile($oArgs->thumbnail_image, $oArgs->module_srl, $nPkgSrl);
+				if(!$oFileRst || !$oFileRst->toBool())
+					return $oFileRst;
+				$oFileController->setFilesValid($this->_g_oNewItemHeader->item_srl);
+				$nThumbFileSrl = $oFileRst->get('file_srl');
+				unset($oFileRst);
+			}
+            else
+			{
+				echo 'no img->'.$oArgs->thumbnail_image['name'].'<BR>';
+				$nThumbFileSrl = 0;
+			}
+            unset($oFileController);
+		}
 		unset($oArgs);
-        unset($oInsertRst);
-        unset($oInsertRst);
-		$this->setMessage('success_registed');
+
+        var_dump($nThumbFileSrl);
+        $oParam = new stdClass();
+        $oParam->pkg_srl = $nPkgSrl;
+        $oParam->thumb_file_srl = $nThumbFileSrl;
+		$oUpdateRst = executeQuery('svmarket.updateApp', $oParam);
+        if(!$oUpdateRst->toBool())
+        {
+            unset($oUpdateRst);
+			return $oUpdateRst;
+        }
+        unset($oUpdateRst);
+        unset($oParam);
+        $this->setMessage('success_registed');
 		if(!in_array(Context::getRequestMethod(),array('XMLRPC','JSON')))
 		{
-			$sReturnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module',Context::get('module'),'act','dispSvmarketAdminInsertApp','module_srl',Context::get('module_srl'),'app_srl',$nAppSrl);
+			$sReturnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module',Context::get('module'),'act','dispSvmarketAdminInsertApp','module_srl',Context::get('module_srl'),'pkg_srl',$nPkgSrl);
 			$this->setRedirectUrl($sReturnUrl);
 			return;
 		}
+	}
+	/**
+	* @brief update mid level config
+	* procSvitemAdminInsertModInst 와 병합해야 함
+	**/
+	private function _updateMidLevelConfig($oArgs)
+	{
+		if(!$oArgs->module_srl)
+			return new BaseObject(-1, 'msg_invalid_module_srl');
+
+		unset($oArgs->module);
+		unset($oArgs->error_return_url);
+		unset($oArgs->success_return_url);
+		unset($oArgs->act);
+		unset($oArgs->ext_script);
+		unset($oArgs->list);
+
+		$oModuleModel = &getModel('module');
+		$oConfig = $oModuleModel->getModuleInfoByModuleSrl($oArgs->module_srl);
+		foreach($oArgs as $key=>$val)
+			$oConfig->{$key} = $val;
+		$oModuleController = &getController('module');
+		$oRst = $oModuleController->updateModule($oConfig);
+		return $oRst;
 	}
     
 

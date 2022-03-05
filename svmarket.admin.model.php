@@ -36,6 +36,17 @@ class svmarketAdminModel extends svmarket
             $oArg->title = $oParam->title;
         $oRst = executeQueryArray('svmarket.getAdminAppList', $oArg);
         unset($oArg);
+
+        // $oFileModel = getModel('file');
+        // foreach($oRst->data as $nIdx => $oApp)
+        // {
+        //     $oFile = $oFileModel->getFile($oApp->thumb_file_srl);
+		// 	if($oFile)
+		// 		$sThumbnailUrl = getFullUrl().$oFile->download_url;
+		// 	unset($oFile);
+        // }
+		// unset($oFileModel);
+
         // $oSvmarketModel = getModel('svmarket');
         $oModuleModel = getModel('module');
         foreach($oRst->data as $key=>$val)

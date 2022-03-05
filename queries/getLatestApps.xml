@@ -6,7 +6,7 @@
         <column name="pkg_srl" alias="package_srl"/>
 		<column name="category_node_srl" alias="category_srl"/>
 		<column name="title" />
-		<column name="thumb_file_srl" />
+		<column name="thumb_file_srl" alias="item_screenshot_url"/>
 		<column name="description" alias="package_description"/>
         <column name="homepage" />
         <column name="updatetime" alias="package_last_update"/>

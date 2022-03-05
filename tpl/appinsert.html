@@ -15,7 +15,6 @@
 	<input name="module" type="hidden" value="{$module}" />
 	<input name="act" type="hidden" value="procSvmarketAdminInsertApp" />
 	<input name="module_srl" type="hidden" value="{$module_srl}" />
-    <input name="thumb_file_srl" type="hidden" value="0" />
 
 	<h1>{$lang->title_app_basic_info}</h1>
 	<div class="x_control-group">
@@ -32,6 +31,14 @@
 			<textarea name="app_desc" id="app_desc" class="app_desc" rows="8" cols="22" placeholder="{$lang->about_app_desc}">{$app_info->app_desc}</textarea>
 			<a href="#app_desc_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
 			<p id="app_desc_help" class="x_help-block" hidden>{$lang->about_item_brief}</p>
+		</div>
+	</div>
+    <div class="x_control-group">
+		<label class="x_control-label" for="thumbnail_image">{$lang->app_thumbnail}</label>
+		<div class="x_controls">
+			<input type="file" name="thumbnail_image" />
+			<a href="#thumbnail_image_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+			<p id="thumbnail_image_help" class="x_help-block" hidden>{$lang->about_thumbnail_image}</p>
 		</div>
 	</div>
 	<div class="x_control-group">
