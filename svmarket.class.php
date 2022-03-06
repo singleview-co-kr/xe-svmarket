@@ -106,6 +106,8 @@ class svmarketXmlGenerater
 
 class svmarket extends ModuleObject
 {
+	const S_NULL_SYMBOL = '|@|'; // ./svmarket.pkg_admin.php, svmarket.pkg_consumer.php에서 사용
+	
 	/**
 	 * @brief Implement if additional tasks are necessary when installing
 	 */

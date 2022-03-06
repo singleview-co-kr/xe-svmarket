@@ -3,12 +3,13 @@
 		<table name="svmarket_package" />
 	</tables>
 	<columns>
+        <column name="package_srl" var="package_srl" notnull="notnull" />
 		<column name="module_srl" var="module_srl" notnull="notnull" />
-        <column name="document_srl" var="document_srl" notnull="notnull" />
         <column name="title" var="title" notnull="notnull" />
-        <column name="description" var="description" />
+        <column name="description" var="description" notnull="notnull" />
 		<column name="github_url" var="github_url"/>
 		<column name="homepage" var="homepage" />
+        <column name="thumb_file_srl" var="thumb_file_srl" />
 		<column name="updatetime" var="updatetime" default="curdate()" />
 		<column name="regdate" var="regdate" default="curdate()" />
 	</columns>

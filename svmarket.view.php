@@ -44,8 +44,29 @@ class svmarketView extends svmarket
 	 */
     function _showAppDetail()
     {
-		echo __FILE__;
-        $this->setTemplateFile('detail');
+		$oArg = Context::getRequestVars();
+		$oParams = new stdClass();
+		if($oArg->document_srl) // svitem.view.php::dispSvitemItemDetail()에서 호출
+			$oParams->nPkgSrl = $oArg->document_srl;
+		else
+			return new BaseObject(-1,'msg_invalid_item_request');
+		unset($oArg);
+		require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_consumer.php');
+		$oPkgConsumer = new svmarketPkgConsumer();
+		$oParams->mode = 'retrieve';
+		$oTmpRst = $oPkgConsumer->loadHeader($oParams);
+		if(!$oTmpRst->toBool())
+			return new BaseObject(-1,'msg_invalid_item_request');
+		unset($oTmpRst);
+		$oDetailRst = $oPkgConsumer->loadDetail();
+		if(!$oDetailRst->toBool())
+			return $oDetailRst;
+		unset($oDetailRst);
+
+		// set browser title
+		Context::setBrowserTitle(strip_tags($oPkgConsumer->title).' - '.Context::getBrowserTitle());
+
+        $this->setTemplateFile('pkg_detail');
     }
 	/**
 	 * @brief svmarket server active status 통지
@@ -61,7 +82,7 @@ class svmarketView extends svmarket
         $this->setTemplateFile('index');
     }
 	/**
-	 * @brief svmarket server active status 통지
+	 * @brief svmarket server active status XML 통지
 	 */
     function _checkUpdateDateXml()
     {
@@ -81,78 +102,15 @@ class svmarketView extends svmarket
         	$aParams["updatedate"] = $oRst->data->updatetime;
 		$sXmlResp = svmarketXmlGenerater::generate($aParams);
 		echo $sXmlResp;
-        /*'<?xml version="1.0" encoding="UTF-8"?>
-        <response>
-        <error>0</error>
-        <message>success</message>
-        <updatedate><![CDATA[20210805151519]]></updatedate>
-        </response>';*/
     }
+	/**
+	 * @brief svmarket server active package list XML 통지
+	 */
     function _pushAppListXml()
     {
         $oRst = executeQuery('svmarket.getLatestPkg');
 		$sXmlResp = svmarketXmlGenerater::generatePkgList($oRst->data);
 		echo $sXmlResp;
-/*
-        echo '<?xml version="1.0" encoding="UTF-8"?>
-<response>
-	<error>0</error>
-	<message>success</message>
-	<packageList>
-		<item>
-			<category_srl>18322943</category_srl>
-			<package_srl>22657234</package_srl>
-			<path>
-				<![CDATA[./addons/xdt_google_analytics]]>
-			</path>
-			<title>
-				<![CDATA[xe111 design team Google analytics Addon]]>
-			</title>
-			<homepage>
-				<![CDATA[http://www.xedesignteam.com/]]>
-			</homepage>
-			<package_description>
-				<![CDATA[싱글뷰의 코드를 달 수 있는 애드온입니다. Google, Google Analytics는 Google inc.의 상표입니다.]]>
-			</package_description>
-			<package_voter>6</package_voter>
-			<package_voted>60</package_voted>
-			<package_downloaded>1039</package_downloaded>
-			<package_regdate>
-				<![CDATA[20140327011542]]>
-			</package_regdate>
-			<package_last_update>
-				<![CDATA[20210805151519]]>
-			</package_last_update>
-			<nick_name>
-				<![CDATA[도라미]]>
-			</nick_name>
-			<item_srl>22756278</item_srl>
-			<item_screenshot_url>
-				<![CDATA[https://download.xpressengine.com/xedownload/app/22657234/thumbnails/md.png]]>
-			</item_screenshot_url>
-			<item_version>
-				<![CDATA[1.2]]>
-			</item_version>
-			<item_voter>0</item_voter>
-			<item_voted>0</item_voted>
-			<item_downloaded>147</item_downloaded>
-			<item_regdate>
-				<![CDATA[20210805151519]]>
-			</item_regdate>
-			<package_star>5</package_star>
-		</item>
-	</packageList>
-	<page_navigation>
-		<total_count>10</total_count>
-		<total_page>1</total_page>
-		<cur_page>1</cur_page>
-		<page_count>10</page_count>
-		<first_page>1</first_page>
-		<last_page>135</last_page>
-		<point>0</point>
-	</page_navigation>
-</response>';
-*/
 	}
 /**
  * @brief 스킨에서 호출하는 메쏘드
