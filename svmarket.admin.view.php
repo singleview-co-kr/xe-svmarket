@@ -59,8 +59,7 @@ class svmarketAdminView extends svmarket
 		$oArgs->page_count = 10;
 		$oArgs->s_module_category_srl = Context::get('module_category_srl');
 		$oRst = executeQueryArray('svmarket.getSvmarketList', $oArgs);
-		$aList = $oRst->data;
-		$aList = $oModuleModel->addModuleExtraVars($aList);
+		$aList = $oModuleModel->addModuleExtraVars($oRst->data);
 		Context::set('total_count', $oRst->total_count);
 		Context::set('total_page', $oRst->total_page);
 		Context::set('page', $oRst->page);
@@ -98,7 +97,7 @@ class svmarketAdminView extends svmarket
     /**
      * @brief admin view for item list
      */
-	public function dispSvmarketAdminAppListByModule() 
+	public function dispSvmarketAdminPkgListByModule() 
 	{
 		$nModuleSrl = (int)Context::get('module_srl');
 		if(!$nModuleSrl)
@@ -124,8 +123,8 @@ class svmarketAdminView extends svmarket
 		$oArgs->sort_index = $sort_index;
 		$oArgs->order_type = $order_type;
 		
-		$oSvitemAdminModel = &getAdminModel('svmarket');
-		$oRst = $oSvitemAdminModel->getSvmarketAdminAppList($oArgs);
+		$oSvitemAdminModel = getAdminModel('svmarket');
+		$oRst = $oSvitemAdminModel->getSvmarketAdminPkgList($oArgs);
 		if(!$oRst->toBool())
 			return $oRst;
         unset($oArgs);
@@ -135,15 +134,21 @@ class svmarketAdminView extends svmarket
 		Context::set('page_navigation', $oRst->page_navigation);
 		Context::set('list', $oRst->data);
 		// showwindow display
-		
 		$this->setTemplateFile('applist');
+	}
+	/**
+     * @brief 
+     */
+	public function dispSvmarketAdminInsertPkg() 
+	{
+		$this->setTemplateFile('insert_pkg');
 	}
     /**
      * @brief 
      */
 	public function dispSvmarketAdminInsertApp() 
 	{
-		$this->setTemplateFile('appinsert');
+		$this->setTemplateFile('insert_app');
 	}
 }
 /* End of file svmarket.class.php */

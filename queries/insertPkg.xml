@@ -1,0 +1,15 @@
+<query id="insertPkg" action="insert">
+	<tables>
+		<table name="svmarket_package" />
+	</tables>
+	<columns>
+		<column name="module_srl" var="module_srl" notnull="notnull" />
+        <column name="document_srl" var="document_srl" notnull="notnull" />
+        <column name="title" var="title" notnull="notnull" />
+        <column name="description" var="description" />
+		<column name="github_url" var="github_url"/>
+		<column name="homepage" var="homepage" />
+		<column name="updatetime" var="updatetime" default="curdate()" />
+		<column name="regdate" var="regdate" default="curdate()" />
+	</columns>
+</query>

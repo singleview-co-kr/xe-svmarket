@@ -1,3 +1,4 @@
+<load target="js/modlist.js" />
 <include target="_header.html" />
 
 <div cond="$XE_VALIDATOR_MESSAGE && $inc != 'skininfo'" class="message {$XE_VALIDATOR_MESSAGE_TYPE}">
@@ -32,7 +33,7 @@
 			<td class="center number">{$no}</td>
 			<td>{htmlspecialchars($val->mid)}</td>
 			<td><a href="{getSiteUrl($val->domain,'','mid',$val->mid)}" onclick="window.open(this.href); return false;">{$val->browser_title}</a></td>
-			<td><a href="{getUrl('act','dispSvmarketAdminAppListByModule','module_srl',$val->module_srl)}" class="x_btn"><span>{$lang->cmd_management}</span></a></td>
+			<td><a href="{getUrl('act','dispSvmarketAdminPkgListByModule','module_srl',$val->module_srl)}" class="x_btn"><span>{$lang->cmd_management}</span></a></td>
 			<td><a href="#deleteInstance" class="modalAnchor deleteInstance x_btn" data-module-srl="{$val->module_srl}"><span>{$lang->cmd_delete}</span></a></td>
 			<td>{zdate($val->regdate,"Y-m-d")}</td>
 		</tr>
@@ -48,7 +49,7 @@
 
 <form action="./" class="x_modal" method="post" id="deleteInstance">
 	<input type="hidden" name="module" value="{$module}" />
-	<input type="hidden" name="act" value="procSvitemAdminDeleteModInst" />
+	<input type="hidden" name="act" value="procSvmarketAdminDeleteMod" />
 	<div class="x_modal-header">
 		<h1>{$lang->display_page} : {$lang->delete}</h1>
 	</div>

@@ -3,6 +3,29 @@
     <item name="appstore_management">
 		<value xml:lang="ko"><![CDATA[싱글뷰 앱스토어 관리]]></value>
 	</item>
+	<item name="desc">
+		<value xml:lang="ko"><![CDATA[설명]]></value>
+	</item>
+	<item name="thumbnail">
+		<value xml:lang="ko"><![CDATA[썸네일]]></value>
+	</item>
+	<item name="github_url">
+		<value xml:lang="ko"><![CDATA[깃헙 저장소 주소]]></value>
+	</item>
+	<item name="homepage">
+		<value xml:lang="ko"><![CDATA[개발사 홈피]]></value>
+	</item>
+
+	<item name="add_pkg">
+		<value xml:lang="ko"><![CDATA[패키지 등록]]></value>
+	</item>
+	<item name="pkg_title">
+		<value xml:lang="ko"><![CDATA[패키지 제목]]></value>
+	</item>
+
+	
+
+
     <item name="add_app">
 		<value xml:lang="ko"><![CDATA[앱 등록]]></value>
 	</item>
@@ -21,18 +44,8 @@
 	<item name="reviews">
 		<value xml:lang="ko"><![CDATA[리뷰수]]></value>
 	</item>
-	<item name="app_desc">
-		<value xml:lang="ko"><![CDATA[앱 설명]]></value>
-	</item>
-	<item name="app_thumbnail">
-		<value xml:lang="ko"><![CDATA[앱 썸네일]]></value>
-	</item>
-	<item name="app_github_url">
-		<value xml:lang="ko"><![CDATA[깃헙 저장소 주소]]></value>
-	</item>
-	<item name="app_homepage">
-		<value xml:lang="ko"><![CDATA[앱 개발사 홈피]]></value>
-	</item>
+	
+	
 	<item name="title_app_basic_info">
 		<value xml:lang="ko"><![CDATA[앱 기본 정보]]></value>
 	</item>

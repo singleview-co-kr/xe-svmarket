@@ -1,4 +1,4 @@
-<query id="getAdminAppList" action="select">
+<query id="getAdminPkgList" action="select">
 	<tables>
 		<table name="svmarket_package" />
 	</tables>

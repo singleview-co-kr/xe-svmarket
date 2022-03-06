@@ -16,7 +16,7 @@ class svmarketAdminController extends svmarket
 	/**
 	 * @brief mid 생성하거나 변경
 	 **/
-	public function procSvmarketAdminInsertModInst()
+	public function procSvmarketAdminInsertMod()
 	{
 		$oArgs = Context::getRequestVars();
 		$oArgs->module = 'svmarket';
@@ -43,8 +43,89 @@ class svmarketAdminController extends svmarket
 		$sReturnUrl = getNotEncodedUrl('', 'module', Context::get('module'), 'act', 'dispSvmarketAdminInsertMod','module_srl',$nModuleSrl);
 		$this->setRedirectUrl($sReturnUrl);
 	}
+	/**
+	 * @brief mid delete
+	 **/
+	public function procSvmarketAdminDeleteMod()
+	{
+		$nModuleSrl = Context::get('module_srl');
+		$oModuleController = &getController('module');
+		$oRst = $oModuleController->deleteModule($nModuleSrl);
+		if(!$oRst->toBool())
+			return $oRst;
+		unset($oRst);
+		unset($oModuleController);
+		$this->setMessage('success_deleted');
+		$sReturnUrl = getNotEncodedUrl('', 'module', Context::get('module'), 'act', 'dispSvmarketAdminModList', 'page', Context::get('page'));
+		$this->setRedirectUrl($sReturnUrl);
+	}
+	/**
+     * @brief insert Package
+     **/
+	public function procSvmarketAdminInsertPkg() 
+	{
+		$oArgs = Context::getRequestVars();
+        $oParam = new stdClass();
+        $oParam->module_srl = $oArgs->module_srl;
+		$oParam->document_srl = getNextSequence();
+        $oParam->title = $oArgs->pkg_title;
+        $oParam->description = $oArgs->pkg_desc;
+        $oParam->github_url = $oArgs->pkg_github_url;
+        $oParam->homepage = $oArgs->pkg_homepage;
+		$oInsertRst = executeQuery('svmarket.insertPkg', $oParam);
+		if(!$oInsertRst->toBool())
+        {
+            unset($oInsertRst);
+			return $oInsertRst;
+        }
+        $oDB = DB::getInstance();
+		$nPkgSrl = $oDB->db_insert_id();
+        unset($oInsertRst);
+        unset($oParam);
+        // save representative thumbnail
+        if($oArgs->pkg_thumbnail_image['tmp_name'])
+        {
+			$oFileController = &getController('file');
+			if(is_uploaded_file($oArgs->pkg_thumbnail_image['tmp_name'])) // single upload via web interface mode
+			{
+				$oFileRst = $oFileController->insertFile($oArgs->pkg_thumbnail_image, $oArgs->module_srl, $nPkgSrl);
+				if(!$oFileRst || !$oFileRst->toBool())
+					return $oFileRst;
+				$oFileController->setFilesValid($this->_g_oNewItemHeader->item_srl);
+				$nThumbFileSrl = $oFileRst->get('file_srl');
+				unset($oFileRst);
+			}
+            else
+			{
+				echo 'no img->'.$oArgs->thumbnail_image['name'].'<BR>';
+				$nThumbFileSrl = 0;
+			}
+            unset($oFileController);
+		}
+		unset($oArgs);
+        $oParam = new stdClass();
+        $oParam->package_srl = $nPkgSrl;
+        $oParam->thumb_file_srl = $nThumbFileSrl;
+		$oUpdateRst = executeQuery('svmarket.updatePkg', $oParam);
+        if(!$oUpdateRst->toBool())
+        {
+            unset($oUpdateRst);
+			return $oUpdateRst;
+        }
+        unset($oUpdateRst);
+        unset($oParam);
+        $this->setMessage('success_registed');
+		if(!in_array(Context::getRequestMethod(),array('XMLRPC','JSON')))
+		{
+			$sReturnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module',Context::get('module'),'act','dispSvmarketAdminInsertPkg','module_srl',Context::get('module_srl'),'pkg_srl',$nPkgSrl);
+			$this->setRedirectUrl($sReturnUrl);
+			return;
+		}
+	}
+
+
     /**
-     * @brief 
+     * @brief insert App
      **/
 	public function procSvmarketAdminInsertApp() 
 	{

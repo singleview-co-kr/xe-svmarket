@@ -1,0 +1,22 @@
+<query id="getLatestPkg" action="select">
+	<tables>
+		<table name="svmarket_package" />
+	</tables>
+	<columns>
+        <column name="package_srl"/>
+		<column name="category_node_srl" alias="category_srl"/>
+		<column name="title"/>
+		<column name="thumb_file_srl" alias="item_screenshot_url"/>
+		<column name="description" alias="package_description"/>
+        <column name="homepage"/>
+        <column name="updatetime" alias="package_last_update"/>
+        <column name="regdate"  alias="package_regdate"/>
+	</columns>
+    <conditions>
+		<condition operation="equal" column="display" default="Y" />
+	</conditions>
+	<navigation>
+		<index var="sort_index" default="updatetime" order="desc" />
+		<list_count var="list_count" default="10" />
+	</navigation>
+</query>

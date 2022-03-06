@@ -8,16 +8,16 @@
 <p class="x_alert x_alert-info" id="aboutModule" hidden>{$lang->about_svmarket}</p>
 <ul cond="$module_info" class="x_nav x_nav-tabs">
 	<li class="x_active"|cond="$act=='dispSvmarketAdminModList'"><a href="{getUrl('','module',$module,'act','dispSvmarketAdminModList')}">{$lang->page_list}</a></li>
-	<li cond="$module_srl" class="x_active"><a href="{getUrl('','module',$module,'act','dispSvmarketAdminAppListByModule','module_srl',$module_srl)}">{$module_info->mid} {$lang->page_management}</a></li>
+	<li cond="$module_srl" class="x_active"><a href="{getUrl('','module',$module,'act','dispSvmarketAdminPkgListByModule','module_srl',$module_srl)}">{$module_info->mid} {$lang->page_management}</a></li>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminInsertMod' && !$module_srl"><a href="{getUrl('','module',$module,'act','dispSvmarketAdminInsertMod')}">{$lang->page_creation}</a></li>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminQnaBoardMgmt'"><a href="{getUrl('','module',$module, 'act','dispSvmarketAdminQnaBoardMgmt')}">{$lang->cmd_qna_board_mgmt}</a></li>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminReviewBoardMgmt'"><a href="{getUrl('','module',$module, 'act','dispSvmarketAdminReviewBoardMgmt')}">{$lang->cmd_review_board_mgmt}</a></li>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminConfig'"><a href="{getUrl('','module',$module, 'act','dispSvmarketAdminConfig','module_srl','')}">{$lang->basic_settings}</a></li>
 </ul>
 <ul cond="$module_srl" class="x_nav x_nav-tabs">
-	<li class="x_active"|cond="$act=='dispSvmarketAdminAppListByModule'"><a href="{getUrl('act','dispSvmarketAdminAppListByModule')}">{$lang->product_list}</a></li>
+	<li class="x_active"|cond="$act=='dispSvmarketAdminInsertPkg'"><a href="{getUrl('act','dispSvmarketAdminInsertPkg')}">{$lang->add_pkg}</a></li>
+	
 	<li cond="$act=='dispSvmarketAdminUpdateApp'" class="x_active"><a href="{getUrl('act','dispSvmarketAdminUpdateApp')}">{$lang->update_app}</a></li>
-	<li class="x_active"|cond="$act=='dispSvmarketAdminInsertApp'"><a href="{getUrl('act','dispSvmarketAdminInsertApp')}">{$lang->add_app}</a></li>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminShowWindowCatalog'"><a href="{getUrl('act','dispSvmarketAdminShowWindowCatalog')}">{$lang->show_window_catalog}</a></li>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminExtendVarSetup'"><a href="{getUrl('act','dispSvmarketAdminExtendVarSetup')}">{$lang->extended_var_setting}</a></li>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminListDisplaySetup'"><a href="{getUrl('act','dispSvmarketAdminListDisplaySetup')}">{$lang->fielddisplay_settings}</a></li>

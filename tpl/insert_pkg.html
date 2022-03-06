@@ -1,0 +1,63 @@
+<include target="_header.html" />
+
+<div cond="$XE_VALIDATOR_MESSAGE && $inc != 'skininfo'" class="message {$XE_VALIDATOR_MESSAGE_TYPE}">
+	<p>{$XE_VALIDATOR_MESSAGE}</p>
+</div>
+<load target="js/script.js" />
+
+<style>
+	.x_controls ul { list-style:none; margin:0; padding:0; }
+	.x_controls ul li { float:left; margin-right:10px;}
+	.x_control-group .x_controls select.category { min-width:140px; }
+</style>
+
+<form method="post" action="./" class="x_form-horizontal" enctype="multipart/form-data">
+	<input name="module" type="hidden" value="{$module}" />
+	<input name="act" type="hidden" value="procSvmarketAdminInsertPkg" />
+	<input name="module_srl" type="hidden" value="{$module_srl}" />
+
+	<h1>{$lang->title_app_basic_info}</h1>
+	<div class="x_control-group">
+		<label class="x_control-label" for="pkg_title">{$lang->pkg_title}</label>
+		<div class="x_controls">
+			<input name="pkg_title" type="text" class="inputTypeText w300" value="{$pkg_info->title}" />
+			<a href="#pkg_title_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+			<p id="pkg_title_help" class="x_help-block" hidden>{$lang->about_pkg_title}</p>
+		</div>
+	</div>
+	<div class="x_control-group">
+		<label class="x_control-label" for="pkg_desc">{$lang->desc}</label>
+		<div class="x_controls">
+			<textarea name="pkg_desc" id="pkg_desc" class="pkg_desc" rows="8" cols="22" placeholder="{$lang->about_pkg_desc}">{$pkg_info->desc}</textarea>
+			<a href="#pkg_desc_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+			<p id="pkg_desc_help" class="x_help-block" hidden>{$lang->about_pkg_desc}</p>
+		</div>
+	</div>
+    <div class="x_control-group">
+		<label class="x_control-label" for="pkg_thumbnail_image">{$lang->thumbnail}</label>
+		<div class="x_controls">
+			<input type="file" name="pkg_thumbnail_image" />
+			<a href="#pkg_thumbnail_image_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+			<p id="pkg_thumbnail_image_help" class="x_help-block" hidden>{$lang->about_pkg_thumbnail_image}</p>
+		</div>
+	</div>
+	<div class="x_control-group">
+		<label class="x_control-label" for="pkg_github_url">{$lang->github_url} <em style="color:red">*</em></label>
+		<div class="x_controls">
+			<input name="pkg_github_url" type="text" value="{$pkg_info->github_url}" />
+			<a href="#pkg_github_url_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+			<p id="pkg_github_url_help" class="x_help-block" hidden>{$lang->about_pkg_github_url}</p>
+		</div>
+	</div>
+	<div class="x_control-group">
+		<label class="x_control-label" for="pkg_homepage">{$lang->homepage}</label>
+		<div class="x_controls">
+			<input name="pkg_homepage" type="text" class="inputTypeText w300" value="{$pkg_info->homepage}" />
+			<a href="#pkg_homepage_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+			<p id="pkg_homepage_help" class="x_help-block" hidden>{$lang->about_pkg_homepage}</p>
+		</div>
+	</div>
+	<div class="x_clearfix btnArea">
+		<button type="submit" class="x_btn x_btn-primary">{$lang->cmd_submit}</button>
+	</div>
+</form>

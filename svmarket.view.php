@@ -34,20 +34,31 @@ class svmarketView extends svmarket
                 $this->_pushAppListXml();
                 exit;
         }
-		$this->_showAppList();
+		if($oArg->document_srl)
+			$this->_showAppDetail();
+		else
+			$this->_showAppList();
+    }
+	/**
+	 * @brief svmarket server active status 통지
+	 */
+    function _showAppDetail()
+    {
+		echo __FILE__;
+        $this->setTemplateFile('detail');
     }
 	/**
 	 * @brief svmarket server active status 통지
 	 */
     function _showAppList()
     {
-		$oRst = executeQuery('svmarket.getLatestApps');
+		$oRst = executeQuery('svmarket.getLatestPkg');
 		foreach($oRst->data as $nIdx => $oApp)
 		{
 			$oApp->item_screenshot_url = svmarketView::dispThumbnailUrl($oApp->item_screenshot_url,80);
 		}
 		Context::set('aAppList', $oRst->data);
-        $this->setTemplateFile('content');
+        $this->setTemplateFile('index');
     }
 	/**
 	 * @brief svmarket server active status 통지
@@ -79,8 +90,8 @@ class svmarketView extends svmarket
     }
     function _pushAppListXml()
     {
-        $oRst = executeQuery('svmarket.getLatestApps');
-        $sXmlResp = svmarketXmlGenerater::generateAppList($oRst->data);
+        $oRst = executeQuery('svmarket.getLatestPkg');
+		$sXmlResp = svmarketXmlGenerater::generatePkgList($oRst->data);
 		echo $sXmlResp;
 /*
         echo '<?xml version="1.0" encoding="UTF-8"?>

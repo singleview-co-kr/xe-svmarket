@@ -36,7 +36,7 @@ class svmarketXmlGenerater
 	 * @param array $params Request data
 	 * @return object
 	 */
-	public static function generateAppList($aAppInfo)
+	public static function generatePkgList($aAppInfo)
 	{
         $sXmlDoc = '<?xml version="1.0" encoding="utf-8" ?><response><error>0</error>';
 		$sXmlDoc .= '<message>success</message>';

@@ -1,6 +1,6 @@
 <query id="getLatestUpdatedDate" action="select">
     <tables>
-        <table name="svmarket_apps" />
+        <table name="svmarket_package" />
     </tables>
     <columns>
         <column name="max(updatetime)" alias="updatetime" />
