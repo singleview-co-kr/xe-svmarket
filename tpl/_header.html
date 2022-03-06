@@ -15,9 +15,8 @@
 	<li class="x_active"|cond="$act=='dispSvmarketAdminConfig'"><a href="{getUrl('','module',$module, 'act','dispSvmarketAdminConfig','module_srl','')}">{$lang->basic_settings}</a></li>
 </ul>
 <ul cond="$module_srl" class="x_nav x_nav-tabs">
-	<li class="x_active"|cond="$act=='dispSvmarketAdminInsertPkg'"><a href="{getUrl('act','dispSvmarketAdminInsertPkg')}">{$lang->add_pkg}</a></li>
-	
-	<li cond="$act=='dispSvmarketAdminUpdateApp'" class="x_active"><a href="{getUrl('act','dispSvmarketAdminUpdateApp')}">{$lang->update_app}</a></li>
+	<li class="x_active"|cond="$act=='dispSvmarketAdminInsertPkg'"><a href="{getUrl('act','dispSvmarketAdminInsertPkg','package_srl','')}">{$lang->add_pkg}</a></li>
+	<li cond="$act=='dispSvmarketAdminUpdatePkg'" class="x_active"><a href="{getUrl('act','dispSvmarketAdminUpdatePkg')}">{$lang->update_pkg}</a></li>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminShowWindowCatalog'"><a href="{getUrl('act','dispSvmarketAdminShowWindowCatalog')}">{$lang->show_window_catalog}</a></li>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminExtendVarSetup'"><a href="{getUrl('act','dispSvmarketAdminExtendVarSetup')}">{$lang->extended_var_setting}</a></li>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminListDisplaySetup'"><a href="{getUrl('act','dispSvmarketAdminListDisplaySetup')}">{$lang->fielddisplay_settings}</a></li>

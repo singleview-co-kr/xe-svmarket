@@ -6,7 +6,6 @@
 		<column name="module_srl" var="module_srl" />
 		<column name="title" var="title" />
 		<column name="description" var="description" />
-        <column name="github_url" var="github_url" />
         <column name="homepage" var="homepage" />
         <column name="pkg_tags" var="pkg_tags" />
 		<column name="display" var="display" />

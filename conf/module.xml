@@ -14,13 +14,15 @@
         <action name="dispSvmarketAdminInsertMod" type="view" />
         <action name="dispSvmarketAdminPkgListByModule" type="view" />
         <action name="dispSvmarketAdminInsertPkg" type="view" />
+		<action name="dispSvmarketAdminUpdatePkg" type="view" />
         
         <action name="dispSvmarketAdminInsertApp" type="view" />
 
         <action name="procSvmarketAdminInsertMod" type="controller" />
         <action name="procSvmarketAdminDeleteMod" type="controller" />
-        
         <action name="procSvmarketAdminInsertPkg" type="controller" />
+
+		
         <action name="procSvmarketAdminInsertApp" type="controller" />
 
         <action name="getSvmarketAdminDeleteMod" type="model" />

@@ -67,8 +67,7 @@ class svmarketPkgAdmin extends svmarket
     private function _setSkeletonHeader()
     {
         $aBasicAttr = ['package_srl', 'module_srl', 'list_order', 'category_node_srl', 
-                        'title', 'thumb_file_srl', 'description', 
-                        'github_url', 'homepage', 'tags', 'display', 
+                        'title', 'thumb_file_srl', 'description', 'homepage', 'tags', 'display', 
                         'updatetime', 'regdate'];
         //$aInMemoryAttr = ['review_count', 'mid', 'sDescription', 'extra_vars']; // 'extra_vars'는 unserialize된 구조체 적재
         $aTempAttr = ['thumbnail_image'];
@@ -87,7 +86,7 @@ class svmarketPkgAdmin extends svmarket
         unset($aInMemoryAttr);
     }
 /**
- * @brief 신규 품목 생성
+ * @brief 신규 패키지 생성
  **/
 	public function create($oNewPkgArgs)
 	{
@@ -174,7 +173,6 @@ class svmarketPkgAdmin extends svmarket
         $oParam->module_srl = $this->_g_oNewPkgHeader->module_srl;
         $oParam->title = $this->_g_oNewPkgHeader->title;
         $oParam->description = $this->_g_oNewPkgHeader->description;
-        $oParam->github_url = $this->_g_oNewPkgHeader->github_url;
         $oParam->homepage = $this->_g_oNewPkgHeader->homepage;
         $oParam->display = 'N'; // 최초 등록 시에는 기본 최소 정보이므로 무조건 비공개
         $oParam->list_order = $this->_g_oNewPkgHeader->package_srl * -1;
@@ -230,16 +228,14 @@ class svmarketPkgAdmin extends svmarket
             if($sVal == svmarket::S_NULL_SYMBOL)
                 $this->_g_oNewPkgHeader->$sTitle = null;
         }
+		foreach($this->_g_oOldPkgHeader as $sTitle => $sVal)
+        {
+            if($sVal == svmarket::S_NULL_SYMBOL)
+                $this->_g_oOldPkgHeader->$sTitle = null;
+        }
     }
-
-
-
-
-
-
-
 /**
- * @brief 기존 품목 정보 적재
+ * @brief 기존 패키지 정보 적재
  **/
 	public function loadHeader($oParams)
 	{
@@ -254,71 +250,97 @@ class svmarketPkgAdmin extends svmarket
 				break;
 			default:
 				$this->_initHeader();
-				$oTmpArgs->item_srl = $oParams->item_srl;
-				$oTmpRst = executeQuery('svmarket.getItemInfo', $oTmpArgs);
-				if (!$oTmpRst->toBool())
+				$oTmpArgs = new stdClass();
+				$oTmpArgs->package_srl = $oParams->nPkgSrl;
+				$oTmpRst = executeQuery('svmarket.getPkgDetail', $oTmpArgs);
+				if(!$oTmpRst->toBool())
 					return $oTmpRst;
-				if( count($oTmpRst->data) == 0 )
-					return new BaseObject(-1,'msg_invalid_item_request');
+				if(!is_object($oTmpRst->data))
+					return new BaseObject(-1,'msg_invalid_pkg_request');
 				unset($oTmpArgs);
 				break;
 		}
-		if( $oTmpRst->data->enhanced_item_info )
-			$oTmpRst->data->enhanced_item_info = unserialize( $oTmpRst->data->enhanced_item_info );
-
-		$this->_matchOldItemInfo($oTmpRst->data);
-		$this->_consturctExtraVars(); // extra_var 설정
-		$this->_setReviewCnt(); // 후기수 설정
+		$this->_matchOldPkgInfo($oTmpRst->data);
+		//$this->_setReviewCnt(); // 후기수 설정
+		$this->_nullifyHeader();
 
 		$oModuleModel = getModel('module');
-		$oModuleInfo = $oModuleModel->getModuleInfoByModuleSrl($this->_g_oOldItemHeader->module_srl);
-		$this->_g_oOldItemHeader->mid = $oModuleInfo->mid;
+		$oModuleInfo = $oModuleModel->getModuleInfoByModuleSrl($this->_g_oOldPkgHeader->module_srl);
+		$this->_g_oOldPkgHeader->mid = $oModuleInfo->mid;
 		unset($oModuleModel);
 		unset($oModuleInfo);
-
 		return $oTmpRst;
 	}
 /**
- * @brief 기존 품목 상세 정보 적재
- **/
-	public function loadDetail($oParams)
+* @brief 기존 패키지 상세 정보 적재
+**/
+	public function loadDetail()
 	{
-		if($this->_g_oOldItemHeader->thumb_file_srl)
+		if($this->_g_oOldPkgHeader->category_node_srl > 0)
 		{
-			$oFileModel = &getModel('file');
-			$oFile = $oFileModel->getFile($this->_g_oOldItemHeader->thumb_file_srl);
-			if($oFile)
-				$this->_g_oOldItemHeader->thumbnail_url = getFullUrl().$oFile->download_url;
-			unset($oFile);
-			unset($oFileModel);
+	//////////////////////// getCatalog() 가져오기
+			$oSvmakretModel = &getModel('svmarket');
+			$nModuleSrl = $this->_g_oOldPkgHeader->module_srl;
+			$this->_g_oOldPkgHeader->oCatalog = $oSvitemModel->getCatalog($nModuleSrl, $this->_g_oOldPkgHeader->category_node_srl);
+	////////////////////////
+			if(strlen($this->_g_oOldPkgHeader->enhanced_item_info->ga_category_name) == 0)
+				$this->_g_oOldPkgHeader->enhanced_item_info->ga_category_name = $this->_g_oOldPkgHeader->oCatalog->current_catalog_info->node_name;
+			unset($nModuleSrl);
 		}
 
-		if( $oParams->sUaType == 'mob' ) // mob description 
-		{
-			$this->_g_oOldItemHeader->document_srl = $this->_g_oOldItemHeader->mob_doc_srl;
-			$this->_g_oOldItemHeader->sDescription = htmlentities($this->_g_oOldItemHeader->mob_description);
-			$this->_g_oOldItemHeader->ua_type = 'mob';
-		}
-		elseif( $oParams->sUaType == 'pc' ) // pc description 
-		{
-			$this->_g_oOldItemHeader->document_srl = $this->_g_oOldItemHeader->pc_doc_srl;
-			$this->_g_oOldItemHeader->sDescription = htmlentities($this->_g_oOldItemHeader->pc_description);
-			$this->_g_oOldItemHeader->ua_type = 'pc';
-		}
-		else // for open graph
-		{
-			$oDocumentModel = &getModel('document');
-			$oDocument = $oDocumentModel->getDocument($this->_g_oOldItemHeader->document_srl);
-			$this->_g_oOldItemHeader->sDescription = $oDocument->getContentText();
-			unset($oDocument);
-			unset($oDocumentModel);
-			$this->_g_oOldItemHeader->ua_type = 'og';
-		}
+		// for sns share
+		$oDocumentModel = getModel('document');
+		$oDocument = $oDocumentModel->getDocument($this->_g_oOldPkgHeader->package_srl);
+		// $this->_g_oOldPkgHeader->enhanced_item_info->item_brief = $oDocument->getContent(false);
 
+		$oDbInfo = Context::getDBInfo();
+		$oSnsInfo = new stdClass();
+		$oSnsInfo->sPermanentUrl = $oDocument->getPermanentUrl().'?l='.$oDbInfo->lang_type;
+		$oSnsInfo->sEncodedDocTitle = urlencode($this->_g_oOldPkgHeader->title);
+		$this->_g_oOldPkgHeader->oSnsInfo = $oSnsInfo;
+		unset($oDbInfo);
+		unset($oDocument);
+		unset($oDocumentModel);
 		return new BaseObject();
 	}
+	/**
+	 * @brief 
+	 **/
+	private function _matchOldPkgInfo($oPkgmArgs)
+	{
+		$aIgnoreVar = array('module', 'mid', 'act');
+		foreach($oPkgmArgs as $sTitle => $sVal)
+		{
+			if(in_array($sTitle, $aIgnoreVar)) 
+				continue;
+			if($this->_g_oOldPkgHeader->{$sTitle} == svmarket::S_NULL_SYMBOL)
+			{
+				if($sVal)
+					$this->_g_oOldPkgHeader->{$sTitle} = $sVal;
+			}
+			else
+			{
+	//////////////// for debug only
+				if(is_object($sVal))
+				{
+					var_dump('weird: '.$sTitle);
+					echo '<BR>';
+					var_dump($sVal);
+					echo '<BR>';
+				}
+				else
+				{
+					var_dump('2weird: '.$sTitle.' => '. $sVal);
+					echo '<BR>';
+				}
+	//////////////// for debug only
+			}
+		}
+	}
+
+
 /**
- * @brief 기존 품목 정보 변경
+ * @brief 기존 패키지 정보 변경
  **/
 	public function update($oItemArgs)
 	{
@@ -340,7 +362,7 @@ class svmarketPkgAdmin extends svmarket
 		return $this->_updateItem();
 	}
 /**
- * @brief 기존 품목 정보 비활성화
+ * @brief 기존 패키지 정보 비활성화
  * module_srl을 0으로 바꿔서 상품 관리자에서 검색되지 않게함
  **/
 	public function deactivate()
@@ -359,7 +381,7 @@ class svmarketPkgAdmin extends svmarket
 		return new BaseObject();
 	}
 /**
- * @brief 상품 영구 삭제; 코드 블록만 유지하고 이 메소드의 접근을 차단함
+ * @brief 패키지 영구 삭제; 코드 블록만 유지하고 이 메소드의 접근을 차단함
  **/
 	public function remove()
 	{

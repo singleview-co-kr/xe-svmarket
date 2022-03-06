@@ -67,8 +67,7 @@ class svmarketPkgConsumer extends svmarket
     private function _setSkeletonHeader()
     {
         $aBasicAttr = ['package_srl', 'module_srl', 'list_order', 'category_node_srl', 
-                        'title', 'thumb_file_srl', 'description', 
-                        'github_url', 'homepage', 'tags', 'display', 
+                        'title', 'thumb_file_srl', 'description', 'homepage', 'tags', 'display', 
                         'updatetime', 'regdate'];
         $aInMemoryAttr = ['review_count', 'mid']; // 'extra_vars'는 unserialize된 구조체 적재
         $aTempAttr = ['thumbnail_image'];
@@ -81,7 +80,7 @@ class svmarketPkgConsumer extends svmarket
                 $this->{$sHeaderType}->{$sAttrName} = svmarket::S_NULL_SYMBOL;
             // temp item info for insertion
 			foreach($aTempAttr as $nAttrIdx => $sAttrName)
-                $this->{$sHeaderType}->{$sAttrName} = svitem::S_NULL_SYMBOL;
+                $this->{$sHeaderType}->{$sAttrName} = svmarket::S_NULL_SYMBOL;
         }
         unset($aBasicAttr);
         unset($aInMemoryAttr);
@@ -114,15 +113,8 @@ class svmarketPkgConsumer extends svmarket
                 $this->_g_oOldPkgHeader->$sTitle = null;
         }
     }
-
-
-
-
-
-
-
 /**
- * @brief 기존 품목 정보 적재
+ * @brief 기존 패키지 정보 적재
  **/
 	public function loadHeader($oParams)
 	{
@@ -159,11 +151,10 @@ class svmarketPkgConsumer extends svmarket
 		return $oTmpRst;
 	}
 /**
- * @brief 기존 품목 상세 정보 적재
+ * @brief 기존 패키지 상세 정보 적재
  **/
 	public function loadDetail()
 	{
-        var_dump($this->_g_oOldPkgHeader);
 		if($this->_g_oOldPkgHeader->category_node_srl > 0)
 		{
  //////////////////////// getCatalog() 가져오기
@@ -175,200 +166,23 @@ class svmarketPkgConsumer extends svmarket
 				$this->_g_oOldPkgHeader->enhanced_item_info->ga_category_name = $this->_g_oOldPkgHeader->oCatalog->current_catalog_info->node_name;
 			unset($nModuleSrl);
 		}
-		
-		if($this->_g_oOldPkgHeader->thumb_file_srl > 0)
-		{
-			$oFileModel = getModel('file');
-			$aGalleryImg = $oFileModel->getFiles($this->_g_oOldPkgHeader->thumb_file_srl, array(), 'file_srl', true);
-			var_dump($aGalleryImg);
-            if(count($aGalleryImg))
-			{
-				$aAllowdFileExtension = [ 'GIF', 'JPG', 'PNG', 'BMP', 'TIFF' ];
-				foreach($aGalleryImg as $nIdx => $oFile)
-				{
-					$aFileName = explode('.', $oFile->source_filename);
-					$nChunk = count($aFileName);
-					$sFileExt = strtoupper( $aFileName[$nChunk-1]);
-					if(in_array($sFileExt, $aAllowdFileExtension))
-						$aGallery[] = $oFile->uploaded_filename;
-				}
-			}
-			unset($aGalleryImg);
-			if($this->_g_oOldPkgHeader->enhanced_item_info->rep_gallery_thumb_idx > 0) // 대표 썸네일 번호 지정이라면
-			{
-				$aTmpGallery = [];
-				$aTmpGallery[] = $aGallery[$nRepGalleryThumbIdx];
-				unset($aGallery[$nRepGalleryThumbIdx]);
-				foreach($aGallery as $nIdx => $sFilename)
-					$aTmpGallery[] = $sFilename;
-				$aGallery = $aTmpGallery;
-			}
-			$this->_g_oOldPkgHeader->aGalleryImg = $aGallery;
-			unset($oFileModel);
-		}
-
-		// for detail description
-        if($this->_g_oOldPkgHeader->enhanced_item_info->description_skin_mob)
-        {
-            $oTemplate = &TemplateHandler::getInstance();
-            $this->_g_oOldPkgHeader->mob_description = $oTemplate->compile($this->_g_sArchivePath, $this->_g_oOldPkgHeader->enhanced_item_info->description_skin_mob);
-        }
-        else
-        {
-            if(strpos($this->_g_oOldPkgHeader->mob_description, '%%PC%%') !== false)
-                $this->_g_oOldPkgHeader->mob_description = $this->_g_oOldPkgHeader->pc_description;
-        }
-        if(strlen($this->_g_oOldPkgHeader->mob_description) == 0) // 최종적으로 아무 내용도 설정되지 않았으면
-            $this->_g_oOldPkgHeader->mob_description = 'Please define mob descrtion!';
     
 		// for sns share
-		$oDocumentModel = &getModel('document');
-		$oDocument = $oDocumentModel->getDocument($this->_g_oOldPkgHeader->document_srl);
-		
-		if( $this->_g_oOldPkgHeader->enhanced_item_info->item_brief == '%%OG%%' )
-			$this->_g_oOldPkgHeader->enhanced_item_info->item_brief = $oDocument->getContent(false);
+		$oDocumentModel = getModel('document');
+		$oDocument = $oDocumentModel->getDocument($this->_g_oOldPkgHeader->package_srl);
+		// $this->_g_oOldPkgHeader->enhanced_item_info->item_brief = $oDocument->getContent(false);
 
 		$oDbInfo = Context::getDBInfo();
+		$oSnsInfo = new stdClass();
 		$oSnsInfo->sPermanentUrl = $oDocument->getPermanentUrl().'?l='.$oDbInfo->lang_type;
-		$oSnsInfo->sEncodedDocTitle = urlencode($this->_g_oOldPkgHeader->item_name);
+		$oSnsInfo->sEncodedDocTitle = urlencode($this->_g_oOldPkgHeader->title);
 		$this->_g_oOldPkgHeader->oSnsInfo = $oSnsInfo;
 		unset($oDbInfo);
 		unset($oDocument);
 		unset($oDocumentModel);
-
 		return new BaseObject();
 	}
-/**
- * @brief 기존 품목 정보 변경
- **/
-	public function update($oItemArgs)
-	{
-		if( !$this->_g_oOldItemHeader )
-			return new BaseObject(-1,'msg_required_to_load_old_information_first');
 
-		$this->_matchNewItemInfo($oItemArgs);
-		if( $this->_g_oNewItemHeader->item_srl == -1 )
-			return new BaseObject(-1,'msg_invalid_request');
-		
-		// 고정값은 외부 쿼리로 변경하지 않음
-		$this->_g_oNewItemHeader->document_srl = $this->_g_oOldItemHeader->document_srl;
-		$this->_g_oNewItemHeader->mob_doc_srl = $this->_g_oOldItemHeader->mob_doc_srl;
-		$this->_g_oNewItemHeader->pc_doc_srl = $this->_g_oOldItemHeader->pc_doc_srl;
-		$this->_g_oNewItemHeader->gallery_doc_srl = $this->_g_oOldItemHeader->gallery_doc_srl;
-		if( $this->_g_oNewItemHeader->module_srl == svmarket::S_NULL_SYMBOL )
-			$this->_g_oNewItemHeader->module_srl = $this->_g_oOldItemHeader->module_srl;
-
-		return $this->_updateItem();
-	}
-/**
- * @brief 기존 품목 정보 비활성화
- * module_srl을 0으로 바꿔서 상품 관리자에서 검색되지 않게함
- **/
-	public function deactivate()
-	{
-		if( !$this->_g_oOldItemHeader )
-			return new BaseObject(-1,'msg_required_to_load_old_information_first');
-		if( $this->_g_oOldItemHeader->item_srl == svmarket::S_NULL_SYMBOL )
-			return new BaseObject(-1,'msg_invalid_request');
-		
-		$oArgs->item_srl = $this->_g_oOldItemHeader->item_srl;
-		$oArgs->module_srl = 0; // 소속 모듈을 0으로 설정하여 검색되지 않게 함
-		$oRst = executeQuery('svmarket.updateAdminItemDeactivated', $oArgs);
-		if(!$oRst->toBool())
-			return $oRst;
-		unset($oRst);
-		return new BaseObject();
-	}
-/**
- * @brief 상품 영구 삭제; 코드 블록만 유지하고 이 메소드의 접근을 차단함
- **/
-	public function remove()
-	{
-		if( !$this->_g_oOldItemHeader )
-			return new BaseObject(-1,'msg_required_to_load_old_information_first');
-		if( $this->_g_oOldItemHeader->item_srl == svmarket::S_NULL_SYMBOL )
-			return new BaseObject(-1,'msg_invalid_request');
-
-		// delete related file
-		$oFileController = &getController('file');
-		$oFileController->deleteFile($this->_g_oOldItemHeader->thumb_file_srl);
-		$oFileController->deleteFile($this->_g_oOldItemHeader->gallery_doc_srl);
-		$oFileController->deleteFile($this->_g_oOldItemHeader->mob_doc_srl);
-		$oFileController->deleteFile($this->_g_oOldItemHeader->pc_doc_srl);
-		unset($oFileController);
-		
-		// delete document
-		$oDocumentController = &getController('document');
-		$oDocumentController->deleteDocument($item_info->document_srl);
-		unset($oDocumentController);
-
-		// delete db record
-		$oArgs->item_srl = $item_srl;
-		$oRst = executeQuery('svmarket.deleteItem', $oArgs);
-		if(!$oRst->toBool())
-			return $oRst;
-		unset($oRst);
-		$oRst = executeQuery('svmarket.deleteSvitemExtraVars', $oArgs);
-		if(!$oRst->toBool())
-			return $oRst;
-		unset($oRst);
-		unset($oArgs);
-		return new BaseObject();
-	}
-/**
- * @brief svmarket 스킨에서 호출하는 메쏘드
- */	
-	public function getThumbnailUrl( $nWidth = 80, $nHeight = 0, $sThumbnailType = 'crop' )
-	{
-		$sNoimgUrl = Context::getRequestUri().'/modules/svmarket/tpl/img/no_img_80x80.jpg';
-		if($this->_g_oOldItemHeader->thumb_file_srl == svmarket::S_NULL_SYMBOL || is_null( $this->_g_oOldItemHeader->thumb_file_srl ) ) // 기본 이미지 반환
-			return $sNoimgUrl;
-		
-		if(!$nHeight)
-			$nHeight = $nWidth;
-		
-		// Define thumbnail information
-		$sThumbnailPath = 'files/cache/thumbnails/'.getNumberingPath($this->_g_oOldItemHeader->thumb_file_srl, 3);
-		$sThumbnailFile = $sThumbnailPath.$nWidth.'x'.$nHeight.'.'.$sThumbnailType.'.jpg';
-		$sThumbnailUrl = Context::getRequestUri().$sThumbnailFile;
-		// Return false if thumbnail file exists and its size is 0. Otherwise, return its path
-		if(file_exists($sThumbnailFile) && filesize($sThumbnailFile) > 1 ) 
-			return $sThumbnailUrl;
-
-		// Target File
-		$oFileModel = &getModel('file');
-		$sSourceFile = NULL;
-		$sFile = $oFileModel->getFile($this->_g_oOldItemHeader->thumb_file_srl);
-		if($sFile) 
-			$sSourceFile = $sFile->uploaded_filename;
-
-		if($sSourceFile)
-			$oOutput = FileHandler::createImageFile($sSourceFile, $sThumbnailFile, $nWidth, $nHeight, 'jpg', $sThumbnailType);
-
-		// Return its path if a thumbnail is successfully genetated
-		if($oOutput) 
-			return $sThumbnailUrl;
-		else
-			FileHandler::writeFile($sThumbnailFile, '','w'); // Create an empty file not to re-generate the thumbnail
-		return $sNoimgUrl;
-	}
-/**
-* @brief for debug only
-*/
-	public function dumpInfo()
-	{
-		foreach( $this->_g_oNewItemHeader as $sTitle=>$sVal)
-		{
-			if(is_object($sVal))
-			{
-				echo $sTitle.'=><BR>';
-				var_dump($sVal);
-				echo '<BR>';
-			}
-			else
-				echo $sTitle.'=>'.$sVal.'<BR>';
-		}
-	}
 /**
  * @brief
  */

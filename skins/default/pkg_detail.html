@@ -1,7 +1,7 @@
 <div class="">
     <div class="page-title">
        <div class="title_left">
-          <h3>E-commerce :: Product Page</h3>
+          <h3>Singleview App Store</h3>
        </div>
        <div class="title_right">
           <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
@@ -18,29 +18,11 @@
     <div class="row">
        <div class="col-md-12 col-sm-12 col-xs-12">
           <div class="x_panel">
-             <div class="x_title">
-                <h2>E-commerce page design</h2>
-                <ul class="nav navbar-right panel_toolbox">
-                   <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                   </li>
-                   <li class="dropdown">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                      <ul class="dropdown-menu" role="menu">
-                         <li><a href="#">Settings 1</a>
-                         </li>
-                         <li><a href="#">Settings 2</a>
-                         </li>
-                      </ul>
-                   </li>
-                   <li><a class="close-link"><i class="fa fa-close"></i></a>
-                   </li>
-                </ul>
-                <div class="clearfix"></div>
-             </div>
+             
              <div class="x_content">
                 <div class="col-md-7 col-sm-7 col-xs-12">
                    <div class="product-image">
-                      <img src="./layouts/gentellela/images/prod1.jpg" alt="..." />
+                      <img src="{svmarketView::dispThumbnailUrl($oPkgInfo->thumb_file_srl, 300)}" alt="..." />
                    </div>
                    <div class="product_gallery">
                       <!--a>
@@ -58,19 +40,26 @@
                    </div>
                 </div>
                 <div class="col-md-5 col-sm-5 col-xs-12" style="border:0px solid #e5e5e5;">
-                   <h3 class="prod_title">LOWA Men’s Renegade GTX Mid Hiking Boots Review</h3>
-                   <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terr.</p>
-                   <br />
+                   <h3 class="prod_title">{$oPkgInfo->title}</h3>
+                   <p>{$oPkgInfo->description}</p>
+                   
                    <div class="">
                       <div class="product_price">
-                         <h1 class="price">Ksh80.00</h1>
-                         <span class="price-tax">Ex Tax: Ksh80.00</span>
-                         <br>
+                         <span class="price-tax">app1</span>
                       </div>
+                      <div class="product_price">
+                        <span class="price-tax">app2</span>
+                       </div>
+                       <div class="product_price">
+                        <span class="price-tax">app2</span>
+                       </div>
+                       <div class="product_price">
+                        <span class="price-tax">app2</span>
+                       </div>
                    </div>
                    <div class="">
-                      <button type="button" class="btn btn-default btn-lg">Add to Cart</button>
-                      <button type="button" class="btn btn-default btn-lg">Add to Wishlist</button>
+                      <button type="button" class="btn btn-default btn-lg">다운로드 zip</button>
+                      <button type="button" class="btn btn-default btn-lg">다운로드 tar.gz</button>
                    </div>
                    <div class="product_social">
                       <ul class="list-inline">

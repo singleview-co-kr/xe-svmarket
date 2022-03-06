@@ -15,12 +15,13 @@
 	<input name="module" type="hidden" value="{$module}" />
 	<input name="act" type="hidden" value="procSvmarketAdminInsertPkg" />
 	<input name="module_srl" type="hidden" value="{$module_srl}" />
+    <input cond="$package_srl" name="package_srl" type="hidden" value="{$package_srl}" />
 
 	<h1>{$lang->title_app_basic_info}</h1>
 	<div class="x_control-group">
 		<label class="x_control-label" for="pkg_title">{$lang->pkg_title}</label>
 		<div class="x_controls">
-			<input name="pkg_title" type="text" class="inputTypeText w300" value="{$pkg_info->title}" />
+			<input name="pkg_title" type="text" class="inputTypeText w300" value="{$oPkgInfo->title}" />
 			<a href="#pkg_title_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
 			<p id="pkg_title_help" class="x_help-block" hidden>{$lang->about_pkg_title}</p>
 		</div>
@@ -28,7 +29,7 @@
 	<div class="x_control-group">
 		<label class="x_control-label" for="pkg_description">{$lang->desc}</label>
 		<div class="x_controls">
-			<textarea name="pkg_description" id="pkg_description" class="pkg_description" rows="8" cols="22" placeholder="{$lang->about_pkg_desc}">{$pkg_info->desc}</textarea>
+			<textarea name="pkg_description" id="pkg_description" class="pkg_description" rows="8" cols="22" placeholder="{$lang->about_pkg_desc}">{$oPkgInfo->description}</textarea>
 			<a href="#pkg_desc_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
 			<p id="pkg_desc_help" class="x_help-block" hidden>{$lang->about_pkg_desc}</p>
 		</div>
@@ -42,17 +43,9 @@
 		</div>
 	</div>
 	<div class="x_control-group">
-		<label class="x_control-label" for="pkg_github_url">{$lang->github_url} <em style="color:red">*</em></label>
-		<div class="x_controls">
-			<input name="pkg_github_url" type="text" value="{$pkg_info->github_url}" />
-			<a href="#pkg_github_url_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
-			<p id="pkg_github_url_help" class="x_help-block" hidden>{$lang->about_pkg_github_url}</p>
-		</div>
-	</div>
-	<div class="x_control-group">
 		<label class="x_control-label" for="pkg_homepage">{$lang->homepage}</label>
 		<div class="x_controls">
-			<input name="pkg_homepage" type="text" class="inputTypeText w300" value="{$pkg_info->homepage}" />
+			<input name="pkg_homepage" type="text" class="inputTypeText w300" value="{$oPkgInfo->homepage}" />
 			<a href="#pkg_homepage_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
 			<p id="pkg_homepage_help" class="x_help-block" hidden>{$lang->about_pkg_homepage}</p>
 		</div>

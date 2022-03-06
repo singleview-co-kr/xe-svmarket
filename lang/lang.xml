@@ -19,6 +19,9 @@
 	<item name="add_pkg">
 		<value xml:lang="ko"><![CDATA[패키지 등록]]></value>
 	</item>
+	<item name="update_pkg">
+		<value xml:lang="ko"><![CDATA[패키지 수정]]></value>
+	</item>
 	<item name="pkg_title">
 		<value xml:lang="ko"><![CDATA[패키지 제목]]></value>
 	</item>

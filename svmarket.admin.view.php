@@ -68,7 +68,7 @@ class svmarketAdminView extends svmarket
 		$oModuleModel = &getModel('module');
 		$module_category = $oModuleModel->getModuleCategories();
 		Context::set('module_category', $module_category);
-		$this->setTemplateFile('modlist');
+		$this->setTemplateFile('mod_list');
 	}
 	/**
 	 * @brief 
@@ -92,7 +92,7 @@ class svmarketAdminView extends svmarket
 		Context::set('module_category', $module_category);
 
 		// Set a template file
-		$this->setTemplateFile('insertmod');
+		$this->setTemplateFile('mod_insert');
 	}
     /**
      * @brief admin view for item list
@@ -134,21 +134,49 @@ class svmarketAdminView extends svmarket
 		Context::set('page_navigation', $oRst->page_navigation);
 		Context::set('list', $oRst->data);
 		// showwindow display
-		$this->setTemplateFile('applist');
+		$this->setTemplateFile('pkg_list');
 	}
 	/**
      * @brief 
      */
 	public function dispSvmarketAdminInsertPkg() 
 	{
-		$this->setTemplateFile('insert_pkg');
+		$this->setTemplateFile('pkg_insert');
 	}
+	/**
+     * @brief 
+     */
+	public function dispSvmarketAdminUpdatePkg() 
+	{
+		$oArg = Context::getRequestVars();
+		$oParams = new stdClass();
+		if($oArg->package_srl) // svitem.view.php::dispSvitemItemDetail()에서 호출
+			$oParams->nPkgSrl = $oArg->package_srl;
+		else
+			return new BaseObject(-1,'msg_invalid_pkg_request');
+		unset($oArg);
+		require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_admin.php');
+		$oPkgAdmin = new svmarketPkgAdmin();
+		$oParams->mode = 'retrieve';
+		$oTmpRst = $oPkgAdmin->loadHeader($oParams);
+		if(!$oTmpRst->toBool())
+			return new BaseObject(-1,'msg_invalid_pkg_request');
+		unset($oTmpRst);
+		$oDetailRst = $oPkgAdmin->loadDetail();
+		if(!$oDetailRst->toBool())
+			return $oDetailRst;
+		unset($oDetailRst);
+		Context::set('oPkgInfo', $oPkgAdmin);
+		$this->setTemplateFile('pkg_insert');
+	}
+
+	
     /**
      * @brief 
      */
 	public function dispSvmarketAdminInsertApp() 
 	{
-		$this->setTemplateFile('insert_app');
+		$this->setTemplateFile('app_insert');
 	}
 }
 /* End of file svmarket.class.php */
