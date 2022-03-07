@@ -1,9 +1,11 @@
 <query id="insertApp" action="insert">
 	<tables>
-		<table name="svmarket_apps" />
+		<table name="svmarket_app" />
 	</tables>
 	<columns>
-		<column name="module_srl" var="module_srl" notnull="notnull" />
+		<column name="app_srl" var="app_srl" notnull="notnull" />
+        <column name="module_srl" var="module_srl" notnull="notnull" />
+        <column name="package_srl" var="package_srl" notnull="notnull" />
         <column name="title" var="title" notnull="notnull" />
         <column name="thumb_file_srl" var="thumb_file_srl" />
         <column name="description" var="description" />

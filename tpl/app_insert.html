@@ -15,10 +15,11 @@
 	<input name="module" type="hidden" value="{$module}" />
 	<input name="act" type="hidden" value="procSvmarketAdminInsertApp" />
 	<input name="module_srl" type="hidden" value="{$module_srl}" />
+	<input name="package_srl" type="hidden" value="{$package_srl}" />
 
 	<h1>{$lang->title_app_basic_info}</h1>
 	<div class="x_control-group">
-		<label class="x_control-label" for="item_code">{$lang->app_title}</label>
+		<label class="x_control-label" for="app_title">{$lang->app_title}</label>
 		<div class="x_controls">
 			<input name="app_title" type="text" class="inputTypeText w300" value="{$app_info->app_title}" />
 			<a href="#app_title_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
@@ -28,29 +29,29 @@
 	<div class="x_control-group">
 		<label class="x_control-label" for="item_brief">{$lang->desc}</label>
 		<div class="x_controls">
-			<textarea name="app_desc" id="app_desc" class="app_desc" rows="8" cols="22" placeholder="{$lang->about_app_desc}">{$app_info->app_desc}</textarea>
+			<textarea name="app_description" id="app_description" class="app_description" rows="8" cols="22" placeholder="{$lang->about_app_desc}">{$app_info->app_desc}</textarea>
 			<a href="#app_desc_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
 			<p id="app_desc_help" class="x_help-block" hidden>{$lang->about_item_brief}</p>
 		</div>
 	</div>
     <div class="x_control-group">
-		<label class="x_control-label" for="thumbnail_image">{$lang->thumbnail}</label>
+		<label class="x_control-label" for="app_thumbnail_image">{$lang->thumbnail}</label>
 		<div class="x_controls">
-			<input type="file" name="thumbnail_image" />
+			<input type="file" name="app_thumbnail_image" />
 			<a href="#thumbnail_image_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
 			<p id="thumbnail_image_help" class="x_help-block" hidden>{$lang->about_thumbnail_image}</p>
 		</div>
 	</div>
 	<div class="x_control-group">
-		<label class="x_control-label" for="item_name">{$lang->github_url} <em style="color:red">*</em></label>
+		<label class="x_control-label" for="app_github_url">{$lang->github_url} <em style="color:red">*</em></label>
 		<div class="x_controls">
-			<input name="app_github_url" type="text" value="{$app_info->app_desc->app_github_url}" />
+			<input name="app_github_url" type="text" value="{$app_info->app_github_url}" />
 			<a href="#app_github_url_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
 			<p id="app_github_url_help" class="x_help-block" hidden>{$lang->about_app_github_url}</p>
 		</div>
 	</div>
 	<div class="x_control-group">
-		<label class="x_control-label" for="item_code">{$lang->homepage}</label>
+		<label class="x_control-label" for="app_homepage">{$lang->homepage}</label>
 		<div class="x_controls">
 			<input name="app_homepage" type="text" class="inputTypeText w300" value="{$app_info->app_homepage}" />
 			<a href="#app_homepage_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
@@ -58,9 +59,9 @@
 		</div>
 	</div>
     <div class="x_control-group">
-		<label class="x_control-label" for="version_zip_file">최종 {$lang->version} 추가</label>
+		<label class="x_control-label" for="app_version_zip_file">최종 {$lang->version} 추가</label>
 		<div class="x_controls">
-			<input type="file" name="version_zip_file" />
+			<input type="file" name="app_version_zip_file" />
 			<a href="#version_zip_file_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
 			<p id="version_zip_file_help" class="x_help-block" hidden>{$lang->about_version_zip_file}</p>
 		</div>

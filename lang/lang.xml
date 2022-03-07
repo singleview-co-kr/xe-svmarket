@@ -15,7 +15,10 @@
 	<item name="homepage">
 		<value xml:lang="ko"><![CDATA[개발사 홈피]]></value>
 	</item>
-
+	
+	<item name="title_pkg_basic_info">
+		<value xml:lang="ko"><![CDATA[패키지 기본 정보]]></value>
+	</item>
 	<item name="add_pkg">
 		<value xml:lang="ko"><![CDATA[패키지 등록]]></value>
 	</item>
@@ -26,9 +29,9 @@
 		<value xml:lang="ko"><![CDATA[패키지 제목]]></value>
 	</item>
 
-	
-
-
+	<item name="title_app_basic_info">
+		<value xml:lang="ko"><![CDATA[앱 기본 정보]]></value>
+	</item>
     <item name="add_app">
 		<value xml:lang="ko"><![CDATA[앱 등록]]></value>
 	</item>
@@ -49,9 +52,7 @@
 	</item>
 	
 	
-	<item name="title_app_basic_info">
-		<value xml:lang="ko"><![CDATA[앱 기본 정보]]></value>
-	</item>
+	
 	<item name="page_configuration">
 		<value xml:lang="ko"><![CDATA[페이지 설정]]></value>
 	</item>

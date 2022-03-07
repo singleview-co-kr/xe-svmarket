@@ -81,7 +81,7 @@ class svmarketAdminController extends svmarket
 		unset($oInsertRst);
 		if(!in_array(Context::getRequestMethod(),['XMLRPC','JSON']))
 		{
-			$sReturnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module',Context::get('module'),'act','dispSvmarketAdminInsertPkg','module_srl',Context::get('module_srl'),'pkg_srl',$nPkgSrl);
+			$sReturnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module',Context::get('module'),'act','dispSvmarketAdminInsertPkg','module_srl',Context::get('module_srl'),'package_srl',$nPkgSrl);
 			$this->setRedirectUrl($sReturnUrl);
 			return;
 		}
@@ -133,61 +133,23 @@ class svmarketAdminController extends svmarket
 	public function procSvmarketAdminInsertApp() 
 	{
 		$oArgs = Context::getRequestVars();
-        $oParam = new stdClass();
-        $oParam->module_srl = $oArgs->module_srl;
-        $oParam->title = $oArgs->app_title;
-        $oParam->thumb_file_srl = $oArgs->thumb_file_srl;
-        $oParam->description = $oArgs->app_desc;
-        $oParam->github_url = $oArgs->app_github_url;
-        $oParam->homepage = $oArgs->app_homepage;
-		$oInsertRst = executeQuery('svmarket.insertApp', $oParam);
+		require_once(_XE_PATH_.'modules/svmarket/svmarket.app_admin.php');
+		$oAppAdmin = new svmarketAppAdmin();
+		$oInsertRst = $oAppAdmin->create($oArgs);
 		if(!$oInsertRst->toBool())
-        {
-            unset($oInsertRst);
-			return $oInsertRst;
-        }
-        $oDB = DB::getInstance();
-		$nPkgSrl = $oDB->db_insert_id();
-        unset($oInsertRst);
-        unset($oParam);
-        // save representative thumbnail
-        if($oArgs->thumbnail_image['tmp_name'])
-        {
-			$oFileController = &getController('file');
-			if(is_uploaded_file($oArgs->thumbnail_image['tmp_name'])) // single upload via web interface mode
-			{
-				$oFileRst = $oFileController->insertFile($oArgs->thumbnail_image, $oArgs->module_srl, $nPkgSrl);
-				if(!$oFileRst || !$oFileRst->toBool())
-					return $oFileRst;
-				$oFileController->setFilesValid($this->_g_oNewItemHeader->item_srl);
-				$nThumbFileSrl = $oFileRst->get('file_srl');
-				unset($oFileRst);
-			}
-            else
-			{
-				echo 'no img->'.$oArgs->thumbnail_image['name'].'<BR>';
-				$nThumbFileSrl = 0;
-			}
-            unset($oFileController);
-		}
-		unset($oArgs);
-
-        var_dump($nThumbFileSrl);
-        $oParam = new stdClass();
-        $oParam->pkg_srl = $nPkgSrl;
-        $oParam->thumb_file_srl = $nThumbFileSrl;
-		$oUpdateRst = executeQuery('svmarket.updateApp', $oParam);
-        if(!$oUpdateRst->toBool())
-        {
-            unset($oUpdateRst);
-			return $oUpdateRst;
-        }
-        unset($oUpdateRst);
-        unset($oParam);
-        $this->setMessage('success_registed');
-		if(!in_array(Context::getRequestMethod(),array('XMLRPC','JSON')))
 		{
-			$sReturnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module',Context::get('module'),'act','dispSvmarketAdminInsertApp','module_srl',Context::get('module_srl'),'pkg_srl',$nPkgSrl);
+			unset($oArgs);
+			unset($oAppAdmin);
+			return $oInsertRst;
+		}
+		$nAppSrl = $oInsertRst->get('nAppSrl');
+        $this->setMessage('success_registed');
+		unset($oArgs);
+		unset($oAppAdmin);
+		unset($oInsertRst);
+		if(!in_array(Context::getRequestMethod(),['XMLRPC','JSON']))
+		{
+			$sReturnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module',Context::get('module'),'act','dispSvmarketAdminInsertApp','module_srl',Context::get('module_srl'),'package_srl',Context::get('package_srl'),'app_srl',$nAppSrl);
 			$this->setRedirectUrl($sReturnUrl);
 			return;
 		}
