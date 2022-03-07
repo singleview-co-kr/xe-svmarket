@@ -76,7 +76,7 @@ class svmarketView extends svmarket
 	 */	
 	public static function dispThumbnailUrl($nThumbFileSrl, $nWidth = 80, $nHeight = 0, $sThumbnailType = 'crop')
 	{
-		$sNoimgUrl = Context::getRequestUri().'/modules/svmarket/tpl/imgs/no_img_80x80.jpg';
+		$sNoimgUrl = Context::getRequestUri().'/modules/svmarket/tpl/imgs/no_img_55x55.jpg';
 		if(!$nThumbFileSrl) // 기본 이미지 반환
 			return $sNoimgUrl;
 		if(!$nHeight)

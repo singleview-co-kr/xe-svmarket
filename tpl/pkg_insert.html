@@ -13,9 +13,14 @@
 
 <form method="post" action="./" class="x_form-horizontal" enctype="multipart/form-data">
 	<input name="module" type="hidden" value="{$module}" />
-	<input name="act" type="hidden" value="procSvmarketAdminInsertPkg" />
 	<input name="module_srl" type="hidden" value="{$module_srl}" />
+<block cond="!$package_srl">
+	<input name="act" type="hidden" value="procSvmarketAdminInsertPkg" />
+</block>
+<block cond="$package_srl">
+	<input name="act" type="hidden" value="procSvmarketAdminUpdatePkg" />
     <input cond="$package_srl" name="package_srl" type="hidden" value="{$package_srl}" />
+</block>
 
 	<h1>{$lang->title_app_basic_info}</h1>
 	<div class="x_control-group">

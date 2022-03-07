@@ -257,12 +257,12 @@ class svmarketPkgAdmin extends svmarket
 					return $oTmpRst;
 				if(!is_object($oTmpRst->data))
 					return new BaseObject(-1,'msg_invalid_pkg_request');
-				unset($oTmpArgs);
+					
 				break;
 		}
 		$this->_matchOldPkgInfo($oTmpRst->data);
 		//$this->_setReviewCnt(); // 후기수 설정
-		$this->_nullifyHeader();
+		//
 
 		$oModuleModel = getModel('module');
 		$oModuleInfo = $oModuleModel->getModuleInfoByModuleSrl($this->_g_oOldPkgHeader->module_srl);
@@ -276,6 +276,7 @@ class svmarketPkgAdmin extends svmarket
 **/
 	public function loadDetail()
 	{
+		$this->_nullifyHeader();
 		if($this->_g_oOldPkgHeader->category_node_srl > 0)
 		{
 	//////////////////////// getCatalog() 가져오기
@@ -342,24 +343,58 @@ class svmarketPkgAdmin extends svmarket
 /**
  * @brief 기존 패키지 정보 변경
  **/
-	public function update($oItemArgs)
+	public function update($oPkgArgs)
 	{
-		if( !$this->_g_oOldItemHeader )
+		if(!$this->_g_oOldPkgHeader)
 			return new BaseObject(-1,'msg_required_to_load_old_information_first');
-
-		$this->_matchNewItemInfo($oItemArgs);
-		if( $this->_g_oNewItemHeader->item_srl == -1 )
+		$this->_matchNewPkgInfo($oPkgArgs);
+		if($this->_g_oNewPkgHeader->package_srl == -1)
 			return new BaseObject(-1,'msg_invalid_request');
 		
 		// 고정값은 외부 쿼리로 변경하지 않음
-		$this->_g_oNewItemHeader->document_srl = $this->_g_oOldItemHeader->document_srl;
-		$this->_g_oNewItemHeader->mob_doc_srl = $this->_g_oOldItemHeader->mob_doc_srl;
-		$this->_g_oNewItemHeader->pc_doc_srl = $this->_g_oOldItemHeader->pc_doc_srl;
-		$this->_g_oNewItemHeader->gallery_doc_srl = $this->_g_oOldItemHeader->gallery_doc_srl;
-		if( $this->_g_oNewItemHeader->module_srl == svmarket::S_NULL_SYMBOL )
-			$this->_g_oNewItemHeader->module_srl = $this->_g_oOldItemHeader->module_srl;
-
+		$this->_g_oNewPkgHeader->package_srl = $this->_g_oOldPkgHeader->package_srl;
+		if($this->_g_oNewPkgHeader->module_srl == svmarket::S_NULL_SYMBOL)
+			$this->_g_oNewPkgHeader->module_srl = $this->_g_oOldPkgHeader->module_srl;
 		return $this->_updateItem();
+	}
+	/**
+	 * @brief 
+	 **/
+	private function _updateItem()
+	{
+		$this->_nullifyHeader();
+			
+		// 기본 정보 설정
+		$oArgs = new stdClass();
+		$oArgs->package_srl = $this->_g_oOldPkgHeader->package_srl; // package_srl은 수정하면 안됨
+		if($this->_g_oNewPkgHeader->module_srl)
+			$oArgs->module_srl = $this->_g_oNewPkgHeader->module_srl;
+		if($this->_g_oNewPkgHeader->list_order)
+			$oArgs->list_order = $this->_g_oNewPkgHeader->list_order;
+		if($this->_g_oNewPkgHeader->category_node_srl)
+			$oArgs->category_node_srl = $this->_g_oNewPkgHeader->category_node_srl;
+		if($this->_g_oNewPkgHeader->title)
+			$oArgs->title = $this->_g_oNewPkgHeader->title;
+
+		if($this->_g_oNewPkgHeader->thumb_file_srl)
+			$oArgs->thumb_file_srl = $this->_g_oNewPkgHeader->thumb_file_srl;
+		if($this->_g_oNewPkgHeader->description)
+			$oArgs->description = $this->_g_oNewPkgHeader->description;
+		if($this->_g_oNewPkgHeader->homepage)
+			$oArgs->homepage = $this->_g_oNewPkgHeader->homepage;
+		if($this->_g_oNewPkgHeader->tags)
+			$oArgs->tags = $this->_g_oNewPkgHeader->tags;
+		if($this->_g_oNewPkgHeader->display)
+			$oArgs->display = $this->_g_oNewPkgHeader->display;
+		
+		$oUpdateRst = executeQuery('svmarket.updateAdminPkg', $oArgs);
+		unset($oArgs);
+		if(!$oUpdateRst->toBool())
+			return $oUpdateRst;
+		//unset($oUpdateRst);
+		// 첨부 이미지 파일 처리
+		//$oUpdateRst = $this->_procThumbnailImages();
+		return $oUpdateRst;
 	}
 /**
  * @brief 기존 패키지 정보 비활성화
@@ -547,167 +582,6 @@ class svmarketPkgAdmin extends svmarket
 //////////////// for debug only
 			}
 		}
-	}
-/**
- * @brief 
- **/
-	private function _updateItem()
-	{
-		$this->_nullifyHeader();
-		// 기본 정보 설정
-		$oArgs->item_srl = $this->_g_oOldItemHeader->item_srl; // item_srl은 수정하면 안됨
-		$oArgs->module_srl = $this->_g_oNewItemHeader->module_srl;
-
-		if( $this->_g_oNewItemHeader->item_name )
-			$oArgs->item_name = $this->_g_oNewItemHeader->item_name;
-		if( $this->_g_oNewItemHeader->item_code )
-			$oArgs->item_code = $this->_g_oNewItemHeader->item_code;
-		if( $this->_g_oNewItemHeader->barcode )
-			$oArgs->barcode = $this->_g_oNewItemHeader->barcode;
-		if( $this->_g_oNewItemHeader->price )
-			$oArgs->price = $this->_g_oNewItemHeader->price;
-		if( $this->_g_oNewItemHeader->current_stock )
-			$oArgs->current_stock = $this->_g_oNewItemHeader->current_stock;
-		if( $this->_g_oNewItemHeader->safe_stock )
-			$oArgs->safe_stock = $this->_g_oNewItemHeader->safe_stock;
-		if( $this->_g_oNewItemHeader->taxfree )
-			$oArgs->taxfree = $this->_g_oNewItemHeader->taxfree;
-		if( $this->_g_oNewItemHeader->display )
-			$oArgs->display = $this->_g_oNewItemHeader->display;
-		if( $this->_g_oNewItemHeader->list_order )
-			$oArgs->list_order = $this->_g_oNewItemHeader->list_order;
-		if( $this->_g_oNewItemHeader->sv_tags )
-			$oArgs->sv_tags = $this->_g_oNewItemHeader->sv_tags;
-
-		$oEnhancedItemInfo = new stdClass();
-		// begin GA EEC & EXTRA info processing
-		$oEnhancedItemInfo->ga_brand_name = $this->_g_oNewItemHeader->ga_brand_name ? $this->_g_oNewItemHeader->ga_brand_name : $this->_g_oOldItemHeader->enhanced_item_info->ga_brand_name;
-		$oEnhancedItemInfo->ga_category_name = $this->_g_oNewItemHeader->ga_category_name ? $this->_g_oNewItemHeader->ga_category_name : $this->_g_oOldItemHeader->enhanced_item_info->ga_category_name;
-		$oEnhancedItemInfo->ga_variation_name = $this->_g_oNewItemHeader->ga_variation_name ? $this->_g_oNewItemHeader->ga_variation_name : $this->_g_oOldItemHeader->enhanced_item_info->ga_variation_name;
-		
-		if( $this->_g_oNewItemHeader->gallery_rep_thumbnail_idx != svmarket::S_NULL_SYMBOL )
-		{
-			$oFileModel = getModel('file');
-			$nThumFileCnt = $oFileModel->getFilesCount($this->_g_oNewItemHeader->gallery_doc_srl);
-			if( $this->_g_oNewItemHeader->gallery_rep_thumbnail_idx > $nThumFileCnt - 1 )
-				return new BaseObject(-1, 'msg_invalid_gallery_rep_thumbnail_idx');
-			$oEnhancedItemInfo->rep_gallery_thumb_idx = $this->_g_oNewItemHeader->gallery_rep_thumbnail_idx;
-		}
-		if( $this->_g_oNewItemHeader->item_brief )
-			$oEnhancedItemInfo->item_brief = $this->_g_oNewItemHeader->item_brief;
-		
-		// OG description,  mob PC 상세페이지 내용 설정
-		switch( $this->_g_oNewItemHeader->ua_type )
-		{
-			case 'og':
-				$oDocArgs->document_srl = $this->_g_oNewItemHeader->document_srl;
-				$oDocArgs->module_srl = $this->_g_oNewItemHeader->module_srl;
-				$oDocArgs->content = $this->_g_oNewItemHeader->description;
-				$oDocArgs->title = $this->_g_oNewItemHeader->item_name;
-				$oDocArgs->list_order = $this->_g_oNewItemHeader->document_srl * -1;
-				$oDocArgs->tags = Context::get('tag');
-				$oDocArgs->allow_comment = 'Y';
-				$oDocumentModel = &getModel('document');
-				$oDocumentController = &getController('document');
-				$oDocRst = $oDocumentController->updateDocument($oDocumentModel->getDocument($this->_g_oNewItemHeader->document_srl), $oDocArgs);
-				if (!$oDocRst->toBool())
-					return $oDocRst;
-
-				unset($oDocRst);
-				unset($oDocumentModel);
-				unset($oDocumentController);
-				unset($oDocArgs);
-				break;
-			case 'mob':
-				if( $this->_g_oNewItemHeader->description )
-					$oArgs->mob_description = $this->_g_oNewItemHeader->description;
-				break;
-			case 'pc':
-				if( $this->_g_oNewItemHeader->description )
-					$oArgs->pc_description = $this->_g_oNewItemHeader->description;
-				break;
-		}
-
-		// naver EP info processing
-		$oEnhancedItemInfo->naver_ep_item_name = $this->_g_oNewItemHeader->naver_ep_item_name ? $this->_g_oNewItemHeader->naver_ep_item_name : $this->_g_oOldItemHeader->enhanced_item_info->naver_ep_item_name;
-		$oEnhancedItemInfo->naver_ep_maker = $this->_g_oNewItemHeader->naver_ep_maker ? $this->_g_oNewItemHeader->naver_ep_maker : $this->_g_oOldItemHeader->enhanced_item_info->naver_ep_maker;
-		$oEnhancedItemInfo->naver_ep_origin = $this->_g_oNewItemHeader->naver_ep_origin ? $this->_g_oNewItemHeader->naver_ep_origin : $this->_g_oOldItemHeader->enhanced_item_info->naver_ep_origin;
-		$oEnhancedItemInfo->naver_ep_search_tag = $this->_g_oNewItemHeader->naver_ep_search_tag ? $this->_g_oNewItemHeader->naver_ep_search_tag : $this->_g_oOldItemHeader->enhanced_item_info->naver_ep_search_tag;
-		$oEnhancedItemInfo->naver_ep_barcode = $this->_g_oNewItemHeader->naver_ep_barcode ? $this->_g_oNewItemHeader->naver_ep_barcode : $this->_g_oOldItemHeader->enhanced_item_info->naver_ep_barcode;
-		$oEnhancedItemInfo->naver_ep_naver_category = $this->_g_oNewItemHeader->naver_ep_naver_category ? $this->_g_oNewItemHeader->naver_ep_naver_category : $this->_g_oOldItemHeader->enhanced_item_info->naver_ep_naver_category;
-		$oEnhancedItemInfo->naver_ep_event_words = $this->_g_oNewItemHeader->naver_ep_event_words ? $this->_g_oNewItemHeader->naver_ep_event_words : $this->_g_oOldItemHeader->enhanced_item_info->naver_ep_event_words;
-		if( $this->_g_oNewItemHeader->naver_ep_sv_campaign2 )
-		{
-			if(!ctype_alnum( $this->_g_oNewItemHeader->naver_ep_sv_campaign2)) 
-				return new BaseObject(-1, 'msg_invalid_naverep_sv_campaign_code');
-			else
-				$oEnhancedItemInfo->naver_ep_sv_campaign2 = $this->_g_oNewItemHeader->naver_ep_sv_campaign2 ? $this->_g_oNewItemHeader->naver_ep_sv_campaign2 : $this->_g_oOldItemHeader->enhanced_item_info->naver_ep_sv_campaign2;
-		}
-		if( $this->_g_oNewItemHeader->naver_ep_sv_campaign3 )
-		{
-			if(!ctype_alnum( $this->_g_oNewItemHeader->naver_ep_sv_campaign3)) 
-				return new BaseObject(-1, 'msg_invalid_naverep_sv_campaign_code');
-			else
-				$oEnhancedItemInfo->naver_ep_sv_campaign3 = $this->_g_oNewItemHeader->naver_ep_sv_campaign3 ? $this->_g_oNewItemHeader->naver_ep_sv_campaign3 : $this->_g_oOldItemHeader->enhanced_item_info->naver_ep_sv_campaign3;
-		}
-		
-		// daum EP info processing
-		$oEnhancedItemInfo->daum_ep_item_name = $this->_g_oNewItemHeader->daum_ep_item_name ? $this->_g_oNewItemHeader->daum_ep_item_name : $this->_g_oOldItemHeader->enhanced_item_info->daum_ep_item_name;
-		
-		// badge info processing
-		if( $this->_g_oNewItemHeader->badge_icon )
-		{
-			$aBadgeIconToSave = [];
-			foreach( $this->_g_oNewItemHeader->badge_icon as $nIdx=>$sVal)
-				$aBadgeIconToSave[$sVal] = 1;
-			$oEnhancedItemInfo->default_badge_icon = $aBadgeIconToSave;
-		}
-		else
-			$oEnhancedItemInfo->default_badge_icon = $this->_g_oOldItemHeader->enhanced_item_info->default_badge_icon;
-		
-		// 개발자용 PC / MOB 상세 페이지 등록
-		$oEnhancedItemInfo->description_skin_pc = $this->_g_oNewItemHeader->description_skin_pc ? $this->_g_oNewItemHeader->description_skin_pc : $this->_g_oOldItemHeader->enhanced_item_info->description_skin_pc;
-		if( $oEnhancedItemInfo->description_skin_pc == 'use_each_pc' )
-			$oEnhancedItemInfo->description_skin_pc = null;
-		$oEnhancedItemInfo->description_skin_mob = $this->_g_oNewItemHeader->description_skin_mob ? $this->_g_oNewItemHeader->description_skin_mob : $this->_g_oOldItemHeader->enhanced_item_info->description_skin_mob;
-		if( $oEnhancedItemInfo->description_skin_mob == 'use_each_mob' )
-			$oEnhancedItemInfo->description_skin_mob = null;
-		// end GA EEC & EXTRA info processing
-
-		$oArgs->enhanced_item_info = serialize($oEnhancedItemInfo);
-		unset( $oEnhancedItemInfo );
-		$oUpdateRst = executeQuery('svmarket.updateAdminItem', $oArgs);
-		if(!$oUpdateRst->toBool())
-			return $oUpdateRst;
-		unset($oUpdateRst);
-
-		// extra_vars update
-		require_once(_XE_PATH_.'modules/svmarket/svmarket.extravar.controller.php');
-		$oExtraVarsController = new svmarketExtraVarController();
-		// begin - retrieve extended var info
-		$oParam->nModuleSrl = $this->_g_oNewItemHeader->module_srl;
-		$oParam->nItemSrl = $this->_g_oNewItemHeader->item_srl;
-		$oExtendedVarRst = $oExtraVarsController->getExtendedVarsNameValueByItemSrl($oParam);
-		foreach( $oExtendedVarRst->data as $nIdx => $oExtVar )
-		{
-			$sVarTitle = $oExtVar->column_name;
-			if($this->_g_oNewItemHeader->{$sVarTitle})
-				$oParam->oExtendedVar->{$sVarTitle} = $this->_g_oNewItemHeader->{$sVarTitle};
-		}
-		unset($oExtendedVarRst);
-		// end - retrieve extended var info
-		//$oParam->nModuleSrl = $this->_g_oNewItemHeader->module_srl;
-		//$oParam->nItemSrl = $this->_g_oNewItemHeader->item_srl;
-		$oUpdateRst = $oExtraVarsController->registerOnExtendedVar($oParam);
-		if(!$oUpdateRst->toBool())
-			return $oUpdateRst;
-		unset($oParam);
-		unset($oUpdateRst);
-		unset($oExtraVarsController);
-		
-		// 첨부 이미지 파일 처리
-		$oUpdateRst = $this->_procThumbnailImages();
-		return $oUpdateRst;
 	}
 /**
  * @brief 첨부 이미지 파일 처리

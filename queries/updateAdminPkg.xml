@@ -1,4 +1,4 @@
-<query id="updatePkg" action="update">
+<query id="updateAdminPkg" action="update">
 	<tables>
 		<table name="svmarket_package" />
 	</tables>

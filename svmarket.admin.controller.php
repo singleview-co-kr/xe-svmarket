@@ -79,9 +79,50 @@ class svmarketAdminController extends svmarket
 		unset($oArgs);
 		unset($oPkgAdmin);
 		unset($oInsertRst);
-		if(!in_array(Context::getRequestMethod(),array('XMLRPC','JSON')))
+		if(!in_array(Context::getRequestMethod(),['XMLRPC','JSON']))
 		{
 			$sReturnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module',Context::get('module'),'act','dispSvmarketAdminInsertPkg','module_srl',Context::get('module_srl'),'pkg_srl',$nPkgSrl);
+			$this->setRedirectUrl($sReturnUrl);
+			return;
+		}
+	}
+	/**
+     * @brief update Package
+     **/
+	public function procSvmarketAdminUpdatePkg() 
+	{
+		$oArgs = Context::getRequestVars();
+		// var_dump($oArgs);
+		// exit;
+		$oParams = new stdClass();
+		if($oArgs->package_srl)
+		{
+			$nPkgSrl = $oArgs->package_srl;
+			$oParams->nPkgSrl = $nPkgSrl;
+		}
+		else
+			return new BaseObject(-1,'msg_invalid_pkg_request');
+		require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_admin.php');
+		$oPkgAdmin = new svmarketPkgAdmin();
+		$oParams->mode = 'retrieve';
+		$oTmpRst = $oPkgAdmin->loadHeader($oParams);
+		if(!$oTmpRst->toBool())
+			return new BaseObject(-1,'msg_invalid_pkg_request');
+		unset($oTmpRst);
+		$oUpdateRst = $oPkgAdmin->update($oArgs);
+		if(!$oUpdateRst->toBool())
+		{
+			unset($oArgs);
+			unset($oPkgAdmin);
+			return $oUpdateRst;
+		}
+        $this->setMessage('success_registed');
+		unset($oArgs);
+		unset($oPkgAdmin);
+		unset($oUpdateRst);
+		if(!in_array(Context::getRequestMethod(),array('XMLRPC','JSON')))
+		{
+			$sReturnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module',Context::get('module'),'act','dispSvmarketAdminUpdatePkg','module_srl',Context::get('module_srl'),'package_srl',$nPkgSrl);
 			$this->setRedirectUrl($sReturnUrl);
 			return;
 		}
@@ -92,7 +133,6 @@ class svmarketAdminController extends svmarket
 	public function procSvmarketAdminInsertApp() 
 	{
 		$oArgs = Context::getRequestVars();
-
         $oParam = new stdClass();
         $oParam->module_srl = $oArgs->module_srl;
         $oParam->title = $oArgs->app_title;

@@ -21,6 +21,7 @@
         <action name="procSvmarketAdminInsertMod" type="controller" />
         <action name="procSvmarketAdminDeleteMod" type="controller" />
         <action name="procSvmarketAdminInsertPkg" type="controller" />
+		<action name="procSvmarketAdminUpdatePkg" type="controller" />
 
 		
         <action name="procSvmarketAdminInsertApp" type="controller" />
