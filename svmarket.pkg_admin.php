@@ -69,15 +69,15 @@ class svmarketPkgAdmin extends svmarket
         $aBasicAttr = ['package_srl', 'module_srl', 'list_order', 'category_node_srl', 
                         'title', 'thumb_file_srl', 'description', 'homepage', 'tags', 'display', 
                         'updatetime', 'regdate'];
-        //$aInMemoryAttr = ['review_count', 'mid', 'sDescription', 'extra_vars']; // 'extra_vars'는 unserialize된 구조체 적재
+        $aInMemoryAttr = ['app_list'];
         $aTempAttr = ['thumbnail_image'];
         foreach(self::A_PKG_HEADER_TYPE as $nTypeIdx => $sHeaderType)
         {
             $this->{$sHeaderType} = new stdClass();
             foreach($aBasicAttr as $nAttrIdx => $sAttrName)
                 $this->{$sHeaderType}->{$sAttrName} = svmarket::S_NULL_SYMBOL;
-            // foreach($aInMemoryAttr as $nAttrIdx => $sAttrName)
-            //     $this->{$sHeaderType}->{$sAttrName} = svmarket::S_NULL_SYMBOL;
+            foreach($aInMemoryAttr as $nAttrIdx => $sAttrName)
+                $this->{$sHeaderType}->{$sAttrName} = svmarket::S_NULL_SYMBOL;
             // temp item info for insertion
 			foreach($aTempAttr as $nAttrIdx => $sAttrName)
                 $this->{$sHeaderType}->{$sAttrName} = svitem::S_NULL_SYMBOL;
@@ -118,7 +118,8 @@ class svmarketPkgAdmin extends svmarket
 		$aCleanupVar = array('title');
 		foreach($oNewPkgArgs as $sTitle => $sVal)
 		{
-            $sTitle = str_replace('pkg_', '', $sTitle);
+            if($sTitle!='pkg_srl')
+                $sTitle = str_replace('app_', '', $sTitle);
             if(in_array($sTitle, $aIgnoreVar)) 
 				continue;
             if(in_array($sTitle, $aCleanupVar))
@@ -239,30 +240,16 @@ class svmarketPkgAdmin extends svmarket
  **/
 	public function loadHeader($oParams)
 	{
-		switch($oParams->mode)
-		{
-			case 'import':
-				if(!$oParams->oRawData)
-					return new BaseObject(-1,'msg_import_load_without_rawdata');
-				$this->_initHeader();
-				$oTmpRst = new BaseObject();
-				$oTmpRst->data = $oParams->oRawData;
-				break;
-			default:
-				$this->_initHeader();
-				$oTmpArgs = new stdClass();
-				$oTmpArgs->package_srl = $oParams->nPkgSrl;
-				$oTmpRst = executeQuery('svmarket.getPkgDetail', $oTmpArgs);
-				if(!$oTmpRst->toBool())
-					return $oTmpRst;
-				if(!is_object($oTmpRst->data))
-					return new BaseObject(-1,'msg_invalid_pkg_request');
-					
-				break;
-		}
+        $this->_initHeader();
+        $oTmpArgs = new stdClass();
+        $oTmpArgs->package_srl = $oParams->package_srl;
+        $oTmpRst = executeQuery('svmarket.getPkgDetail', $oTmpArgs);
+        if(!$oTmpRst->toBool())
+            return $oTmpRst;
+        if(!is_object($oTmpRst->data))
+            return new BaseObject(-1,'msg_invalid_pkg_request');
 		$this->_matchOldPkgInfo($oTmpRst->data);
 		//$this->_setReviewCnt(); // 후기수 설정
-		//
 
 		$oModuleModel = getModel('module');
 		$oModuleInfo = $oModuleModel->getModuleInfoByModuleSrl($this->_g_oOldPkgHeader->module_srl);
@@ -293,7 +280,6 @@ class svmarketPkgAdmin extends svmarket
 		$oDocumentModel = getModel('document');
 		$oDocument = $oDocumentModel->getDocument($this->_g_oOldPkgHeader->package_srl);
 		// $this->_g_oOldPkgHeader->enhanced_item_info->item_brief = $oDocument->getContent(false);
-
 		$oDbInfo = Context::getDBInfo();
 		$oSnsInfo = new stdClass();
 		$oSnsInfo->sPermanentUrl = $oDocument->getPermanentUrl().'?l='.$oDbInfo->lang_type;
@@ -302,6 +288,43 @@ class svmarketPkgAdmin extends svmarket
 		unset($oDbInfo);
 		unset($oDocument);
 		unset($oDocumentModel);
+
+        // begin - load packaged app list
+        $oArgs = new stdClass();
+        $oArgs->package_srl = $this->_g_oOldPkgHeader->package_srl;
+        $oListRst = executeQueryArray('svmarket.getAdminAppList', $oArgs);
+        // var_dump($oListRst);
+        // exit;
+        unset($oArgs);
+		if(!$oListRst->toBool())
+			return $oListRst;
+        if(count($oListRst->data))
+        {
+            require_once(_XE_PATH_.'modules/svmarket/svmarket.app_admin.php');
+            $oParams = new stdClass();
+            $aPackedApp = [];
+            foreach($oListRst->data as $nIdx=>$oVal)
+            {
+                $oAppAdmin = new svmarketAppAdmin();
+                $oParams->app_srl = $oVal->app_srl;
+                $oTmpRst = $oAppAdmin->loadHeader($oParams);
+                if(!$oTmpRst->toBool())
+                	return new BaseObject(-1,'msg_invalid_app_request');
+                $oDetailRst = $oAppAdmin->loadDetail();
+                if(!$oDetailRst->toBool())
+                	return $oDetailRst;
+                unset($oDetailRst);
+                $aPackedApp[$nIdx] = $oAppAdmin;
+            }
+            unset($oParams);
+            $this->_g_oOldPkgHeader->app_list = $aPackedApp;
+            // foreach($aPackedApp as $nIdx=>$oVal)
+            // {
+            // var_dump($oVal->app_srl);
+            //     echo '<BR><BR>';
+            // }
+        }
+        // end - load packaged app list
 		return new BaseObject();
 	}
 	/**

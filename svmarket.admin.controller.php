@@ -92,13 +92,11 @@ class svmarketAdminController extends svmarket
 	public function procSvmarketAdminUpdatePkg() 
 	{
 		$oArgs = Context::getRequestVars();
-		// var_dump($oArgs);
-		// exit;
 		$oParams = new stdClass();
 		if($oArgs->package_srl)
 		{
 			$nPkgSrl = $oArgs->package_srl;
-			$oParams->nPkgSrl = $nPkgSrl;
+			$oParams->package_srl = $oArgs->package_srl;
 		}
 		else
 			return new BaseObject(-1,'msg_invalid_pkg_request');
@@ -154,6 +152,49 @@ class svmarketAdminController extends svmarket
 			return;
 		}
 	}
+	/**
+     * @brief update App
+     **/
+	public function procSvmarketAdminUpdateApp() 
+	{
+		$oArgs = Context::getRequestVars();
+		$oParams = new stdClass();
+		if($oArgs->package_srl)
+			$nPkgSrl = $oArgs->package_srl;
+		else
+			return new BaseObject(-1,'msg_invalid_app_request');
+		if($oArgs->app_srl)
+		{
+			$nAppSrl = $oArgs->app_srl;
+			$oParams->app_srl = $nAppSrl;
+		}
+		else
+			return new BaseObject(-1,'msg_invalid_app_request');
+		require_once(_XE_PATH_.'modules/svmarket/svmarket.app_admin.php');
+		$oAppAdmin = new svmarketAppAdmin();
+		$oTmpRst = $oAppAdmin->loadHeader($oParams);
+		if(!$oTmpRst->toBool())
+			return new BaseObject(-1,'msg_invalid_app_request');
+		unset($oTmpRst);
+		$oUpdateRst = $oAppAdmin->update($oArgs);
+		if(!$oUpdateRst->toBool())
+		{
+			unset($oArgs);
+			unset($oAppAdmin);
+			return $oUpdateRst;
+		}
+        $this->setMessage('success_registed');
+		unset($oArgs);
+		unset($oAppAdmin);
+		unset($oUpdateRst);
+		if(!in_array(Context::getRequestMethod(),array('XMLRPC','JSON')))
+		{
+			$sReturnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module',Context::get('module'),'act','dispSvmarketAdminUpdateApp','module_srl',Context::get('module_srl'),'package_srl',$nPkgSrl,'app_srl',$nAppSrl);
+			$this->setRedirectUrl($sReturnUrl);
+			return;
+		}
+	}
+
 	/**
 	* @brief update mid level config
 	* procSvitemAdminInsertModInst 와 병합해야 함

@@ -13,15 +13,21 @@
 
 <form method="post" action="./" class="x_form-horizontal" enctype="multipart/form-data">
 	<input name="module" type="hidden" value="{$module}" />
-	<input name="act" type="hidden" value="procSvmarketAdminInsertApp" />
 	<input name="module_srl" type="hidden" value="{$module_srl}" />
 	<input name="package_srl" type="hidden" value="{$package_srl}" />
+<block cond="!$app_srl">
+	<input name="act" type="hidden" value="procSvmarketAdminInsertApp" />
+</block>
+<block cond="$app_srl">
+	<input name="act" type="hidden" value="procSvmarketAdminUpdateApp" />
+	<input name="app_srl" type="hidden" value="{$app_srl}" />
+</block>
 
 	<h1>{$lang->title_app_basic_info}</h1>
 	<div class="x_control-group">
 		<label class="x_control-label" for="app_title">{$lang->app_title}</label>
 		<div class="x_controls">
-			<input name="app_title" type="text" class="inputTypeText w300" value="{$app_info->app_title}" />
+			<input name="app_title" type="text" class="inputTypeText w300" value="{$oAppInfo->title}" />
 			<a href="#app_title_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
 			<p id="app_title_help" class="x_help-block" hidden>{$lang->about_app_title}</p>
 		</div>
@@ -29,7 +35,7 @@
 	<div class="x_control-group">
 		<label class="x_control-label" for="item_brief">{$lang->desc}</label>
 		<div class="x_controls">
-			<textarea name="app_description" id="app_description" class="app_description" rows="8" cols="22" placeholder="{$lang->about_app_desc}">{$app_info->app_desc}</textarea>
+			<textarea name="app_description" id="app_description" class="app_description" rows="8" cols="22" placeholder="{$lang->about_app_desc}">{$oAppInfo->description}</textarea>
 			<a href="#app_desc_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
 			<p id="app_desc_help" class="x_help-block" hidden>{$lang->about_item_brief}</p>
 		</div>
@@ -45,7 +51,7 @@
 	<div class="x_control-group">
 		<label class="x_control-label" for="app_github_url">{$lang->github_url} <em style="color:red">*</em></label>
 		<div class="x_controls">
-			<input name="app_github_url" type="text" value="{$app_info->app_github_url}" />
+			<input name="app_github_url" type="text" value="{$oAppInfo->github_url}" />
 			<a href="#app_github_url_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
 			<p id="app_github_url_help" class="x_help-block" hidden>{$lang->about_app_github_url}</p>
 		</div>
@@ -53,9 +59,18 @@
 	<div class="x_control-group">
 		<label class="x_control-label" for="app_homepage">{$lang->homepage}</label>
 		<div class="x_controls">
-			<input name="app_homepage" type="text" class="inputTypeText w300" value="{$app_info->app_homepage}" />
+			<input name="app_homepage" type="text" class="inputTypeText w300" value="{$oAppInfo->homepage}" />
 			<a href="#app_homepage_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
 			<p id="app_homepage_help" class="x_help-block" hidden>{$lang->about_app_homepage}</p>
+		</div>
+	</div>
+    <h1>{$lang->title_version_info}</h1>
+    <div class="x_control-group">
+		<label class="x_control-label" for="app_version">최종 {$lang->version}</label>
+		<div class="x_controls">
+			<input name="app_version" type="text" class="inputTypeText w300" value="" />
+			<a href="#app_version_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+			<p id="app_version_help" class="x_help-block" hidden>{$lang->about_app_version}</p>
 		</div>
 	</div>
     <div class="x_control-group">
@@ -70,3 +85,26 @@
 		<button type="submit" class="x_btn x_btn-primary">{$lang->cmd_submit}</button>
 	</div>
 </form>
+
+<table class="x_table">
+	<thead>
+		<tr>
+			<th scope="col"><div>{$lang->no}</div></th>
+			<th scope="col" class="half_wide"><div>{$lang->mid}</div></th>
+			<th scope="col" class="half_wide"><div>{$lang->version_download}</div></th>
+			<th scope="col">{$lang->cmd_management}</th>
+			<th scope="col">{$lang->cmd_delete}</th>
+			<th scope="col"><div>{$lang->regdate}</div></th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr loop="$oAppInfo->version_list=>$no,$oVersionInfo">
+			<td class="center number">{$no}</td>
+			<td>{htmlspecialchars($oVersionInfo->version)}</td>
+			<td><a href="{htmlspecialchars_decode($oVersionInfo->oVersionFile->download_url)}">{htmlspecialchars($oVersionInfo->oVersionFile->source_filename, ENT_COMPAT | ENT_HTML401, 'UTF-8', false)}</a></td>
+			<td><a href="{getUrl('act','dispSvmarketAdminUpdateApp','module_srl',$oVersionInfo->module_srl,'app_srl',$oVersionInfo->version_srl)}" class="x_btn"><span>{$lang->cmd_management}</span></a></td>
+			<td><a href="#deleteInstance" class="modalAnchor deleteInstance x_btn" data-module-srl="{$val->module_srl}"><span>{$lang->cmd_delete}</span></a></td>
+			<td>{zdate($val->regdate,"Y-m-d")}</td>
+		</tr>
+	</tbody>
+</table>

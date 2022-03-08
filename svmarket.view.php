@@ -40,35 +40,64 @@ class svmarketView extends svmarket
 			$this->_showAppList();
     }
 	/**
-	 * @brief svmarket server active status 통지
+	 * @brief package app version을 모두 표시함
 	 */
     function _showAppDetail()
     {
 		$oArg = Context::getRequestVars();
 		$oParams = new stdClass();
-		if($oArg->document_srl) // svitem.view.php::dispSvitemItemDetail()에서 호출
-			$oParams->nPkgSrl = $oArg->document_srl;
+		if($oArg->document_srl)
+			$oParams->package_srl = $oArg->document_srl;
 		else
 			return new BaseObject(-1,'msg_invalid_pkg_request');
-		unset($oArg);
-		require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_consumer.php');
-		$oPkgConsumer = new svmarketPkgConsumer();
-		$oParams->mode = 'retrieve';
-		$oTmpRst = $oPkgConsumer->loadHeader($oParams);
-		if(!$oTmpRst->toBool())
-			return new BaseObject(-1,'msg_invalid_pkg_request');
-		unset($oTmpRst);
-		$oDetailRst = $oPkgConsumer->loadDetail();
-		if(!$oDetailRst->toBool())
-			return $oDetailRst;
-		unset($oDetailRst);
+		// unset($oArg);
 
-		// set browser title
-		Context::setBrowserTitle(strip_tags($oPkgConsumer->title).' - '.Context::getBrowserTitle());
+		require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_admin.php');
+		$oPkgAdmin = new svmarketPkgAdmin();
+		$oTmpRst = $oPkgAdmin->loadHeader($oParams);
+        // var_dump($oTmpRst);
+        // exit;
+		if($oTmpRst->toBool())  // display package
+        {
+            unset($oTmpRst);
+            $oPkgDetailRst = $oPkgAdmin->loadDetail();
+            if(!$oPkgDetailRst->toBool())
+                return $oPkgDetailRst;
+            unset($oPkgDetailRst);
+            // set browser title
+            Context::setBrowserTitle(strip_tags($oPkgAdmin->title).' - '.Context::getBrowserTitle());
+            Context::set('oPkgInfo', $oPkgAdmin);
+            $this->setTemplateFile('pkg_detail');
+        }
+        else  // display app
+        {
+            $oParams->app_srl = $oArg->document_srl;
+            require_once(_XE_PATH_.'modules/svmarket/svmarket.app_admin.php');
+            $oAppAdmin = new svmarketAppAdmin();
+            $oAppDetailRst = $oAppAdmin->loadHeader($oParams);
+            if($oAppDetailRst->toBool())
+            {
+                unset($oAppDetailRst);
+                $oAppDetailRst = $oAppAdmin->loadDetail();
+                if(!$oAppDetailRst->toBool())
+                    return $oAppDetailRst;
+                unset($oAppDetailRst);
+                Context::setBrowserTitle(strip_tags($oAppAdmin->title).' - '.Context::getBrowserTitle());
+                Context::set('oAppInfo', $oAppAdmin);
+                $this->setTemplateFile('app_detail');
 
-		Context::set('oPkgInfo', $oPkgConsumer);
+            }
+            else  // display version
+            {
 
-        $this->setTemplateFile('pkg_detail');
+            }
+            return $oAppDetailRst;
+            echo __FILE__.':'.__LINE__.'<BR>';
+        }
+            
+
+		return new BaseObject(-1,'msg_invalid_pkg_request');
+		
     }
 	/**
 	 * @brief 스킨에서 호출하는 메쏘드

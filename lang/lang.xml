@@ -50,17 +50,12 @@
 	<item name="reviews">
 		<value xml:lang="ko"><![CDATA[리뷰수]]></value>
 	</item>
-	
-	
-	
-	<item name="page_configuration">
-		<value xml:lang="ko"><![CDATA[페이지 설정]]></value>
+
+	<item name="version_download">
+		<value xml:lang="ko"><![CDATA[버전 다운로드]]></value>
 	</item>
 	
-	<item name="about_ddd_type">
-		<value xml:lang="ko"><![CDATA[dsfsdf]]></value>
-	</item>
-	<item name="msg_not_fdgfghage">
-		<value xml:lang="ko"><![CDATA[fghdh]]></value>
+	<item name="title_version_info">
+		<value xml:lang="ko"><![CDATA[추가할 버전 정보]]></value>
 	</item>
 </lang>

@@ -2,9 +2,10 @@
 <module>
 	<grants />
 	<permissions>
-		<permission action="dispSvmarketAdminContentModify" target="manager" />
-		<permission action="procSvmarketAdminInsert" target="manager" />
-		<permission action="procSvmarketAdminInsertContent" target="manager" />
+		<permission action="dispSvmarketAdminInsertPkg" target="manager" />
+		<permission action="dispSvmarketAdminUpdatePkg" target="manager" />
+		<permission action="dispSvmarketAdminInsertApp" target="manager" />
+		<permission action="dispSvmarketAdminUpdateApp" target="manager" />
 	</permissions>
 	<actions>
 		<action name="dispSvmarketIndex" type="view" index="true" />
@@ -15,16 +16,15 @@
         <action name="dispSvmarketAdminPkgListByModule" type="view" />
         <action name="dispSvmarketAdminInsertPkg" type="view" />
 		<action name="dispSvmarketAdminUpdatePkg" type="view" />
-        
         <action name="dispSvmarketAdminInsertApp" type="view" />
+		<action name="dispSvmarketAdminUpdateApp" type="view" />
 
         <action name="procSvmarketAdminInsertMod" type="controller" />
         <action name="procSvmarketAdminDeleteMod" type="controller" />
         <action name="procSvmarketAdminInsertPkg" type="controller" />
 		<action name="procSvmarketAdminUpdatePkg" type="controller" />
-
-		
         <action name="procSvmarketAdminInsertApp" type="controller" />
+		<action name="procSvmarketAdminUpdateApp" type="controller" />
 
         <action name="getSvmarketAdminDeleteMod" type="model" />
 	</actions>

@@ -22,7 +22,7 @@
              <div class="x_content">
                 <div class="col-md-7 col-sm-7 col-xs-12">
                    <div class="product-image">
-                      <img src="{svmarketView::dispThumbnailUrl($oPkgInfo->thumb_file_srl, 300)}" alt="..." />
+                      <img src="{svmarketView::dispThumbnailUrl($oAppInfo->thumb_file_srl, 100)}" alt="..." />
                    </div>
                    <div class="product_gallery">
                       <!--a>
@@ -40,20 +40,20 @@
                    </div>
                 </div>
                 <div class="col-md-5 col-sm-5 col-xs-12" style="border:0px solid #e5e5e5;">
-                   <h3 class="prod_title">{$oPkgInfo->title}</h3>
-                   <p>{$oPkgInfo->description}</p>
+                   <h3 class="prod_title">{$oAppInfo->title}</h3>
+                   <p>{$oAppInfo->description}</p>
                    
                    <div class="">
-<block loop="$oPkgInfo->app_list=>$no,$oAppInfo">                       
-                      <div class="product_price">
-                         <span class="price-tax"><a href="{getUrl('document_srl',$oAppInfo->app_srl)}">{$oAppInfo->title}</a></span>
-                      </div>
+                    <div class="product_price">
+<block loop="$oAppInfo->version_list=>$no,$oVersionInfo">                       
+                         <span class="price-tax">{$oVersionInfo->version}</span><BR>
 </block>
+                    </div>    
                    </div>
-                   <div class="">
+                   <!---div class="">
                       <button type="button" class="btn btn-default btn-lg">다운로드 zip</button>
                       <button type="button" class="btn btn-default btn-lg">다운로드 tar.gz</button>
-                   </div>
+                   </div--->
                    <div class="product_social">
                       <ul class="list-inline">
                          <li><a href="#"><i class="fa fa-facebook-square"></i></a>

@@ -1,0 +1,14 @@
+<query id="getAdminVersionList" action="select">
+	<tables>
+		<table name="svmarket_version" />
+	</tables>
+	<columns>
+		<column name="version_srl" />
+	</columns>
+	<conditions>
+		<condition operation="equal" column="app_srl" var="app_srl" />
+	</conditions>
+    <navigation>
+		<index var="sort_index" default="version_srl" order="desc" />
+	</navigation>
+</query>

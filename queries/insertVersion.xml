@@ -1,0 +1,15 @@
+<query id="insertVersion" action="insert">
+	<tables>
+		<table name="svmarket_version" />
+	</tables>
+	<columns>
+		<column name="version_srl" var="version_srl" notnull="notnull" />
+        <column name="app_srl" var="app_srl" notnull="notnull" />
+        <column name="module_srl" var="module_srl" notnull="notnull" />
+        <column name="package_srl" var="package_srl" notnull="notnull" />
+        <column name="version" var="version" notnull="notnull" />
+        <column name="zip_file_srl" var="zip_file_srl" />
+        <column name="description" var="description" />
+		<column name="regdate" var="regdate" default="curdate()" />
+	</columns>
+</query>

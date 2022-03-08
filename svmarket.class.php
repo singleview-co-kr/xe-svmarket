@@ -196,13 +196,22 @@ class svmarket extends ModuleObject
 
 		return new BaseObject(0,'success_updated');
 	}
-
 	/**
 	 * @brief Re-generate the cache file
 	 */
 	function recompileCache()
 	{
 	}
+    /**
+	 * @brief Re-generate the cache file
+	 */
+	public static function getFileExt($sFileName)
+	{
+        $aFileInfo = explode('.', $sFileName);
+        return array_pop($aFileInfo);
+	}
+
+    
 }
 /* End of file svmarket.class.php */
 /* Location: ./modules/svmarket/svmarket.class.php */

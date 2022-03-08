@@ -150,8 +150,8 @@ class svmarketAdminView extends svmarket
 	{
 		$oArg = Context::getRequestVars();
 		$oParams = new stdClass();
-		if($oArg->package_srl) // svitem.view.php::dispSvitemItemDetail()에서 호출
-			$oParams->nPkgSrl = $oArg->package_srl;
+		if($oArg->package_srl)
+			$oParams->package_srl = $oArg->package_srl;
 		else
 			return new BaseObject(-1,'msg_invalid_pkg_request');
 		unset($oArg);
@@ -169,13 +169,36 @@ class svmarketAdminView extends svmarket
 		Context::set('oPkgInfo', $oPkgAdmin);
 		$this->setTemplateFile('pkg_insert');
 	}
-
-	
     /**
      * @brief 
      */
 	public function dispSvmarketAdminInsertApp() 
 	{
+		$this->setTemplateFile('app_insert');
+	}
+	/**
+     * @brief 
+     */
+	public function dispSvmarketAdminUpdateApp() 
+	{
+		$oArg = Context::getRequestVars();
+		$oParams = new stdClass();
+		if($oArg->app_srl)
+			$oParams->app_srl = $oArg->app_srl;
+		else
+			return new BaseObject(-1,'msg_invalid_app_request');
+		unset($oArg);
+		require_once(_XE_PATH_.'modules/svmarket/svmarket.app_admin.php');
+		$oAppAdmin = new svmarketAppAdmin();
+		$oTmpRst = $oAppAdmin->loadHeader($oParams);
+		if(!$oTmpRst->toBool())
+			return new BaseObject(-1,'msg_invalid_app_request');
+		unset($oTmpRst);
+		$oDetailRst = $oAppAdmin->loadDetail();
+		if(!$oDetailRst->toBool())
+			return $oDetailRst;
+		unset($oDetailRst);
+		Context::set('oAppInfo', $oAppAdmin);
 		$this->setTemplateFile('app_insert');
 	}
 }

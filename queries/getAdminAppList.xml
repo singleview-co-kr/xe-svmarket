@@ -1,23 +1,11 @@
 <query id="getAdminAppList" action="select">
 	<tables>
-		<table name="svmarket_package" />
+		<table name="svmarket_app" />
 	</tables>
 	<columns>
-		<column name="package_srl" />
-		<column name="module_srl" />
-        <column name="title" />
-        <column name="thumb_file_srl" />
-		<column name="regdate" />
+		<column name="app_srl" />
 	</columns>
 	<conditions>
-		<condition operation="equal" column="module_srl" var="module_srl" />
-		<condition operation="equal" column="category_node_srl" var="category_node_srl" pipe="and" />
-		<condition operation="like" column="title" var="title" pipe="and" />
+		<condition operation="equal" column="package_srl" var="package_srl" />
 	</conditions>
-	<navigation>
-		<index var="sort_index" default="list_order" order="asc" />
-		<list_count var="list_count" default="20" />
-		<page_count var="page_count" default="10" />
-		<page var="page" default="1" />
-	</navigation>
 </query>

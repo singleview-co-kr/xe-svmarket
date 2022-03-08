@@ -19,7 +19,7 @@
 </block>
 <block cond="$package_srl">
 	<input name="act" type="hidden" value="procSvmarketAdminUpdatePkg" />
-    <input cond="$package_srl" name="package_srl" type="hidden" value="{$package_srl}" />
+    <input name="package_srl" type="hidden" value="{$package_srl}" />
 </block>
 
 	<h1>{$lang->title_pkg_basic_info}</h1>
@@ -59,3 +59,26 @@
 		<button type="submit" class="x_btn x_btn-primary">{$lang->cmd_submit}</button>
 	</div>
 </form>
+
+<table class="x_table">
+	<thead>
+		<tr>
+			<th scope="col"><div>{$lang->no}</div></th>
+			<th scope="col" class="half_wide"><div>{$lang->mid}</div></th>
+			<th scope="col" class="half_wide"><div>{$lang->browser_title}</div></th>
+			<th scope="col">{$lang->cmd_management}</th>
+			<th scope="col">{$lang->cmd_delete}</th>
+			<th scope="col"><div>{$lang->regdate}</div></th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr loop="$oPkgInfo->app_list=>$no,$oAppInfo">
+			<td class="center number">{$no}</td>
+			<td>{htmlspecialchars($oAppInfo->title)}</td>
+			<td><a href="{getSiteUrl($val->domain,'','mid',$val->mid)}" onclick="window.open(this.href); return false;">{$val->browser_title}</a></td>
+			<td><a href="{getUrl('act','dispSvmarketAdminUpdateApp','module_srl',$oAppInfo->module_srl,'app_srl',$oAppInfo->app_srl)}" class="x_btn"><span>{$lang->cmd_management}</span></a></td>
+			<td><a href="#deleteInstance" class="modalAnchor deleteInstance x_btn" data-module-srl="{$val->module_srl}"><span>{$lang->cmd_delete}</span></a></td>
+			<td>{zdate($val->regdate,"Y-m-d")}</td>
+		</tr>
+	</tbody>
+</table>

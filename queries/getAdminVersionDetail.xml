@@ -1,0 +1,11 @@
+<query id="getAdminVersionDetail" action="select">
+	<tables>
+		<table name="svmarket_version" />
+	</tables>
+	<columns>
+		<column name="*" />
+	</columns>
+	<conditions>
+		<condition operation="equal" column="version_srl" var="version_srl" />
+	</conditions>
+</query>
