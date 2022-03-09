@@ -14,6 +14,7 @@
 <form method="post" action="./" class="x_form-horizontal" enctype="multipart/form-data">
 	<input name="module" type="hidden" value="{$module}" />
 	<input name="module_srl" type="hidden" value="{$module_srl}" />
+    <input name="pkg_description" type="hidden" value="{$oPkgInfo->desc_for_editor}" />
 <block cond="!$package_srl">
 	<input name="act" type="hidden" value="procSvmarketAdminInsertPkg" />
 </block>
@@ -31,14 +32,12 @@
 			<p id="pkg_title_help" class="x_help-block" hidden>{$lang->about_pkg_title}</p>
 		</div>
 	</div>
-	<div class="x_control-group">
-		<label class="x_control-label" for="pkg_description">{$lang->desc}</label>
-		<div class="x_controls">
-			<textarea name="pkg_description" id="pkg_description" class="pkg_description" rows="8" cols="22" placeholder="{$lang->about_pkg_desc}">{$oPkgInfo->description}</textarea>
-			<a href="#pkg_desc_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
-			<p id="pkg_desc_help" class="x_help-block" hidden>{$lang->about_pkg_desc}</p>
-		</div>
-	</div>
+    <div class="x_control-group">
+        <div class="x_control-label" for="editor2">{$ua_type} {$lang->description} <em style="color:red">*</em></div>
+        <div class="x_controls">
+            {$editor}
+        </div>
+    </div>
     <div class="x_control-group">
 		<label class="x_control-label" for="pkg_thumbnail_image">{$lang->thumbnail}</label>
 		<div class="x_controls">

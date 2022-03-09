@@ -38,8 +38,8 @@ class svmarketAppAdmin extends svmarket
 		}
 		else
 		{
-			// debugPrint($sName);
-			// trigger_error('Undefined property or method: '.$sName);
+			debugPrint($sName);
+			trigger_error('Undefined property or method: '.$sName);
             return null;
 		}
 	}
@@ -303,8 +303,6 @@ class svmarketAppAdmin extends svmarket
         $oArgs = new stdClass();
         $oArgs->app_srl = $this->_g_oOldAppHeader->app_srl;
         $oListRst = executeQueryArray('svmarket.getAdminVersionList', $oArgs);
-		// var_dump($oListRst);
-		// exit;
         unset($oArgs);
 		if(!$oListRst->toBool())
 			return $oListRst;
@@ -328,6 +326,8 @@ class svmarketAppAdmin extends svmarket
             }
             $this->_g_oOldAppHeader->version_list = $aPackedVersion;
         }
+        else
+            $this->_g_oOldAppHeader->version_list = [];
         // end - load packaged version list
 		return new BaseObject();
 	}
@@ -357,7 +357,7 @@ class svmarketAppAdmin extends svmarket
 		// begin - app info modification
 		$oArgs = new stdClass();
 		$oArgs->app_srl = $this->_g_oOldAppHeader->app_srl; // app_srl은 수정하면 안됨
-		// $oArgs->package_srl = $this->_g_oOldAppHeader->package_srl; // package_srl은 수정하면 안됨
+		// $oArgs->package_srl = $this->_g_oOldAppHeader->package_srl;
 		if($this->_g_oNewAppHeader->module_srl)
 			$oArgs->module_srl = $this->_g_oNewAppHeader->module_srl;
 		if($this->_g_oNewAppHeader->list_order)
@@ -377,8 +377,6 @@ class svmarketAppAdmin extends svmarket
 		if($this->_g_oNewAppHeader->display)
 			$oArgs->display = $this->_g_oNewAppHeader->display;
 		$oUpdateRst = executeQuery('svmarket.updateAdminApp', $oArgs);
-		// var_dump($oUpdateRst);
-		// exit;
 		unset($oArgs);
 		if(!$oUpdateRst->toBool())
 			return $oUpdateRst;

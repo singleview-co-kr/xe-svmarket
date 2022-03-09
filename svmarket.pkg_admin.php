@@ -40,6 +40,7 @@ class svmarketPkgAdmin extends svmarket
 		{
 			debugPrint($sName);
 			trigger_error('Undefined property or method: '.$sName);
+			return null;
 		}
 	}
 /**
@@ -119,7 +120,7 @@ class svmarketPkgAdmin extends svmarket
 		foreach($oNewPkgArgs as $sTitle => $sVal)
 		{
             if($sTitle!='pkg_srl')
-                $sTitle = str_replace('app_', '', $sTitle);
+                $sTitle = str_replace('pkg_', '', $sTitle);
             if(in_array($sTitle, $aIgnoreVar)) 
 				continue;
             if(in_array($sTitle, $aCleanupVar))
@@ -289,6 +290,8 @@ class svmarketPkgAdmin extends svmarket
 		unset($oDocument);
 		unset($oDocumentModel);
 
+		$this->_g_oOldPkgHeader->desc_for_editor = htmlentities($this->_g_oOldPkgHeader->description);
+
         // begin - load packaged app list
         $oArgs = new stdClass();
         $oArgs->package_srl = $this->_g_oOldPkgHeader->package_srl;
@@ -318,12 +321,9 @@ class svmarketPkgAdmin extends svmarket
             }
             unset($oParams);
             $this->_g_oOldPkgHeader->app_list = $aPackedApp;
-            // foreach($aPackedApp as $nIdx=>$oVal)
-            // {
-            // var_dump($oVal->app_srl);
-            //     echo '<BR><BR>';
-            // }
         }
+		else
+			$this->_g_oOldPkgHeader->app_list = [];
         // end - load packaged app list
 		return new BaseObject();
 	}
@@ -398,7 +398,6 @@ class svmarketPkgAdmin extends svmarket
 			$oArgs->category_node_srl = $this->_g_oNewPkgHeader->category_node_srl;
 		if($this->_g_oNewPkgHeader->title)
 			$oArgs->title = $this->_g_oNewPkgHeader->title;
-
 		if($this->_g_oNewPkgHeader->thumb_file_srl)
 			$oArgs->thumb_file_srl = $this->_g_oNewPkgHeader->thumb_file_srl;
 		if($this->_g_oNewPkgHeader->description)

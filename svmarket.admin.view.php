@@ -141,6 +141,10 @@ class svmarketAdminView extends svmarket
      */
 	public function dispSvmarketAdminInsertPkg() 
 	{
+		// editor
+		$oEditorModel = &getModel('editor');
+		Context::set('editor', $oEditorModel->getModuleEditor('document', $oItemAdmin->nModuleSrl, $oPkgAdmin->package_srl, 'package_srl', 'pkg_description'));
+		unset($oEditorModel);
 		$this->setTemplateFile('pkg_insert');
 	}
 	/**
@@ -167,6 +171,11 @@ class svmarketAdminView extends svmarket
 			return $oDetailRst;
 		unset($oDetailRst);
 		Context::set('oPkgInfo', $oPkgAdmin);
+
+		// editor
+		$oEditorModel = &getModel('editor');
+		Context::set('editor', $oEditorModel->getModuleEditor('document', $oItemAdmin->nModuleSrl, $oPkgAdmin->package_srl, 'package_srl', 'pkg_description'));
+		unset($oEditorModel);
 		$this->setTemplateFile('pkg_insert');
 	}
     /**
