@@ -31,18 +31,18 @@ class svmarketView extends svmarket
             case 'applist':
 				// Force the result output to be of XMLRPC
 				Context::setResponseMethod("XMLRPC");
-                $this->_pushAppListXml();
+                $this->_pushPackageListXml();
                 exit;
         }
 		if($oArg->document_srl)
-			$this->_showAppDetail();
+			$this->_showPackageDetail();
 		else
-			$this->_showAppList();
+			$this->_showPackageList();
     }
 	/**
-	 * @brief package app version을 모두 표시함
+	 * @brief 
 	 */
-    function _showAppDetail()
+    function _showPackageDetail()
     {
 		$oArg = Context::getRequestVars();
 		$oParams = new stdClass();
@@ -135,16 +135,16 @@ class svmarketView extends svmarket
 		return $sNoimgUrl;
 	}
 	/**
-	 * @brief svmarket server active status 통지
+	 * @brief 
 	 */
-    function _showAppList()
+    function _showPackageList()
     {
 		$oRst = executeQuery('svmarket.getLatestPkg');
-		foreach($oRst->data as $nIdx => $oApp)
+		foreach($oRst->data as $nIdx => $oPackage)
 		{
-			$oApp->item_screenshot_url = svmarketView::dispThumbnailUrl($oApp->item_screenshot_url,80);
+			$oPackage->item_screenshot_url = svmarketView::dispThumbnailUrl($oPackage->item_screenshot_url,80);
 		}
-		Context::set('aAppList', $oRst->data);
+		Context::set('aPackageList', $oRst->data);
         $this->setTemplateFile('index');
     }
 	/**
@@ -172,9 +172,13 @@ class svmarketView extends svmarket
 	/**
 	 * @brief svmarket server active package list XML 통지
 	 */
-    function _pushAppListXml()
+    function _pushPackageListXml()
     {
         $oRst = executeQuery('svmarket.getLatestPkg');
+        foreach($oRst->data as $nIdx => $oPackage)
+		{
+			$oPackage->package_description = $oPackage->og_description;
+		}
 		$sXmlResp = svmarketXmlGenerater::generatePkgList($oRst->data);
 		echo $sXmlResp;
 	}

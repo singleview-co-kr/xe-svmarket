@@ -32,6 +32,14 @@
 			<p id="pkg_title_help" class="x_help-block" hidden>{$lang->about_pkg_title}</p>
 		</div>
 	</div>
+	<div class="x_control-group">
+		<label class="x_control-label" for="pkg_og_description">OG {$lang->description}</label>
+		<div class="x_controls">
+			<input name="pkg_og_description" type="text" class="inputTypeText w300" value="{$oPkgInfo->og_description}" />
+			<a href="#pkg_og_description_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+			<p id="pkg_og_description_help" class="x_help-block" hidden>{$lang->about_pkg_og_description}</p>
+		</div>
+	</div>
     <div class="x_control-group">
         <div class="x_control-label" for="editor2">{$ua_type} {$lang->description} <em style="color:red">*</em></div>
         <div class="x_controls">

@@ -1,7 +1,7 @@
 <div class="">
     <div class="page-title">
        <div class="title_left">
-          <h3>Application List</h3>
+          <h3>Package List</h3>
        </div>
        <div class="title_right">
           <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
@@ -34,17 +34,17 @@
                       </ul>
                    </div>
                    <div class="clearfix"></div>
-<block loop="$aAppList=>$nIdx,$oItem">
+<block loop="$aPackageList=>$nIdx,$oPackage">
                    <div class="col-md-4 col-sm-4 col-xs-12">
                       <div class="well profile_view">
                          <div class="col-sm-12">
                             <h4 class="brief"><i>Module</i></h4>
                             <div class="left col-xs-7">
-                               <h2>{$oItem->title}</h2>
-                               <p><strong>About: </strong> </p>
+                               <h2>{$oPackage->title}</h2>
+                               <p><strong>About: {$oPackage->og_description}</strong> </p>
                             </div>
                             <div class="right col-xs-5 text-center">
-                               <img src="{$oItem->item_screenshot_url}" alt="" class="img-circle img-responsive">
+                               <img src="{$oPackage->item_screenshot_url}" alt="" class="img-circle img-responsive">
                             </div>
                          </div>
                          <div class="col-xs-12 bottom text-center">
@@ -59,7 +59,7 @@
                                </p>
                             </div>
                             <div class="col-xs-12 col-sm-6 emphasis">
-                               <button type="button" class="btn btn-primary btn-xs" onclick="location.href='{getUrl('document_srl',$oItem->package_srl)}'">
+                               <button type="button" class="btn btn-primary btn-xs" onclick="location.href='{getUrl('document_srl',$oPackage->package_srl)}'">
                                <i class="fa fa-user"> </i> 자세히 보기
                                </button>
                             </div>

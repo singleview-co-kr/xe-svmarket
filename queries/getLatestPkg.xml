@@ -7,7 +7,7 @@
 		<column name="category_node_srl" alias="category_srl"/>
 		<column name="title"/>
 		<column name="thumb_file_srl" alias="item_screenshot_url"/>
-		<column name="description" alias="package_description"/>
+		<column name="og_description" />
         <column name="homepage"/>
         <column name="updatetime" alias="package_last_update"/>
         <column name="regdate"  alias="package_regdate"/>

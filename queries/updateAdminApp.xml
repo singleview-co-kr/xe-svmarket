@@ -5,7 +5,8 @@
 	<columns>
 		<column name="module_srl" var="module_srl" />
 		<column name="title" var="title" />
-		<column name="description" var="description" />
+		<column name="og_description" var="og_description" />
+        <column name="description" var="description" />
         <column name="homepage" var="homepage" />
         <column name="tags" var="tags" />
 		<column name="display" var="display" />

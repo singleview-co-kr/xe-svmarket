@@ -8,6 +8,7 @@
 		<column name="category_node_srl" />
 		<column name="title"/>
 		<column name="thumb_file_srl" />
+        <column name="og_description" />
 		<column name="description" />
         <column name="homepage"/>
         <column name="updatetime" />

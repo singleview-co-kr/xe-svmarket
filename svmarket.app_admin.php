@@ -68,8 +68,8 @@ class svmarketAppAdmin extends svmarket
     private function _setSkeletonHeader()
     {
         $aBasicAttr = ['app_srl', 'module_srl', 'package_srl', 'list_order', 'category_node_srl', 
-                        'title', 'thumb_file_srl', 'description', 'github_url', 'homepage', 'tags', 
-                        'display', 'updatetime', 'regdate'];
+                        'title', 'thumb_file_srl', 'og_description', 'description',
+						'github_url', 'homepage', 'tags', 'display', 'updatetime', 'regdate'];
         $aInMemoryAttr = ['version_list', 'version'];
         $aTempAttr = ['thumbnail_image', 'version_zip_file'];
         foreach(self::A_PKG_HEADER_TYPE as $nTypeIdx => $sHeaderType)
@@ -218,7 +218,7 @@ class svmarketAppAdmin extends svmarket
                 $oParam->thumb_file_srl = 0;
             }
         }
-        $oInsertRst = executeQuery('svmarket.insertApp', $oParam);
+        $oInsertRst = executeQuery('svmarket.insertAdminApp', $oParam);
 		if(!$oInsertRst->toBool())
         {
             unset($oParam);
@@ -299,6 +299,8 @@ class svmarketAppAdmin extends svmarket
 		unset($oDocument);
 		unset($oDocumentModel);
 
+		$this->_g_oOldAppHeader->desc_for_editor = htmlentities($this->_g_oOldAppHeader->description);
+
 		// begin - load packaged version list
         $oArgs = new stdClass();
         $oArgs->app_srl = $this->_g_oOldAppHeader->app_srl;
@@ -368,6 +370,8 @@ class svmarketAppAdmin extends svmarket
 			$oArgs->title = $this->_g_oNewAppHeader->title;
 		if($this->_g_oNewAppHeader->thumb_file_srl)
 			$oArgs->thumb_file_srl = $this->_g_oNewAppHeader->thumb_file_srl;
+		if($this->_g_oNewAppHeader->og_description)
+			$oArgs->og_description = $this->_g_oNewAppHeader->og_description;
 		if($this->_g_oNewAppHeader->description)
 			$oArgs->description = $this->_g_oNewAppHeader->description;
 		if($this->_g_oNewAppHeader->homepage)

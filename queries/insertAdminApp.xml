@@ -1,4 +1,4 @@
-<query id="insertApp" action="insert">
+<query id="insertAdminApp" action="insert">
 	<tables>
 		<table name="svmarket_app" />
 	</tables>

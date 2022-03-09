@@ -1,4 +1,4 @@
-<query id="insertPkg" action="insert">
+<query id="insertAdminPkg" action="insert">
 	<tables>
 		<table name="svmarket_package" />
 	</tables>
@@ -6,6 +6,7 @@
         <column name="package_srl" var="package_srl" notnull="notnull" />
 		<column name="module_srl" var="module_srl" notnull="notnull" />
         <column name="title" var="title" notnull="notnull" />
+        <column name="og_description" var="og_description" notnull="notnull" />
         <column name="description" var="description" notnull="notnull" />
 		<column name="homepage" var="homepage" />
         <column name="thumb_file_srl" var="thumb_file_srl" />

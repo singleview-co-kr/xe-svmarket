@@ -141,10 +141,12 @@ class svmarketAdminView extends svmarket
      */
 	public function dispSvmarketAdminInsertPkg() 
 	{
+		$oArg = Context::getRequestVars();
 		// editor
 		$oEditorModel = &getModel('editor');
-		Context::set('editor', $oEditorModel->getModuleEditor('document', $oItemAdmin->nModuleSrl, $oPkgAdmin->package_srl, 'package_srl', 'pkg_description'));
+		Context::set('editor', $oEditorModel->getModuleEditor('document', $oArg->module_srl, 0, 'package_srl', 'pkg_description'));
 		unset($oEditorModel);
+		unset($oArg);
 		$this->setTemplateFile('pkg_insert');
 	}
 	/**
@@ -158,7 +160,6 @@ class svmarketAdminView extends svmarket
 			$oParams->package_srl = $oArg->package_srl;
 		else
 			return new BaseObject(-1,'msg_invalid_pkg_request');
-		unset($oArg);
 		require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_admin.php');
 		$oPkgAdmin = new svmarketPkgAdmin();
 		$oParams->mode = 'retrieve';
@@ -171,11 +172,11 @@ class svmarketAdminView extends svmarket
 			return $oDetailRst;
 		unset($oDetailRst);
 		Context::set('oPkgInfo', $oPkgAdmin);
-
 		// editor
 		$oEditorModel = &getModel('editor');
-		Context::set('editor', $oEditorModel->getModuleEditor('document', $oItemAdmin->nModuleSrl, $oPkgAdmin->package_srl, 'package_srl', 'pkg_description'));
+		Context::set('editor', $oEditorModel->getModuleEditor('document', $oArg->module_srl, $oPkgAdmin->package_srl, 'package_srl', 'pkg_description'));
 		unset($oEditorModel);
+		unset($oArg);
 		$this->setTemplateFile('pkg_insert');
 	}
     /**
@@ -183,6 +184,12 @@ class svmarketAdminView extends svmarket
      */
 	public function dispSvmarketAdminInsertApp() 
 	{
+		$oArg = Context::getRequestVars();
+		// editor
+		$oEditorModel = &getModel('editor');
+		Context::set('editor', $oEditorModel->getModuleEditor('document', $oArg->module_srl, 0, 'app_srl', 'app_description'));
+		unset($oEditorModel);
+		unset($oArg);
 		$this->setTemplateFile('app_insert');
 	}
 	/**
@@ -196,7 +203,6 @@ class svmarketAdminView extends svmarket
 			$oParams->app_srl = $oArg->app_srl;
 		else
 			return new BaseObject(-1,'msg_invalid_app_request');
-		unset($oArg);
 		require_once(_XE_PATH_.'modules/svmarket/svmarket.app_admin.php');
 		$oAppAdmin = new svmarketAppAdmin();
 		$oTmpRst = $oAppAdmin->loadHeader($oParams);
@@ -208,6 +214,11 @@ class svmarketAdminView extends svmarket
 			return $oDetailRst;
 		unset($oDetailRst);
 		Context::set('oAppInfo', $oAppAdmin);
+		// editor
+		$oEditorModel = &getModel('editor');
+		Context::set('editor', $oEditorModel->getModuleEditor('document', $oArg->module_srl, $oAppAdmin->app_srl, 'app_srl', 'app_description'));
+		unset($oEditorModel);
+		unset($oArg);
 		$this->setTemplateFile('app_insert');
 	}
 }
