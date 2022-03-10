@@ -271,8 +271,8 @@ class svmarketVersionAdmin extends svmarket
         // begin - get appending file info
         $oFileModel = getModel('file');
         $this->_g_oOldVersionHeader->oVersionFile = $oFileModel->getFile($this->_g_oOldVersionHeader->zip_file_srl);
-        // var_dump($this->_g_oOldVersionHeader->oVersionFile);
-        // exit;
+        if(!$this->_g_oOldVersionHeader->description)
+            $this->_g_oOldVersionHeader->description = $this->version.'을 다운로드하세요.';
         unset($oFileModel);
         // end - get appending file info
 		return new BaseObject();

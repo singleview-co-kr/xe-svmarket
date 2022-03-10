@@ -35,14 +35,14 @@ class svmarketView extends svmarket
                 exit;
         }
 		if($oArg->document_srl)
-			$this->_showPackageDetail();
+			$this->_showDetail();
 		else
 			$this->_showPackageList();
     }
 	/**
 	 * @brief 
 	 */
-    function _showPackageDetail()
+    function _showDetail()
     {
 		$oArg = Context::getRequestVars();
 		$oParams = new stdClass();
@@ -50,54 +50,69 @@ class svmarketView extends svmarket
 			$oParams->package_srl = $oArg->document_srl;
 		else
 			return new BaseObject(-1,'msg_invalid_pkg_request');
-		// unset($oArg);
 
-		require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_admin.php');
-		$oPkgAdmin = new svmarketPkgAdmin();
-		$oTmpRst = $oPkgAdmin->loadHeader($oParams);
-        // var_dump($oTmpRst);
-        // exit;
-		if($oTmpRst->toBool())  // display package
+        $oSvmarketModel = getModel('svmarket');
+        $oRst = $oSvmarketModel->classifyReqByDocumentSrl($this->module_info->module_srl, $oArg->document_srl);
+        if(!$oRst->toBool()) 
+            return $oRst;
+        $sReqType = $oRst->get('req_type');
+        unset($oRst);
+        switch($sReqType)
         {
-            unset($oTmpRst);
-            $oPkgDetailRst = $oPkgAdmin->loadDetail();
-            if(!$oPkgDetailRst->toBool())
-                return $oPkgDetailRst;
-            unset($oPkgDetailRst);
-            // set browser title
-            Context::setBrowserTitle(strip_tags($oPkgAdmin->title).' - '.Context::getBrowserTitle());
-            Context::set('oPkgInfo', $oPkgAdmin);
-            $this->setTemplateFile('pkg_detail');
-        }
-        else  // display app
-        {
-            $oParams->app_srl = $oArg->document_srl;
-            require_once(_XE_PATH_.'modules/svmarket/svmarket.app_admin.php');
-            $oAppAdmin = new svmarketAppAdmin();
-            $oAppDetailRst = $oAppAdmin->loadHeader($oParams);
-            if($oAppDetailRst->toBool())
-            {
+            case 'package':
+                require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_admin.php');
+                $oPkgAdmin = new svmarketPkgAdmin();
+                $oTmpRst = $oPkgAdmin->loadHeader($oParams);
+                if(!$oTmpRst->toBool())  // display package
+                    return $oTmpRst;
+                unset($oTmpRst);
+                $oPkgDetailRst = $oPkgAdmin->loadDetail();
+                if(!$oPkgDetailRst->toBool())
+                    return $oPkgDetailRst;
+                unset($oPkgDetailRst);
+                // set browser title
+                Context::setBrowserTitle(strip_tags($oPkgAdmin->title).' - '.Context::getBrowserTitle());
+                Context::set('oPkgInfo', $oPkgAdmin);
+                $this->setTemplateFile('pkg_detail');
+                break;
+            case 'app':
+                $oParams->app_srl = $oArg->document_srl;
+                require_once(_XE_PATH_.'modules/svmarket/svmarket.app_admin.php');
+                $oAppAdmin = new svmarketAppAdmin();
+                $oAppDetailRst = $oAppAdmin->loadHeader($oParams);
+                if(!$oAppDetailRst->toBool())
+                    return $oAppDetailRst;
                 unset($oAppDetailRst);
                 $oAppDetailRst = $oAppAdmin->loadDetail();
                 if(!$oAppDetailRst->toBool())
                     return $oAppDetailRst;
                 unset($oAppDetailRst);
+                // set browser title
                 Context::setBrowserTitle(strip_tags($oAppAdmin->title).' - '.Context::getBrowserTitle());
                 Context::set('oAppInfo', $oAppAdmin);
                 $this->setTemplateFile('app_detail');
-
-            }
-            else  // display version
-            {
-
-            }
-            return $oAppDetailRst;
-            echo __FILE__.':'.__LINE__.'<BR>';
+                break;
+            case 'version':
+                $oParams->version_srl = $oArg->document_srl;
+                require_once(_XE_PATH_.'modules/svmarket/svmarket.version_admin.php');
+                $oVersionAdmin = new svmarketVersionAdmin();
+                $oVersionDetailRst = $oVersionAdmin->loadHeader($oParams);
+                if(!$oVersionDetailRst->toBool())
+                    return $oVersionDetailRst;
+                unset($oVersionDetailRst);
+                $oVersionDetailRst = $oVersionAdmin->loadDetail();
+                if(!$oVersionDetailRst->toBool())
+                    return $oVersionDetailRst;
+                unset($oVersionDetailRst);
+                // set browser title
+                Context::setBrowserTitle(strip_tags($oVersionAdmin->version).' - '.Context::getBrowserTitle());
+                Context::set('oVersionInfo', $oVersionAdmin);
+                $this->setTemplateFile('version_detail');
+                break;
+            default:
+                return new BaseObject(-1,'msg_invalid_pkg_request');
         }
-            
 
-		return new BaseObject(-1,'msg_invalid_pkg_request');
-		
     }
 	/**
 	 * @brief 스킨에서 호출하는 메쏘드
