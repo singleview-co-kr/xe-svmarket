@@ -38,6 +38,9 @@
 	<item name="app_title">
 		<value xml:lang="ko"><![CDATA[앱 제목]]></value>
 	</item>
+    <item name="app_install_path">
+		<value xml:lang="ko"><![CDATA[앱 설치 경로]]></value>
+	</item>
 	<item name="list_order">
 		<value xml:lang="ko"><![CDATA[진열순서]]></value>
 	</item>

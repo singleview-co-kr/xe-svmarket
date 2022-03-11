@@ -23,7 +23,7 @@ class svmarketModel extends svmarket
         $oTmpArgs = new stdClass();
         // find package
         $oTmpArgs->package_srl = $nDocumentSrl;
-		$oRst = executeQuery('svmarket.getPkgDetail', $oTmpArgs);
+		$oRst = executeQuery('svmarket.getAdminPkgDetail', $oTmpArgs);
         if(!$oRst->toBool()) 
             return $oRst;
         if(is_object($oRst->data))

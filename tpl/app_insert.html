@@ -24,13 +24,21 @@
 	<input name="app_srl" type="hidden" value="{$app_srl}" />
 </block>
 
-	<h1>{$lang->title_app_basic_info}</h1>
+	<h1>{$oAppInfo->package_title} - {$oAppInfo->title} {$lang->title_app_basic_info}</h1>
 	<div class="x_control-group">
 		<label class="x_control-label" for="app_title">{$lang->app_title}</label>
 		<div class="x_controls">
 			<input name="app_title" type="text" class="inputTypeText w300" value="{$oAppInfo->title}" />
 			<a href="#app_title_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
 			<p id="app_title_help" class="x_help-block" hidden>{$lang->about_app_title}</p>
+		</div>
+	</div>
+    <div class="x_control-group">
+		<label class="x_control-label" for="app_title">{$lang->app_install_path}</label>
+		<div class="x_controls">
+			<input name="app_install_path" type="text" class="inputTypeText w300" value="{$oAppInfo->install_path}" />
+			<a href="#app_install_path_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+			<p id="app_install_path_help" class="x_help-block" hidden>{$lang->about_app_install_path}</p>
 		</div>
 	</div>
 	<div class="x_control-group">

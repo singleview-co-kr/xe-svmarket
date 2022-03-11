@@ -13,22 +13,14 @@
 
 <form method="post" action="./" class="x_form-horizontal" enctype="multipart/form-data">
 	<input name="module" type="hidden" value="{$module}" />
+    <input name="act" type="hidden" value="procSvmarketAdminUpdateVersion" />
 	<input name="module_srl" type="hidden" value="{$module_srl}" />
 	<input name="package_srl" type="hidden" value="{$package_srl}" />
     <input name="app_srl" type="hidden" value="{$app_srl}" />
     <input name="version_srl" type="hidden" value="{$version_srl}" />
 	<input name="version_description" type="hidden" value="{$oVersionInfo->desc_for_editor}" />
-	<input name="act" type="hidden" value="procSvmarketAdminUpdateVersion" />
 
-	<h1>{$lang->title_version_basic_info}</h1>
-	<div class="x_control-group">
-		<label class="x_control-label" for="version_title">{$lang->version}</label>
-		<div class="x_controls">
-			{$oVersionInfo->version}
-			<a href="#app_title_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
-			<p id="app_title_help" class="x_help-block" hidden>{$lang->about_app_title}</p>
-		</div>
-	</div>
+	<h1>{$oVersionInfo->package_title} - {$oVersionInfo->app_title} - {$oVersionInfo->version} {$lang->title_version_basic_info}</h1>
 	<div class="x_control-group">
 		<label class="x_control-label" for="version_og_description">OG {$lang->description}</label>
 		<div class="x_controls">
