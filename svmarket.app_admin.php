@@ -300,6 +300,8 @@ class svmarketAppAdmin extends svmarket
 		unset($oDocumentModel);
 
 		$this->_g_oOldAppHeader->desc_for_editor = htmlentities($this->_g_oOldAppHeader->description);
+        if(!$this->_g_oOldAppHeader->og_description)
+			$this->_g_oOldAppHeader->og_description = mb_substr(html_entity_decode(strip_tags($this->_g_oOldAppHeader->description)), 0, 40, 'utf-8');
 
 		// begin - load packaged version list
         $oArgs = new stdClass();

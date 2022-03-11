@@ -7,10 +7,6 @@
  */
 class svmarketAdminView extends svmarket
 {
-	var $module_srl = 0;
-	var $list_count = 20;
-	var $page_count = 10;
-
 	/**
 	 * @brief Initialization
 	 */
@@ -220,6 +216,35 @@ class svmarketAdminView extends svmarket
 		unset($oEditorModel);
 		unset($oArg);
 		$this->setTemplateFile('app_insert');
+	}
+    /**
+     * @brief 
+     */
+	public function dispSvmarketAdminUpdateVersion() 
+	{
+		$oArg = Context::getRequestVars();
+		$oParams = new stdClass();
+		if($oArg->version_srl)
+			$oParams->version_srl = $oArg->version_srl;
+		else
+			return new BaseObject(-1,'msg_invalid_version_request');
+		require_once(_XE_PATH_.'modules/svmarket/svmarket.version_admin.php');
+		$oVersionAdmin = new svmarketVersionAdmin();
+		$oTmpRst = $oVersionAdmin->loadHeader($oParams);
+		if(!$oTmpRst->toBool())
+			return new BaseObject(-1,'msg_invalid_version_request');
+		unset($oTmpRst);
+		$oDetailRst = $oVersionAdmin->loadDetail();
+		if(!$oDetailRst->toBool())
+			return $oDetailRst;
+		unset($oDetailRst);
+		Context::set('oVersionInfo', $oVersionAdmin);
+		// editor
+		$oEditorModel = &getModel('editor');
+		Context::set('editor', $oEditorModel->getModuleEditor('document', $oArg->module_srl, $oVersionAdmin->version_srl, 'version_srl', 'version_description'));
+		unset($oEditorModel);
+		unset($oArg);
+		$this->setTemplateFile('version_update');
 	}
 }
 /* End of file svmarket.class.php */

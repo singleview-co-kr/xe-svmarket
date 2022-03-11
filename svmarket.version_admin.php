@@ -64,7 +64,8 @@ class svmarketVersionAdmin extends svmarket
     private function _setSkeletonHeader()
     {
         $aBasicAttr = ['version_srl', 'app_srl', 'module_srl', 'package_srl', 
-                        'version', 'zip_file_srl', 'description', 'updatetime', 'regdate'];
+                        'version', 'zip_file_srl', 'og_description', 'description', 
+						'updatetime', 'regdate'];
         //$aInMemoryAttr = ['review_count', 'mid', 'sDescription', 'extra_vars']; // 'extra_vars'는 unserialize된 구조체 적재
         $aTempAttr = ['version_zip_file'];
         foreach(self::A_PKG_HEADER_TYPE as $nTypeIdx => $sHeaderType)
@@ -248,7 +249,7 @@ class svmarketVersionAdmin extends svmarket
 		return $oTmpRst;
 	}
 /**
-* @brief 기존 패키지 상세 정보 적재
+* @brief 기존 버전 상세 정보 적재
 **/
 	public function loadDetail()
 	{
@@ -257,7 +258,6 @@ class svmarketVersionAdmin extends svmarket
 		// for sns share
 		$oDocumentModel = getModel('document');
 		$oDocument = $oDocumentModel->getDocument($this->_g_oOldVersionHeader->package_srl);
-		// $this->_g_oOldVersionHeader->enhanced_item_info->item_brief = $oDocument->getContent(false);
 
 		$oDbInfo = Context::getDBInfo();
 		$oSnsInfo = new stdClass();
@@ -267,6 +267,10 @@ class svmarketVersionAdmin extends svmarket
 		unset($oDbInfo);
 		unset($oDocument);
 		unset($oDocumentModel);
+
+		$this->_g_oOldVersionHeader->desc_for_editor = htmlentities($this->_g_oOldVersionHeader->description);
+		if(!$this->_g_oOldVersionHeader->og_description)
+			$this->_g_oOldVersionHeader->og_description = mb_substr(html_entity_decode(strip_tags($this->_g_oOldVersionHeader->description)), 0, 40, 'utf-8');
 
         // begin - get appending file info
         $oFileModel = getModel('file');
@@ -289,7 +293,7 @@ class svmarketVersionAdmin extends svmarket
 			return new BaseObject(-1,'msg_invalid_request');
 		
 		// 고정값은 외부 쿼리로 변경하지 않음
-		$this->_g_oNewVersionHeader->package_srl = $this->_g_oOldVersionHeader->package_srl;
+		$this->_g_oNewVersionHeader->version_srl = $this->_g_oOldVersionHeader->version_srl;
 		if($this->_g_oNewVersionHeader->module_srl == svmarket::S_NULL_SYMBOL)
 			$this->_g_oNewVersionHeader->module_srl = $this->_g_oOldVersionHeader->module_srl;
 		return $this->_updateVersion();
@@ -302,33 +306,15 @@ class svmarketVersionAdmin extends svmarket
 		$this->_nullifyHeader();
 		// 기본 정보 설정
 		$oArgs = new stdClass();
-		$oArgs->package_srl = $this->_g_oOldVersionHeader->package_srl; // package_srl은 수정하면 안됨
-		if($this->_g_oNewVersionHeader->module_srl)
-			$oArgs->module_srl = $this->_g_oNewVersionHeader->module_srl;
-		if($this->_g_oNewVersionHeader->list_order)
-			$oArgs->list_order = $this->_g_oNewVersionHeader->list_order;
-		if($this->_g_oNewVersionHeader->category_node_srl)
-			$oArgs->category_node_srl = $this->_g_oNewVersionHeader->category_node_srl;
-		if($this->_g_oNewVersionHeader->title)
-			$oArgs->title = $this->_g_oNewVersionHeader->title;
-		if($this->_g_oNewVersionHeader->thumb_file_srl)
-			$oArgs->thumb_file_srl = $this->_g_oNewVersionHeader->thumb_file_srl;
+		$oArgs->version_srl = $this->_g_oOldVersionHeader->version_srl; // package_srl은 수정하면 안됨
+		if($this->_g_oNewVersionHeader->og_description)
+			$oArgs->og_description = $this->_g_oNewVersionHeader->og_description;
 		if($this->_g_oNewVersionHeader->description)
 			$oArgs->description = $this->_g_oNewVersionHeader->description;
-		if($this->_g_oNewVersionHeader->homepage)
-			$oArgs->homepage = $this->_g_oNewVersionHeader->homepage;
-		if($this->_g_oNewVersionHeader->tags)
-			$oArgs->tags = $this->_g_oNewVersionHeader->tags;
-		if($this->_g_oNewVersionHeader->display)
-			$oArgs->display = $this->_g_oNewVersionHeader->display;
-		
-		$oUpdateRst = executeQuery('svmarket.updateAdminPkg', $oArgs);
+		$oUpdateRst = executeQuery('svmarket.updateAdminVersion', $oArgs);
 		unset($oArgs);
 		if(!$oUpdateRst->toBool())
 			return $oUpdateRst;
-		//unset($oUpdateRst);
-		// 첨부 이미지 파일 처리
-		//$oUpdateRst = $this->_procThumbnailImages();
 		return $oUpdateRst;
 	}
 /**
@@ -493,38 +479,6 @@ class svmarketVersionAdmin extends svmarket
 	//////////////// for debug only
 			}
 		}
-	}
-/**
- * @brief 첨부 이미지 파일 처리
- **/
-	private function _procThumbnailImages()
-	{
-		$oFileController = getController('file');
-		// 카탈로그 썸네일 파일 변경
-		if(is_uploaded_file($this->_g_oNewItemHeader->thumbnail_image['tmp_name'])) 
-		{
-			// delete old catalog thumbnail
-			if($this->_g_oOldItemHeader->thumb_file_srl) 
-				$oFileController->deleteFile($this->_g_oOldItemHeader->thumb_file_srl);
-			// attach new catalog thumbnail
-			$oTmpRst = $oFileController->insertFile($this->_g_oNewItemHeader->thumbnail_image, $this->_g_oNewItemHeader->module_srl, $this->_g_oNewItemHeader->item_srl);
-			if(!$oTmpRst || !$oTmpRst->toBool())
-				return $oTmpRst;
-			$this->_g_oNewItemHeader->thumb_file_srl = $oTmpRst->get('file_srl');
-			unset($oTmpRst);
-			$oTmpArgs->item_srl = $this->_g_oNewItemHeader->item_srl;
-			$oTmpArgs->thumb_file_srl = $this->_g_oNewItemHeader->thumb_file_srl;
-			$oUpdateRst = executeQuery('svmarket.updateItemFile', $oTmpArgs);
-			if(!$oUpdateRst->toBool())
-				return $oUpdateRst;
-			unset($oUpdateRst);
-			unset($oTmpArgs);
-			$oFileController->setFilesValid($this->_g_oNewItemHeader->item_srl);
-		}
-		// 갤러리 썸네일 이미지를 첨부한 후 저장한 상황에 대응
-		$oFileController->setFilesValid($this->_g_oNewItemHeader->gallery_doc_srl);
-		unset($oFileController);
-		return new BaseObject();
 	}
 }
 /* End of file svmarket.pkg_admin.php */

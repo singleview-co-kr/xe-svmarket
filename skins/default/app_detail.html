@@ -36,7 +36,6 @@
                       <li class="hidden-phone">
                         <span class="name"> Path </span>
                         <span class="value text-success"> ./modules/svmarket </span>
-                         
                       </li>
                    </ul>
                    <br />
@@ -46,18 +45,16 @@
                       <!-- end of user messages -->
                       <ul class="messages">
 <block loop="$oAppInfo->version_list=>$no,$oVersionInfo">
-{@
-//var_dump($oVersionInfo->description);
-}
-                            <span class="price-tax"></span><BR>
+                        <span class="price-tax"></span><BR>
                         <li>
                             <img src="./images/sv_logo.png" class="avatar" alt="Avatar">
-                            <div class="message_date">
+                            <!--div class="message_date">
                                 <h3 class="date text-info">{date("j", strtotime((int)$oVersionInfo->regdate))}</h3>
                                 <p class="month">{date("F Y", strtotime((int)$oVersionInfo->regdate))}</p>
-                            </div>
+                            </div--->
                             <div class="message_wrapper">
-                                <h4 class="heading"><a href="{getUrl('document_srl',$oVersionInfo->version_srl)}">{$oVersionInfo->version}</a> &nbsp;&nbsp;  <small>{$oVersionInfo->oVersionFile->download_count} downloaded</small></h4>
+                                <h4 class="heading"><a href="{getUrl('document_srl',$oVersionInfo->version_srl)}">{$oVersionInfo->version}</a>
+                                   <small>@ {$oVersionInfo->regdate} &nbsp;&nbsp; {$oVersionInfo->oVersionFile->download_count} downloaded</small></h4>
                                 <blockquote class="message">{$oVersionInfo->description}</blockquote>
                                 <br />
                                 <p class="url">

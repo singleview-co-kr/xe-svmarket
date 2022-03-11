@@ -58,4 +58,7 @@
 	<item name="title_version_info">
 		<value xml:lang="ko"><![CDATA[추가할 버전 정보]]></value>
 	</item>
+	<item name="title_version_basic_info">
+		<value xml:lang="ko"><![CDATA[버전 기본 정보]]></value>
+	</item>
 </lang>

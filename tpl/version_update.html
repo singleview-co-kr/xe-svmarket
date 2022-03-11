@@ -1,0 +1,49 @@
+<include target="_header.html" />
+
+<div cond="$XE_VALIDATOR_MESSAGE && $inc != 'skininfo'" class="message {$XE_VALIDATOR_MESSAGE_TYPE}">
+	<p>{$XE_VALIDATOR_MESSAGE}</p>
+</div>
+<load target="js/script.js" />
+
+<style>
+	.x_controls ul { list-style:none; margin:0; padding:0; }
+	.x_controls ul li { float:left; margin-right:10px;}
+	.x_control-group .x_controls select.category { min-width:140px; }
+</style>
+
+<form method="post" action="./" class="x_form-horizontal" enctype="multipart/form-data">
+	<input name="module" type="hidden" value="{$module}" />
+	<input name="module_srl" type="hidden" value="{$module_srl}" />
+	<input name="package_srl" type="hidden" value="{$package_srl}" />
+    <input name="app_srl" type="hidden" value="{$app_srl}" />
+    <input name="version_srl" type="hidden" value="{$version_srl}" />
+	<input name="version_description" type="hidden" value="{$oVersionInfo->desc_for_editor}" />
+	<input name="act" type="hidden" value="procSvmarketAdminUpdateVersion" />
+
+	<h1>{$lang->title_version_basic_info}</h1>
+	<div class="x_control-group">
+		<label class="x_control-label" for="version_title">{$lang->version}</label>
+		<div class="x_controls">
+			{$oVersionInfo->version}
+			<a href="#app_title_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+			<p id="app_title_help" class="x_help-block" hidden>{$lang->about_app_title}</p>
+		</div>
+	</div>
+	<div class="x_control-group">
+		<label class="x_control-label" for="version_og_description">OG {$lang->description}</label>
+		<div class="x_controls">
+			<input name="version_og_description" type="text" class="inputTypeText w300" value="{$oVersionInfo->og_description}" />
+			<a href="#version_og_descriptionn_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+			<p id="version_og_descriptionn_help" class="x_help-block" hidden>{$lang->about_version_og_description}</p>
+		</div>
+	</div>
+    <div class="x_control-group">
+        <div class="x_control-label" for="editor2">{$lang->description} <em style="color:red">*</em></div>
+        <div class="x_controls">
+            {$editor}
+        </div>
+    </div>
+    <div class="x_clearfix btnArea">
+		<button type="submit" class="x_btn x_btn-primary">{$lang->cmd_submit}</button>
+	</div>
+</form>

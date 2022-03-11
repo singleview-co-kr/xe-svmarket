@@ -5,6 +5,7 @@
     <column name="app_srl" type="number" size="11" default="0" notnull="notnull" index="idx_app_srl" />
 	<column name="version" type="varchar" size="10" notnull="notnull" />
     <column name="zip_file_srl" type="number" size="11" default="0" notnull="notnull" />
+    <column name="og_description" type="varchar" size="64" notnull="notnull" />
     <column name="description" type="text" />
 	<column name="regdate" type="date" notnull="notnull" />
 </table>

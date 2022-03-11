@@ -194,6 +194,57 @@ class svmarketAdminController extends svmarket
 			return;
 		}
 	}
+    /**
+     * @brief update version
+     **/
+	public function procSvmarketAdminUpdateVersion() 
+	{
+		$oArgs = Context::getRequestVars();
+		$oParams = new stdClass();
+		if($oArgs->package_srl)
+			$nPkgSrl = $oArgs->package_srl;
+		else
+			return new BaseObject(-1,'msg_invalid_version_request');
+		if($oArgs->app_srl)
+			$nAppSrl = $oArgs->app_srl;
+		else
+			return new BaseObject(-1,'msg_invalid_version_request');
+        if($oArgs->version_srl)
+        {
+            $nVersionSrl = $oArgs->version_srl;
+            $oParams->version_srl = $nVersionSrl;
+        }
+        else
+            return new BaseObject(-1,'msg_invalid_version_request');
+		require_once(_XE_PATH_.'modules/svmarket/svmarket.version_admin.php');
+		$oVersionAdmin = new svmarketVersionAdmin();
+		$oTmpRst = $oVersionAdmin->loadHeader($oParams);
+        unset($oParams);
+		if(!$oTmpRst->toBool())
+			return new BaseObject(-1,'msg_invalid_app_request');
+		unset($oTmpRst);
+		$oUpdateRst = $oVersionAdmin->update($oArgs);
+        // var_dump($oUpdateRst);
+        // exit;
+
+
+		if(!$oUpdateRst->toBool())
+		{
+			unset($oArgs);
+			unset($oVersionAdmin);
+			return $oUpdateRst;
+		}
+        $this->setMessage('success_registed');
+		unset($oArgs);
+		unset($oVersionAdmin);
+		unset($oUpdateRst);
+		if(!in_array(Context::getRequestMethod(),array('XMLRPC','JSON')))
+		{
+			$sReturnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module',Context::get('module'),'act','dispSvmarketAdminUpdateVersion','module_srl',Context::get('module_srl'),'package_srl',$nPkgSrl,'app_srl',$nAppSrl,'version_srl',$nVersionSrl);
+			$this->setRedirectUrl($sReturnUrl);
+			return;
+		}
+	}
 
 	/**
 	* @brief update mid level config
@@ -218,39 +269,6 @@ class svmarketAdminController extends svmarket
 		$oModuleController = &getController('module');
 		$oRst = $oModuleController->updateModule($oConfig);
 		return $oRst;
-	}
-    
-
-	/**
-	 * @brief Upload attachments
-	 */
-	function procUploadFile()
-	{
-		// Basic variables setting
-		$upload_target_srl = Context::get('upload_target_srl');
-		$module_srl = Context::get('module_srl');
-		// Create the controller object file class
-		$oFileController = getController('file');
-		$output = $oFileController->insertFile($module_srl, $upload_target_srl);
-		// Attachment to the output of the list, java script
-		$oFileController->printUploadedFileList($upload_target_srl);
-	}
-
-	/**
-	 * @brief Delete the attachment
-	 * Delete individual files in the editor using
-	 */
-	function procDeleteFile()
-	{
-		// Basic variable setting(upload_target_srl and module_srl set)
-		$upload_target_srl = Context::get('upload_target_srl');
-		$module_srl = Context::get('module_srl');
-		$file_srl = Context::get('file_srl');
-		// Create the controller object file class
-		$oFileController = getController('file');
-		if($file_srl) $output = $oFileController->deleteFile($file_srl, $this->grant->manager);
-		// Attachment to the output of the list, java script
-		$oFileController->printUploadedFileList($upload_target_srl);
 	}
 }
 /* End of file svmarket.admin.controller.php */
