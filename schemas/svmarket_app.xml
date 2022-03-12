@@ -4,13 +4,14 @@
     <column name="package_srl" type="number" size="11" default="0" notnull="notnull" index="idx_package_srl" />
 	<column name="list_order" type="number" size="11" notnull="notnull" default="1" index="idx_list_order" />
 	<column name="category_node_srl" type="number" size="11" default="0" notnull="notnull" index="idx_category_node_srl" />
-	<column name="title" type="varchar" size="64" notnull="notnull" />
-    <column name="install_path" type="varchar" size="64" notnull="notnull" />
-    <column name="thumb_file_srl" type="number" size="11" default="0" notnull="notnull" />
+	<column name="type_srl" type="number" size="11" default="-1" notnull="notnull" />
+    <column name="name" type="varchar" size="30" notnull="notnull" />
+    <column name="title" type="varchar" size="64" notnull="notnull" />
     <column name="og_description" type="varchar" size="64" notnull="notnull" />
     <column name="description" type="text" />
     <column name="github_url" type="varchar" size="250" />
     <column name="homepage" type="varchar" size="250" />
+    <column name="thumb_file_srl" type="number" size="11" default="0" notnull="notnull" />
 	<column name="tags" type="varchar" size="250" />
     <column name="display" type="char" size="1" default="N" notnull="notnull" />
 	<column name="updatetime" type="date" notnull="notnull" index="idx_updatetime" />

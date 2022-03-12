@@ -9,7 +9,7 @@ class svmarketVersionAdmin extends svmarket
 	private $_g_oLoggedInfo = NULL;
 	private $_g_oOldVersionHeader = NULL; // 정보 수정할 때 과거 상태에 관한 참조일 뿐
 	private $_g_oNewVersionHeader = NULL; // 항상 현재 쓰기의 기준
-	const A_PKG_HEADER_TYPE = ['_g_oNewVersionHeader', '_g_oOldVersionHeader'];
+	const A_VERSION_HEADER_TYPE = ['_g_oNewVersionHeader', '_g_oOldVersionHeader'];
 /**
  * @brief 생성자
  * $oParams->oSvitemConfig
@@ -64,13 +64,10 @@ class svmarketVersionAdmin extends svmarket
 	{
 		$this->_initHeader();
 		$this->_matchNewPkgInfo($oNewVersionArgs);
-        
 		if($this->_g_oNewVersionHeader->package_srl == svmarket::S_NULL_SYMBOL || 
             $this->_g_oNewVersionHeader->module_srl == svmarket::S_NULL_SYMBOL || 
 			$this->_g_oNewVersionHeader->title == svmarket::S_NULL_SYMBOL)
 			return new BaseObject(-1,'msg_invalid_request');
-		// if($sMode == 'bulk' ) // excel bulk upload mode
-		// 	;
 		return $this->_insertVersion();
 	}
     /**
@@ -127,7 +124,6 @@ class svmarketVersionAdmin extends svmarket
 		$this->_g_oOldVersionHeader->app_title = $oTmpRst->data->title;
         unset($oTmpRst);
         // end - breadcrumb info
-
 
 		// begin sns share
 		// $oDocumentModel = getModel('document');
@@ -192,8 +188,8 @@ class svmarketVersionAdmin extends svmarket
                         'version', 'zip_file_srl', 'og_description', 'description', 
 						'updatetime', 'regdate'];
         $aInMemoryAttr = ['package_title', 'app_title'];
-        $aTempAttr = ['version_zip_file'];
-        foreach(self::A_PKG_HEADER_TYPE as $nTypeIdx => $sHeaderType)
+        $aTempAttr = ['zip_file'];
+        foreach(self::A_VERSION_HEADER_TYPE as $nTypeIdx => $sHeaderType)
         {
             $this->{$sHeaderType} = new stdClass();
             foreach($aBasicAttr as $nAttrIdx => $sAttrName)
@@ -239,15 +235,15 @@ class svmarketVersionAdmin extends svmarket
         $oParam->description = $this->_g_oNewVersionHeader->description;
 
         // save version zip file
-        if($this->_g_oNewVersionHeader->version_zip_file['tmp_name']) 
+        if($this->_g_oNewVersionHeader->zip_file['tmp_name']) 
         {
-            if(is_uploaded_file($this->_g_oNewVersionHeader->version_zip_file['tmp_name'])) // single upload via web interface mode
+            if(is_uploaded_file($this->_g_oNewVersionHeader->zip_file['tmp_name'])) // single upload via web interface mode
             {
-                $sFileExt = svmarket::getFileExt($this->_g_oNewVersionHeader->version_zip_file['name']);
+                $sFileExt = svmarket::getFileExt($this->_g_oNewVersionHeader->zip_file['name']);
                 if($sFileExt == 'zip')
                 {
                     $oFileController = getController('file');
-                    $oFileRst = $oFileController->insertFile($this->_g_oNewVersionHeader->version_zip_file, $this->_g_oNewVersionHeader->module_srl, $this->_g_oNewVersionHeader->version_srl);
+                    $oFileRst = $oFileController->insertFile($this->_g_oNewVersionHeader->zip_file, $this->_g_oNewVersionHeader->module_srl, $this->_g_oNewVersionHeader->version_srl);
                     if(!$oFileRst || !$oFileRst->toBool())
                         return $oFileRst;
                     $oFileController->setFilesValid($this->_g_oNewVersionHeader->version_srl);
@@ -257,8 +253,6 @@ class svmarketVersionAdmin extends svmarket
                 }
             }
         }
-        // var_dump($oParam);
-		// exit;
         $oInsertRst = executeQuery('svmarket.insertVersion', $oParam);
 		if(!$oInsertRst->toBool())
         {
@@ -309,13 +303,11 @@ class svmarketVersionAdmin extends svmarket
      **/
 	private function _matchNewPkgInfo($oNewVersionArgs)
 	{
-        // var_dump($oNewVersionArgs);
-        // exit;
 		$aIgnoreVar = array('error_return_url', 'ruleset', 'module', 'mid', 'act');
 		$aCleanupVar = array('version');
 		foreach($oNewVersionArgs as $sTitle => $sVal)
 		{
-            if($sTitle!='version_srl' && $sTitle!='version_zip_file')
+            if($sTitle!='version_srl')
                 $sTitle = str_replace('version_', '', $sTitle);
             if(in_array($sTitle, $aIgnoreVar)) 
 				continue;

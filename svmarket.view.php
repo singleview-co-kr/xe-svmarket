@@ -167,35 +167,18 @@ class svmarketView extends svmarket
 	 */
     function _checkUpdateDateXml()
     {
-        $aParams = [];
-        $oRst = executeQuery('svmarket.getLatestUpdatedDate');
-        if(!$oRst->toBool())
-        {
-            unset($oRst);
-            $aParams["updatedate"] = "error";
-        }
-        if(count((array)$oRst->data) == 0)
-        {
-            unset($oRst);
-            $aParams["updatedate"] = "error";
-        }
-        else
-        	$aParams["updatedate"] = $oRst->data->updatetime;
-		$sXmlResp = svmarketXmlGenerater::generate($aParams);
-		echo $sXmlResp;
+        require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_admin.php');
+        $oPkgAdmin = new svmarketPkgAdmin();
+        echo $oPkgAdmin->checkUpdateDateXml();
     }
 	/**
 	 * @brief svmarket server active package list XML 통지
 	 */
     function _pushPackageListXml()
     {
-        $oRst = executeQuery('svmarket.getLatestPkg');
-        foreach($oRst->data as $nIdx => $oPackage)
-		{
-			$oPackage->package_description = $oPackage->og_description;
-		}
-		$sXmlResp = svmarketXmlGenerater::generatePkgList($oRst->data);
-		echo $sXmlResp;
+        require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_admin.php');
+        $oPkgAdmin = new svmarketPkgAdmin();
+        echo $oPkgAdmin->pushPackageListXml();
 	}
 }
 /* End of file svmarket.view.php */

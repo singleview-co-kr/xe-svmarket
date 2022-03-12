@@ -6,11 +6,12 @@
  */
 class svmarketAppAdmin extends svmarket
 {
-	private $_g_oSvmarketModuleConfig = NULL; // svmarket module config 적재
+	// private $_g_oSvmarketModuleConfig = NULL; // svmarket module config 적재
 	private $_g_oLoggedInfo = NULL;
 	private $_g_oOldAppHeader = NULL; // 정보 수정할 때 과거 상태에 관한 참조일 뿐
 	private $_g_oNewAppHeader = NULL; // 항상 현재 쓰기의 기준
-	const A_PKG_HEADER_TYPE = ['_g_oNewAppHeader', '_g_oOldAppHeader'];
+	const A_APP_HEADER_TYPE = ['_g_oNewAppHeader', '_g_oOldAppHeader'];
+    const A_APP_TYPE = ['core'=>1, 'module'=>2, 'addon'=>3, 'widget'=>4, 'layout'=>5, 'm.layout'=>6, 'module/skins'=>7, 'module/m.skins'=>8];
 /**
  * @brief 생성자
  * $oParams->oSvitemConfig
@@ -18,8 +19,8 @@ class svmarketAppAdmin extends svmarket
 	public function __construct($oParams=null)
 	{
 		$this->_g_oLoggedInfo = Context::get('logged_info');
-		if($oParams->oSvmarketModuleConfig)
-			$this->_g_oSvmarketModuleConfig = $oParams->oSvmarketModuleConfig;
+		// if($oParams->oSvmarketModuleConfig)
+		// 	$this->_g_oSvmarketModuleConfig = $oParams->oSvmarketModuleConfig;
 		$this->_setSkeletonHeader();
 	}
 /**
@@ -67,12 +68,14 @@ class svmarketAppAdmin extends svmarket
      **/
     private function _setSkeletonHeader()
     {
-        $aBasicAttr = ['app_srl', 'module_srl', 'package_srl', 'list_order', 'category_node_srl', 
-                        'title', 'install_path', 'thumb_file_srl', 'og_description', 'description',
+        $aBasicAttr = ['app_srl', 'module_srl', 'package_srl', 'list_order',
+                        'category_node_srl', 'type_srl',
+                        'name', 'title', 'install_path', 'thumb_file_srl',
+                        'og_description', 'description',
 						'github_url', 'homepage', 'tags', 'display', 'updatetime', 'regdate'];
-        $aInMemoryAttr = ['package_title', 'version_list', 'version'];
-        $aTempAttr = ['thumbnail_image', 'version_zip_file'];
-        foreach(self::A_PKG_HEADER_TYPE as $nTypeIdx => $sHeaderType)
+        $aInMemoryAttr = ['package_title', 'version_list'];
+        $aTempAttr = ['thumbnail_image'];
+        foreach(self::A_APP_HEADER_TYPE as $nTypeIdx => $sHeaderType)
         {
             $this->{$sHeaderType} = new stdClass();
             foreach($aBasicAttr as $nAttrIdx => $sAttrName)
@@ -87,7 +90,7 @@ class svmarketAppAdmin extends svmarket
         unset($aInMemoryAttr);
     }
 /**
- * @brief 신규 패키지 생성
+ * @brief 신규 앱 생성
  **/
 	public function create($oNewAppArgs)
 	{
@@ -102,7 +105,7 @@ class svmarketAppAdmin extends svmarket
 		return $this->_insertApp();
 	}
     /**
- * @brief 기존 패키지 정보 적재
+ * @brief 기존 앱 정보 적재
  **/
 	public function loadHeader($oParams)
 	{
@@ -126,7 +129,7 @@ class svmarketAppAdmin extends svmarket
 		return $oTmpRst;
 	}
 /**
-* @brief 기존 패키지 상세 정보 적재
+* @brief 기존 앱 상세 정보 적재
 **/
 	public function loadDetail()
 	{
@@ -206,7 +209,7 @@ class svmarketAppAdmin extends svmarket
 		return new BaseObject();
 	}
     /**
-     * @brief 기존 패키지 정보 변경
+     * @brief 기존 앱 정보 변경
      **/
 	public function update($oPkgArgs)
 	{
@@ -220,7 +223,27 @@ class svmarketAppAdmin extends svmarket
 		$this->_g_oNewAppHeader->package_srl = $this->_g_oOldAppHeader->package_srl;
 		if($this->_g_oNewAppHeader->module_srl == svmarket::S_NULL_SYMBOL)
 			$this->_g_oNewAppHeader->module_srl = $this->_g_oOldAppHeader->module_srl;
-		return $this->_updateItem();
+		return $this->_updateApp();
+	}
+    /**
+     * @brief 기존 앱 갱신일 변경
+     **/
+	public function updateTimestamp()
+	{
+		if(!$this->_g_oOldAppHeader)
+			return new BaseObject(-1,'msg_required_to_load_old_information_first');
+        $oArgs = new stdClass();
+        $oArgs->app_srl = $this->_g_oNewAppHeader->app_srl; 
+        $oUpdateRst = executeQuery('svmarket.updateAdminAppTimestamp', $oArgs);
+        unset($oArgs);
+        return $oUpdateRst;
+	}
+    /**
+     * @brief 앱 유형 출력
+     **/
+	public function getAppType()
+	{
+        return self::A_APP_TYPE;
 	}
     /**
      * @brief 헤더 초기화
@@ -273,12 +296,15 @@ class svmarketAppAdmin extends svmarket
         unset($oDocArgs);
         
         $this->_nullifyHeader();
+        // var_dump($this->_g_oNewAppHeader);
+        // exit;
         $oParam = new stdClass();
         $oParam->app_srl = $this->_g_oNewAppHeader->app_srl;
         $oParam->package_srl = $this->_g_oNewAppHeader->package_srl;
         $oParam->module_srl = $this->_g_oNewAppHeader->module_srl;
+        $oParam->type_srl = $this->_g_oNewAppHeader->type_srl;
         $oParam->title = $this->_g_oNewAppHeader->title;
-        $oParam->install_path = $this->_g_oNewAppHeader->install_path;
+        $oParam->name = $this->_g_oNewAppHeader->name;
         $oParam->description = $this->_g_oNewAppHeader->description;
         $oParam->homepage = $this->_g_oNewAppHeader->homepage;
         $oParam->display = 'N'; // 최초 등록 시에는 기본 최소 정보이므로 무조건 비공개
@@ -304,7 +330,11 @@ class svmarketAppAdmin extends svmarket
                 $oParam->thumb_file_srl = 0;
             }
         }
+        // var_dump($oParam);
+        // exit;
         $oInsertRst = executeQuery('svmarket.insertAdminApp', $oParam);
+        // var_dump($oInsertRst);
+        // exit;
         if(!$oInsertRst->toBool())
         {
             unset($oParam);
@@ -317,7 +347,7 @@ class svmarketAppAdmin extends svmarket
 	/**
 	 * @brief 
 	 **/
-	private function _updateItem()
+	private function _updateApp()
 	{
 		$this->_nullifyHeader();
 		// begin - app info modification
@@ -353,27 +383,27 @@ class svmarketAppAdmin extends svmarket
 		// 첨부 이미지 파일 처리
 		//$oUpdateRst = $this->_procThumbnailImages();
 		// end - app info modification
-		if($this->_g_oNewAppHeader->version && $this->_g_oNewAppHeader->version_zip_file)
-		{
-			$oVersionParam = new stdClass();
-			$oVersionParam->app_srl = $this->_g_oNewAppHeader->app_srl;
-			$oVersionParam->module_srl = $this->_g_oNewAppHeader->module_srl;
-			$oVersionParam->package_srl = $this->_g_oNewAppHeader->package_srl;
-			$oVersionParam->version = $this->_g_oNewAppHeader->version;
-			$oVersionParam->version_zip_file = $this->_g_oNewAppHeader->version_zip_file;
+		// if($this->_g_oNewAppHeader->version && $this->_g_oNewAppHeader->version_zip_file)
+		// {
+		// 	$oVersionParam = new stdClass();
+		// 	$oVersionParam->app_srl = $this->_g_oNewAppHeader->app_srl;
+		// 	$oVersionParam->module_srl = $this->_g_oNewAppHeader->module_srl;
+		// 	$oVersionParam->package_srl = $this->_g_oNewAppHeader->package_srl;
+		// 	$oVersionParam->version = $this->_g_oNewAppHeader->version;
+		// 	$oVersionParam->version_zip_file = $this->_g_oNewAppHeader->version_zip_file;
 
-			require_once(_XE_PATH_.'modules/svmarket/svmarket.version_admin.php');
-			$oVersionAdmin = new svmarketVersionAdmin();
-			$oInsertRst = $oVersionAdmin->create($oVersionParam);
-			if(!$oInsertRst->toBool())
-			{
-				unset($oVersionParam);
-				unset($oVersionAdmin);
-				return $oInsertRst;
-			}
-			unset($oVersionParam);
-			unset($oVersionAdmin);
-		}
+		// 	require_once(_XE_PATH_.'modules/svmarket/svmarket.version_admin.php');
+		// 	$oVersionAdmin = new svmarketVersionAdmin();
+		// 	$oInsertRst = $oVersionAdmin->create($oVersionParam);
+		// 	if(!$oInsertRst->toBool())
+		// 	{
+		// 		unset($oVersionParam);
+		// 		unset($oVersionAdmin);
+		// 		return $oInsertRst;
+		// 	}
+		// 	unset($oVersionParam);
+		// 	unset($oVersionAdmin);
+		// }
 		return $oUpdateRst;
 	}
     /**
@@ -381,7 +411,7 @@ class svmarketAppAdmin extends svmarket
      **/
 	private function _matchNewPkgInfo($oNewAppArgs)
 	{
-		$aIgnoreVar = array('error_return_url', 'ruleset', 'module', 'mid', 'act');
+		$aIgnoreVar = array('version_version', 'version_zip_file', 'error_return_url', 'ruleset', 'module', 'mid', 'act');
 		$aCleanupVar = array('title');
 		foreach($oNewAppArgs as $sTitle => $sVal)
 		{
@@ -463,7 +493,7 @@ class svmarketAppAdmin extends svmarket
         }
     }
     /**
-     * @brief 기존 패키지 정보 비활성화
+     * @brief 기존 앱 정보 비활성화
      * module_srl을 0으로 바꿔서 상품 관리자에서 검색되지 않게함
      **/
 	public function deactivate()
@@ -482,7 +512,7 @@ class svmarketAppAdmin extends svmarket
 		return new BaseObject();
 	}
 /**
- * @brief 패키지 영구 삭제; 코드 블록만 유지하고 이 메소드의 접근을 차단함
+ * @brief 앱 영구 삭제; 코드 블록만 유지하고 이 메소드의 접근을 차단함
  **/
 	public function remove()
 	{

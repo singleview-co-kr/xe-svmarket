@@ -26,13 +26,32 @@
 
 	<h1>{$oAppInfo->package_title} - {$oAppInfo->title} {$lang->title_app_basic_info}</h1>
 	<div class="x_control-group">
-		<label class="x_control-label" for="app_title">{$lang->app_title}</label>
+		<label class="x_control-label" for="app_title">{$lang->app_title_kor}</label>
 		<div class="x_controls">
 			<input name="app_title" type="text" class="inputTypeText w300" value="{$oAppInfo->title}" />
 			<a href="#app_title_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
 			<p id="app_title_help" class="x_help-block" hidden>{$lang->about_app_title}</p>
 		</div>
 	</div>
+    <div class="x_control-group">
+		<label class="x_control-label" for="app_title">{$lang->app_name}</label>
+		<div class="x_controls">
+			<input name="app_name" type="text" class="inputTypeText w300" value="{$oAppInfo->name}" />
+			<a href="#app_name_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+			<p id="app_name_help" class="x_help-block" hidden>{$lang->about_app_name}</p>
+		</div>
+	</div>
+    <div class="x_control-group">
+        <label class="x_control-label" for="layout_srl">{$lang->app_type}</label>
+        <div class="x_controls">
+            <select name="app_type_srl" id="app_type_srl">
+                <option value="">선택하세요.</option>
+                <option loop="$aAppType => $key, $val" value="{$val}" selected="selected"|cond="$oAppInfo->type_srl== $val">{$key}</option>
+            </select>
+            <a href="#app_type_srl_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+            <p id="app_type_srl_help" class="x_help-block" hidden>{$lang->about_app_type_srl}</p>
+        </div>
+    </div>
     <div class="x_control-group">
 		<label class="x_control-label" for="app_title">{$lang->app_install_path}</label>
 		<div class="x_controls">
@@ -81,17 +100,17 @@
 	</div>
     <h1>{$lang->title_version_info}</h1>
     <div class="x_control-group">
-		<label class="x_control-label" for="app_version">최종 {$lang->version}</label>
+		<label class="x_control-label" for="version_version">최종 {$lang->version}</label>
 		<div class="x_controls">
-			<input name="app_version" type="text" class="inputTypeText w300" value="" />
-			<a href="#app_version_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
-			<p id="app_version_help" class="x_help-block" hidden>{$lang->about_app_version}</p>
+			<input name="version_version" type="text" class="inputTypeText w300" value="" />
+			<a href="#version_version_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
+			<p id="version_version_help" class="x_help-block" hidden>{$lang->about_version_version}</p>
 		</div>
 	</div>
     <div class="x_control-group">
-		<label class="x_control-label" for="app_version_zip_file">최종 {$lang->version} 추가</label>
+		<label class="x_control-label" for="version_zip_file">최종 {$lang->version} 추가</label>
 		<div class="x_controls">
-			<input type="file" name="app_version_zip_file" />
+			<input type="file" name="version_zip_file" />
 			<a href="#version_zip_file_help" class="x_icon-question-sign" data-toggle>{$lang->help}</a>
 			<p id="version_zip_file_help" class="x_help-block" hidden>{$lang->about_version_zip_file}</p>
 		</div>

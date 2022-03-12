@@ -35,8 +35,14 @@
     <item name="add_app">
 		<value xml:lang="ko"><![CDATA[앱 등록]]></value>
 	</item>
-	<item name="app_title">
-		<value xml:lang="ko"><![CDATA[앱 제목]]></value>
+    <item name="app_title_kor">
+		<value xml:lang="ko"><![CDATA[앱 한글 제목]]></value>
+	</item>
+    <item name="app_name">
+		<value xml:lang="ko"><![CDATA[앱 설치 제목]]></value>
+	</item>
+    <item name="app_type">
+		<value xml:lang="ko"><![CDATA[앱 유형]]></value>
 	</item>
     <item name="app_install_path">
 		<value xml:lang="ko"><![CDATA[앱 설치 경로]]></value>

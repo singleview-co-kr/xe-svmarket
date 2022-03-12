@@ -6,7 +6,7 @@
  */
 class svmarketPkgAdmin extends svmarket
 {
-	private $_g_oSvmarketModuleConfig = NULL; // svmarket module config 적재
+	// private $_g_oSvmarketModuleConfig = NULL; // svmarket module config 적재
 	private $_g_oLoggedInfo = NULL;
 	private $_g_oOldPkgHeader = NULL; // 정보 수정할 때 과거 상태에 관한 참조일 뿐
 	private $_g_oNewPkgHeader = NULL; // 항상 현재 쓰기의 기준
@@ -18,8 +18,8 @@ class svmarketPkgAdmin extends svmarket
 	public function __construct($oParams=null)
 	{
 		$this->_g_oLoggedInfo = Context::get('logged_info');
-		if($oParams->oSvmarketModuleConfig)
-			$this->_g_oSvmarketModuleConfig = $oParams->oSvmarketModuleConfig;
+		// if($oParams->oSvmarketModuleConfig)
+		// 	$this->_g_oSvmarketModuleConfig = $oParams->oSvmarketModuleConfig;
 		$this->_setSkeletonHeader();
 	}
 /**
@@ -180,6 +180,113 @@ class svmarketPkgAdmin extends svmarket
 		if($this->_g_oNewPkgHeader->module_srl == svmarket::S_NULL_SYMBOL)
 			$this->_g_oNewPkgHeader->module_srl = $this->_g_oOldPkgHeader->module_srl;
 		return $this->_updateItem();
+	}
+    /**
+     * @brief 기존 패키지 갱신일 변경
+     **/
+	public function updateTimestamp()
+	{
+		if(!$this->_g_oOldPkgHeader)
+			return new BaseObject(-1,'msg_required_to_load_old_information_first');
+        $oArgs = new stdClass();
+        $oArgs->package_srl = $this->_g_oOldPkgHeader->package_srl; 
+        $oUpdateRst = executeQuery('svmarket.updateAdminPkgTimestamp', $oArgs);
+        unset($oArgs);
+        return $oUpdateRst;
+	}
+    /**
+     * @brief 패키지 최초 갱신일을 XML 전송
+     **/
+	public static function checkUpdateDateXml()
+	{
+		$aParams = [];
+        $oRst = executeQuery('svmarket.getLatestUpdatedDate');
+        if(!$oRst->toBool())
+            $aParams["updatedate"] = "error";
+        if(count((array)$oRst->data) == 0)
+            $aParams["updatedate"] = "error";
+        else
+        	$aParams["updatedate"] = $oRst->data->updatetime;
+        unset($oRst);
+        $sXmlDoc = '<?xml version="1.0" encoding="utf-8" ?><response><error>0</error>';
+		$sXmlDoc .= '<message>success</message>';
+		foreach($aParams as $key => $val)
+			$sXmlDoc .= sprintf("<%s><![CDATA[%s]]></%s>", $key, $val, $key);
+		$sXmlDoc .= "</response>";
+		return $sXmlDoc;
+	}
+    /**
+	 * @brief 기존 패키지 갱신일 순으로 XML 전송
+	 */
+    public static function pushPackageListXml()
+    {
+        $oRst = executeQuery('svmarket.getLatestPkg');
+        foreach($oRst->data as $nIdx => $oPackage)
+		{
+			$oPackage->package_description = $oPackage->og_description;
+		}
+        $aAppInfo = $oRst->data;
+        unset($oRst);
+        $sXmlDoc = '<?xml version="1.0" encoding="utf-8" ?><response><error>0</error>';
+		$sXmlDoc .= '<message>success</message>';
+        $aTmpInfo = [];
+        if(is_object($aAppInfo))
+        {
+            $aTmpInfo[] = $aAppInfo;
+            $aAppInfo = $aTmpInfo;
+        }
+		if(!is_array($aAppInfo))
+		{
+			echo __FILE__.':'.__LINE__.'<BR>';
+			return NULL;
+		}
+        $sXmlDoc .= '<packageList>';
+		foreach($aAppInfo as $nIdx => $oApp)
+		{
+            $sXmlDoc .= '<item>';
+            foreach($oApp as $key => $val)
+            {
+				if($key == 'item_screenshot_url')
+					$val = svmarketView::dispThumbnailUrl($val,80);
+                if(is_string($val))
+                    $sXmlDoc .= sprintf("<%s><![CDATA[%s]]></%s>", $key, $val, $key);
+                else
+                    $sXmlDoc .= sprintf("<%s>%s</%s>", $key, $val, $key);
+            }
+            $sXmlDoc .= "<path>";
+			$sXmlDoc .= "	<![CDATA[./addons/xdt_google_analytics]]>";
+			$sXmlDoc .= "</path>";
+            $sXmlDoc .= "<package_voter>6</package_voter>";
+			$sXmlDoc .= "<package_voted>60</package_voted>";
+			$sXmlDoc .= "<package_downloaded>1039</package_downloaded>";
+            $sXmlDoc .= "<nick_name>";
+			$sXmlDoc .= "	<![CDATA[도라미]]>";
+			$sXmlDoc .= "</nick_name>";
+			$sXmlDoc .= "<item_srl>22756278</item_srl>";
+			$sXmlDoc .= "<item_version>";
+			$sXmlDoc .= "	<![CDATA[1.2]]>";
+			$sXmlDoc .= "</item_version>";
+			$sXmlDoc .= "<item_voter>0</item_voter>";
+			$sXmlDoc .= "<item_voted>0</item_voted>";
+			$sXmlDoc .= "<item_downloaded>147</item_downloaded>";
+			$sXmlDoc .= "<item_regdate>";
+			$sXmlDoc .= "	<![CDATA[20210805151519]]>";
+			$sXmlDoc .= "</item_regdate>";
+			$sXmlDoc .= "<package_star>5</package_star>";
+            $sXmlDoc .= '</item>';	
+		}
+        $sXmlDoc .= '</packageList>';
+        $sXmlDoc .= "<page_navigation>";
+		$sXmlDoc .= "<total_count>10</total_count>";
+		$sXmlDoc .= "<total_page>1</total_page>";
+		$sXmlDoc .= "<cur_page>1</cur_page>";
+		$sXmlDoc .= "<page_count>10</page_count>";
+		$sXmlDoc .= "<first_page>1</first_page>";
+		$sXmlDoc .= "<last_page>135</last_page>";
+		$sXmlDoc .= "<point>0</point>";
+	    $sXmlDoc .= "</page_navigation>";
+        $sXmlDoc .= "</response>";
+		return $sXmlDoc;
 	}
     /**
      * @brief 헤더 초기화

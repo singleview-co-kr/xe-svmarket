@@ -158,19 +158,11 @@ class svmarketAdminController extends svmarket
 	public function procSvmarketAdminUpdateApp() 
 	{
 		$oArgs = Context::getRequestVars();
-		$oParams = new stdClass();
-		if($oArgs->package_srl)
-			$nPkgSrl = $oArgs->package_srl;
-		else
+		if(!$oArgs->package_srl || !$oArgs->app_srl)
 			return new BaseObject(-1,'msg_invalid_app_request');
-		if($oArgs->app_srl)
-		{
-			$nAppSrl = $oArgs->app_srl;
-			$oParams->app_srl = $nAppSrl;
-		}
-		else
-			return new BaseObject(-1,'msg_invalid_app_request');
-		require_once(_XE_PATH_.'modules/svmarket/svmarket.app_admin.php');
+        $oParams = new stdClass();
+        $oParams->app_srl = $oArgs->app_srl;
+        require_once(_XE_PATH_.'modules/svmarket/svmarket.app_admin.php');
 		$oAppAdmin = new svmarketAppAdmin();
 		$oTmpRst = $oAppAdmin->loadHeader($oParams);
 		if(!$oTmpRst->toBool())
@@ -183,13 +175,42 @@ class svmarketAdminController extends svmarket
 			unset($oAppAdmin);
 			return $oUpdateRst;
 		}
+        unset($oUpdateRst);
         $this->setMessage('success_registed');
-		unset($oArgs);
-		unset($oAppAdmin);
-		unset($oUpdateRst);
+		
+        if($oArgs->version_version && $oArgs->version_zip_file)
+		{
+			$oVersionParam = new stdClass();
+			$oVersionParam->module_srl = $oArgs->module_srl;
+            $oVersionParam->package_srl = $oArgs->package_srl;
+            $oVersionParam->app_srl = $oArgs->app_srl;
+			$oVersionParam->version = $oArgs->version_version;
+			$oVersionParam->zip_file = $oArgs->version_zip_file;
+			require_once(_XE_PATH_.'modules/svmarket/svmarket.version_admin.php');
+			$oVersionAdmin = new svmarketVersionAdmin();
+			$oInsertRst = $oVersionAdmin->create($oVersionParam);
+            if(!$oInsertRst->toBool())
+			{
+				unset($oVersionParam);
+				unset($oVersionAdmin);
+				return $oInsertRst;
+			}
+			unset($oVersionParam);
+			unset($oVersionAdmin);
+            // update app updateteim
+            $oUpdateRst = $oAppAdmin->updateTimestamp();
+            if(!$oUpdateRst->toBool())
+				return $oUpdateRst;
+            // update package updateteim
+		}
+        unset($oAppAdmin);
+        unset($oArgs);
 		if(!in_array(Context::getRequestMethod(),array('XMLRPC','JSON')))
 		{
-			$sReturnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module',Context::get('module'),'act','dispSvmarketAdminUpdateApp','module_srl',Context::get('module_srl'),'package_srl',$nPkgSrl,'app_srl',$nAppSrl);
+			$sReturnUrl = Context::get('success_return_url') ? 
+                Context::get('success_return_url') : 
+                getNotEncodedUrl('', 'module',Context::get('module'),'act','dispSvmarketAdminUpdateApp',
+                'module_srl',Context::get('module_srl'),'package_srl',Context::get('package_srl'),'app_srl',Context::get('app_srl'));
 			$this->setRedirectUrl($sReturnUrl);
 			return;
 		}

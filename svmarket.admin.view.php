@@ -186,6 +186,12 @@ class svmarketAdminView extends svmarket
 		Context::set('editor', $oEditorModel->getModuleEditor('document', $oArg->module_srl, 0, 'app_srl', 'app_description'));
 		unset($oEditorModel);
 		unset($oArg);
+
+        require_once(_XE_PATH_.'modules/svmarket/svmarket.app_admin.php');
+		$oAppAdmin = new svmarketAppAdmin();
+        $aAppType = $oAppAdmin->getAppType();
+        unset($oAppAdmin);
+        Context::set('aAppType', $aAppType);
 		$this->setTemplateFile('app_insert');
 	}
 	/**
@@ -215,6 +221,10 @@ class svmarketAdminView extends svmarket
 		Context::set('editor', $oEditorModel->getModuleEditor('document', $oArg->module_srl, $oAppAdmin->app_srl, 'app_srl', 'app_description'));
 		unset($oEditorModel);
 		unset($oArg);
+
+        $aAppType = $oAppAdmin->getAppType();
+        unset($oAppAdmin);
+        Context::set('aAppType', $aAppType);
 		$this->setTemplateFile('app_insert');
 	}
     /**

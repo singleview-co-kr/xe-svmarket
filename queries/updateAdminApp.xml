@@ -13,7 +13,6 @@
 		<column name="display" var="display" />
 		<column name="list_order" var="list_order" />
 		<column name="thumb_file_srl" var="thumb_file_srl" />
-        <column name="updatetime" default="curdate()" />
 	</columns>
 	<conditions>
 		<condition operation="equal" column="app_srl" var="app_srl" notnull="notnull" />

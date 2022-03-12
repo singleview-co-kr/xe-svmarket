@@ -6,8 +6,9 @@
 		<column name="app_srl" var="app_srl" notnull="notnull" />
         <column name="module_srl" var="module_srl" notnull="notnull" />
         <column name="package_srl" var="package_srl" notnull="notnull" />
+        <column name="type_srl" var="type_srl" notnull="notnull" />
+        <column name="name" var="name" notnull="notnull" />
         <column name="title" var="title" notnull="notnull" />
-        <column name="install_path" var="install_path" notnull="notnull" />
         <column name="thumb_file_srl" var="thumb_file_srl" />
         <column name="description" var="description" />
 		<column name="github_url" var="github_url"/>
