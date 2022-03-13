@@ -3,7 +3,7 @@
 	<column name="module_srl" type="number" size="11" default="0" notnull="notnull" index="idx_module_srl" />
     <column name="list_order" type="number" size="11" notnull="notnull" default="1" index="idx_list_order" />
 	<column name="category_node_srl" type="number" size="11" default="0" notnull="notnull" index="idx_category_node_srl" />
-	<column name="title" type="varchar" size="64" notnull="notnull" />
+	<column name="title" type="varchar" size="64" notnull="notnull" unique="unique_title"/>
     <column name="thumb_file_srl" type="number" size="11" default="0" notnull="notnull" />
     <column name="og_description" type="varchar" size="64" notnull="notnull" />
     <column name="description" type="text" />

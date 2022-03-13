@@ -23,89 +23,79 @@
                 <div class="clearfix"></div>
              </div>
              <div class="x_content">
-                <div class="col-md-9 col-sm-9 col-xs-12">
+                <div class="col-md-12 col-sm-12 col-xs-12">
                    <ul class="stats-overview">
                       <li>
-                         <span class="name"> Views </span>
-                         <span class="value text-success"> 2300 </span>
+                         <span class="name"> 앱 유형 </span>
+                         <span class="value text-success"> {$oAppInfo->type_name} </span>
                       </li>
                       <li>
-                        <span class="name"> Download </span>
-                        <span class="value text-success"> 20 </span>
+                        <span class="name"> Views </span>
+                        <span class="value text-success"> n/a </span>
                       </li>
                       <li class="hidden-phone">
-                        <span class="name"> Path </span>
-                        <span class="value text-success"> ./modules/svmarket </span>
+                        <span class="name"> Download </span>
+                        <span class="value text-success"> n/a </span>
                       </li>
                    </ul>
                    <br />
                    <img src="./images/sv_logo.png" style="height:350px;">
-                   <div>
-                      <h4>Recent Activity</h4>
-                      <!-- end of user messages -->
-                      <ul class="messages">
-<block loop="$oAppInfo->version_list=>$no,$oVersionInfo">
-                        <span class="price-tax"></span><BR>
-                        <li>
-                            <img src="./images/sv_logo.png" class="avatar" alt="Avatar">
-                            <!--div class="message_date">
-                                <h3 class="date text-info">{date("j", strtotime((int)$oVersionInfo->regdate))}</h3>
-                                <p class="month">{date("F Y", strtotime((int)$oVersionInfo->regdate))}</p>
-                            </div--->
-                            <div class="message_wrapper">
-                                <h4 class="heading"><a href="{getUrl('document_srl',$oVersionInfo->version_srl)}">{$oVersionInfo->version}</a>
-                                   <small>@ {$oVersionInfo->regdate} &nbsp;&nbsp; {$oVersionInfo->oVersionFile->download_count} downloaded</small></h4>
-                                <blockquote class="message">{$oVersionInfo->description}</blockquote>
-                                <br />
-                                <p class="url">
-                                    <span class="fs1 text-info" aria-hidden="true" data-icon=""></span>
-                                    <a href="{$oVersionInfo->oVersionFile->download_url}"><i class="fa fa-paperclip"></i> download now </a>
-                                </p>
-                            </div>
-                        </li>
-</block>
-                      </ul>
-                      <!-- end of user messages -->
-                   </div>
+                   
+
+                   <div class="col-md-12">
+                    <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                       <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                          <li role="presentation" class="active"><a href="#tab_content1" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true">앱 소개</a>
+                          </li>
+                          <li role="presentation" class=""><a href="#tab_content2" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">앱 상세</a>
+                          </li>
+                          <li role="presentation" class=""><a href="#tab_content3" role="tab" id="profile-tab2" data-toggle="tab" aria-expanded="false">버전 목록</a>
+                          </li>
+                       </ul>
+                       <div id="myTabContent" class="tab-content">
+                          <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
+                            {$oAppInfo->og_description}
+                            <br />
+                            <h5>App 설치 경로</h5>
+                            <ul class="list-unstyled project_files">
+                                <li> {$oAppInfo->install_path}</li>
+                            </ul>
+                          </div>
+                          <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
+                            {$oAppInfo->description}
+                          </div>
+                          <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="profile-tab">
+                            <ul class="messages">
+                                <block loop="$oAppInfo->version_list=>$no,$oVersionInfo">
+                                    <span class="price-tax"></span><BR>
+                                    <li>
+                                        <img src="./images/sv_logo.png" class="avatar" alt="Avatar">
+                                        <!--div class="message_date">
+                                            <h3 class="date text-info">{date("j", strtotime((int)$oVersionInfo->regdate))}</h3>
+                                            <p class="month">{date("F Y", strtotime((int)$oVersionInfo->regdate))}</p>
+                                        </div--->
+                                        <div class="message_wrapper">
+                                            <h4 class="heading"><a href="{getUrl('document_srl',$oVersionInfo->version_srl)}">{$oVersionInfo->version}</a>
+                                                <small>@ {$oVersionInfo->regdate} &nbsp;&nbsp; {$oVersionInfo->oVersionFile->download_count} downloaded</small></h4>
+                                            <blockquote class="message">{$oVersionInfo->description}</blockquote>
+                                            <br />
+                                            <p class="url">
+                                                <span class="fs1 text-info" aria-hidden="true" data-icon=""></span>
+                                                <a href="{$oVersionInfo->oVersionFile->download_url}"><i class="fa fa-paperclip"></i> download now </a>
+                                            </p>
+                                        </div>
+                                    </li>
+                                </block>
+                            </ul>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+                   
+
+
                 </div>
-                <!-- start project-detail sidebar -->
-                <div class="col-md-3 col-sm-3 col-xs-12">
-                   <section class="panel">
-                      <div class="x_title">
-                         <h2>App Description</h2>
-                         <div class="clearfix"></div>
-                      </div>
-                      <div class="panel-body">
-                         <h3 class="green"><i class="fa fa-paint-brush"></i> {$oAppInfo->title}</h3>
-                         {$oAppInfo->description}
-                         <br />
-                         <div class="project_detail">
-                            <p class="title">Client Company</p>
-                            <p>Deveint Inc</p>
-                         </div>
-                         <br />
-                         <!---h5>Project files</h5>
-                         <ul class="list-unstyled project_files">
-                            <li><a href=""><i class="fa fa-file-word-o"></i> Functional-requirements.docx</a>
-                            </li>
-                            <li><a href=""><i class="fa fa-file-pdf-o"></i> UAT.pdf</a>
-                            </li>
-                            <li><a href=""><i class="fa fa-mail-forward"></i> Email-from-flatbal.mln</a>
-                            </li>
-                            <li><a href=""><i class="fa fa-picture-o"></i> Logo.png</a>
-                            </li>
-                            <li><a href=""><i class="fa fa-file-word-o"></i> Contract-10_12_2014.docx</a>
-                            </li>
-                         </ul>
-                         <br /--->
-                         <div class="text-center mtop20">
-                            <a href="#" class="btn btn-sm btn-primary">Add files</a>
-                            <a href="#" class="btn btn-sm btn-warning">Report contact</a>
-                         </div>
-                      </div>
-                   </section>
-                </div>
-                <!-- end project-detail sidebar -->
+                
              </div>
           </div>
        </div>

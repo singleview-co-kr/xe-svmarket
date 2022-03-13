@@ -7,9 +7,9 @@
  */
 class svmarketAdminModel extends svmarket
 {
-/**
- * @brief Contructor
- **/
+    /**
+     * @brief Contructor
+     **/
 	public function init() 
 	{
 		$oLoggedInfo = Context::get('logged_info');
@@ -36,33 +36,32 @@ class svmarketAdminModel extends svmarket
             $oArg->title = $oParam->title;
         $oRst = executeQueryArray('svmarket.getAdminPkgList', $oArg);
         unset($oArg);
-
-        // $oFileModel = getModel('file');
-        // foreach($oRst->data as $nIdx => $oApp)
-        // {
-        //     $oFile = $oFileModel->getFile($oApp->thumb_file_srl);
-		// 	if($oFile)
-		// 		$sThumbnailUrl = getFullUrl().$oFile->download_url;
-		// 	unset($oFile);
-        // }
-		// unset($oFileModel);
-
-        // $oSvmarketModel = getModel('svmarket');
-        $oModuleModel = getModel('module');
+        require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_admin.php');
+        $oParams = new stdClass();
+        $aPkg = [];
         foreach($oRst->data as $key=>$val)
         {
-            $oModuleInfo = $oModuleModel->getModuleInfoByModuleSrl($val->module_srl);
-            $val->mid = $oModuleInfo->mid;
-            // $val->review_count = $osSmarketModel->getReviewCnt($val->item_srl);
-            unset($oModuleInfo);
+            $oPkgAdmin = new svmarketPkgAdmin();
+            $oParams->package_srl = $val->package_srl;
+            $oParams->mode = 'retrieve';
+            $oTmpRst = $oPkgAdmin->loadHeader($oParams);
+            if(!$oTmpRst->toBool())
+                return new BaseObject(-1,'msg_invalid_pkg_request');
+            unset($oTmpRst);
+            $oDetailRst = $oPkgAdmin->loadDetail();
+            if(!$oDetailRst->toBool())
+                return $oDetailRst;
+            unset($oDetailRst);
+            $aPkg[] = $oPkgAdmin;
         }
-        // unset($oSvmarketModel);
-        unset($oModuleModel);
+        unset($oRst->data);
+        unset($oParams);
+        $oRst->add('aPkg', $aPkg);
         return $oRst;
     }
-/**
- * @brief 
- **/
+    /**
+     * @brief 
+     **/
 	public function getSvmarketAdminDeleteMod() 
 	{
 		$oModuleModel = getModel('module');

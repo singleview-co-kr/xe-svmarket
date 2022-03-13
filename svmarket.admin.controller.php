@@ -81,7 +81,10 @@ class svmarketAdminController extends svmarket
 		unset($oInsertRst);
 		if(!in_array(Context::getRequestMethod(),['XMLRPC','JSON']))
 		{
-			$sReturnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module',Context::get('module'),'act','dispSvmarketAdminInsertPkg','module_srl',Context::get('module_srl'),'package_srl',$nPkgSrl);
+			$sReturnUrl = Context::get('success_return_url') ? 
+                Context::get('success_return_url') : 
+                getNotEncodedUrl('', 'module',Context::get('module'),'act','dispSvmarketAdminUpdatePkg',
+                'module_srl',Context::get('module_srl'),'package_srl',$nPkgSrl);
 			$this->setRedirectUrl($sReturnUrl);
 			return;
 		}
@@ -147,7 +150,10 @@ class svmarketAdminController extends svmarket
 		unset($oInsertRst);
 		if(!in_array(Context::getRequestMethod(),['XMLRPC','JSON']))
 		{
-			$sReturnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module',Context::get('module'),'act','dispSvmarketAdminInsertApp','module_srl',Context::get('module_srl'),'package_srl',Context::get('package_srl'),'app_srl',$nAppSrl);
+			$sReturnUrl = Context::get('success_return_url') ? 
+                Context::get('success_return_url') : 
+                getNotEncodedUrl('', 'module',Context::get('module'),'act','dispSvmarketAdminUpdateApp',
+                'module_srl',Context::get('module_srl'),'package_srl',Context::get('package_srl'),'app_srl',$nAppSrl);
 			$this->setRedirectUrl($sReturnUrl);
 			return;
 		}

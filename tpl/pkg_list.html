@@ -27,15 +27,18 @@
 			</tr>
 		</thead>
 		<tbody id="itemlistorder">
-			<tr loop="$list=>$no,$val" id="record_{$val->package_srl}">
-				<td><input type="hidden" name="package_srl[]" value="{$val->package_srl}" /><input type="checkbox" name="cart" value="{$val->package_srl}" /></td>
-				<td><input type="text" name="list_order[]" style="width:80px;" value="{$val->list_order}" /></td>
-				<td><a href="{getUrl('act','dispSvmarketAdminUpdatePkg','package_srl',$val->package_srl)}"><span style="margin-right:6px;"><img src="{svmarketView::dispThumbnailUrl($val->thumb_file_srl,30)}" /></span></a><input type="text" style="width:250px" name="item_name[]" value="{$val->title}" /></td>
-				<td><select name="display[]" style="width:100px"><option value="Y" selected="selected"|cond="$val->display=='Y'">{$lang->display}</option><option value="N" selected="selected"|cond="$val->display=='N'">{$lang->not_display}</option></select></td>
-
-				<td>{number_format($val->downloads)}</td>
-				<td><a href="{getUrl('','document_srl',$val->package_srl)}#content_02" target="_blank">{number_format($val->review_count)}</a></td>
-				<td><a href="{getUrl('act','dispSvmarketAdminUpdatePkg','package_srl',$val->package_srl)}">{$lang->cmd_modify}</a></td>
+			<tr loop="$list=>$no,$oPkg" id="record_{$oPkg->package_srl}">
+				<td><input type="hidden" name="package_srl[]" value="{$oPkg->package_srl}" /><input type="checkbox" name="cart" value="{$oPkg->package_srl}" /></td>
+				<td><input type="text" name="list_order[]" style="width:80px;" value="{$oPkg->list_order}" /></td>
+				<td><a href="{getUrl('act','dispSvmarketAdminUpdatePkg','package_srl',$oPkg->package_srl)}"><span style="margin-right:6px;"><img src="{svmarketView::dispThumbnailUrl($oPkg->thumb_file_srl,30)}" /></span></a><input type="text" style="width:250px" name="item_name[]" value="{$oPkg->title}" /></td>
+				<td><select name="display[]" style="width:100px">
+                    <option value="Y" selected="selected"|cond="$oPkg->display=='Y'">{$lang->display}</option>
+                    <option value="N" selected="selected"|cond="$oPkg->display=='N'">{$lang->not_display}</option>
+                    </select>
+                </td>
+				<td>{number_format($oPkg->downloads)}</td>
+				<td><a href="{getUrl('','document_srl',$oPkg->package_srl)}#content_02" target="_blank">{number_format($oPkg->reviews)}</a></td>
+				<td><a href="{getUrl('act','dispSvmarketAdminUpdatePkg','package_srl',$oPkg->package_srl)}">{$lang->cmd_modify}</a></td>
 			</tr>
 			<tr cond="!count($list)">
 				<td colspan="12">{$lang->msg_no_registered_items}</td>
@@ -71,8 +74,6 @@
 		<input type="hidden" name="module_srl" value="{$module_srl}" />
 		<input cond="$order_target" type="hidden" name="order_target" value="{$order_target}" />
 		<input cond="$order_type" type="hidden" name="order_type" value="{$order_type}" />
-		<input cond="$category_srl" type="hidden" name="category_srl" value="{$category_srl}" />
-		<input cond="$childrenList" type="hidden" name="childrenList" value="{$childrenList}" />
 		<input cond="$search_keyword" type="hidden" name="search_keyword" value="{$search_keyword}" />
 
 		<a href="{getUrl('page', '')}" class="direction">&laquo; FIRST</a>
@@ -101,34 +102,3 @@
 		</span>
 	</form>
 </div>
-
-<style>
-#explorer_category { float:left; width:auto; height:auto; }
-</style>
-
-<div id="tabs">
-	<h1>
-		{$lang->category_management}<a href="#aboutCategoryMgmt" data-toggle class="x_icon-question-sign">{$lang->help}</a>
-	</h1>
-	<p class="x_alert x_alert-info" id="aboutCategoryMgmt" hidden>{$lang->about_showwindow_categories}</p>
-	<ul>
-		<li category_srl="0"><a href="#tabs-0" category_srl="0">{$lang->default_item_category}</a></li>
-		<li loop="$showwindow_categories=>$key,$val" category_srl="{$val->category_srl}">
-			<a href="#tabs-{$val->category_srl}" category_srl="{$val->category_srl}">(쇼윈도우){$val->category_name}({$val->category_srl})</a>
-		</li>
-	</ul>
-	<div id="tabs-0" style="height:auto; overflow:auto;">
-		<div id='explorer_category'><ul id="category_tree"></ul></div>
-		<ul id="tabs0-itemlist" class="sortable lined" style="margin:0px 0px 0px 60px;width:auto;float:left;"></ul>
-		
-	</div>
-	<div loop="$showwindow_categories=>$key,$val" id="tabs-{$val->category_srl}">
-		<ul class="sortable lined"></ul>
-	</div>
-</div>
-
-<script type="text/javascript">
-jQuery(document).ready(function() {
-	displayTree({$module_srl}, '#category_tree');
-});
-</script>

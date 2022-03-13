@@ -128,7 +128,7 @@ class svmarketAdminView extends svmarket
 		Context::set('total_page', $oRst->total_page);
 		Context::set('page', $oRst->page);
 		Context::set('page_navigation', $oRst->page_navigation);
-		Context::set('list', $oRst->data);
+		Context::set('list', $oRst->get('aPkg'));
 		// showwindow display
 		$this->setTemplateFile('pkg_list');
 	}

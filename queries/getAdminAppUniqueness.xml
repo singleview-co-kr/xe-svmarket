@@ -1,0 +1,12 @@
+<query id="getAdminAppUniqueness" action="select">
+	<tables>
+		<table name="svmarket_app" />
+	</tables>
+	<columns>
+		<column name="count(*)" alias="count"/>
+	</columns>
+	<conditions>
+		<condition operation="equal" column="type_srl" var="type_srl" />
+        <condition operation="equal" column="name" var="name" pipe="and"/>
+	</conditions>
+</query>

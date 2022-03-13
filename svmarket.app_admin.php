@@ -11,7 +11,7 @@ class svmarketAppAdmin extends svmarket
 	private $_g_oOldAppHeader = NULL; // 정보 수정할 때 과거 상태에 관한 참조일 뿐
 	private $_g_oNewAppHeader = NULL; // 항상 현재 쓰기의 기준
 	const A_APP_HEADER_TYPE = ['_g_oNewAppHeader', '_g_oOldAppHeader'];
-    const A_APP_TYPE = ['core'=>1, 'module'=>2, 'addon'=>3, 'widget'=>4, 'layout'=>5, 'm.layout'=>6, 'module/skins'=>7, 'module/m.skins'=>8];
+    const A_APP_TYPE = ['core'=>1, 'module'=>2, 'addon'=>3, 'widget'=>4, 'layout'=>5, 'm.layout'=>6, 'module/skin'=>7, 'module/m.skin'=>8];
 /**
  * @brief 생성자
  * $oParams->oSvitemConfig
@@ -19,8 +19,6 @@ class svmarketAppAdmin extends svmarket
 	public function __construct($oParams=null)
 	{
 		$this->_g_oLoggedInfo = Context::get('logged_info');
-		// if($oParams->oSvmarketModuleConfig)
-		// 	$this->_g_oSvmarketModuleConfig = $oParams->oSvmarketModuleConfig;
 		$this->_setSkeletonHeader();
 	}
 /**
@@ -73,7 +71,7 @@ class svmarketAppAdmin extends svmarket
                         'name', 'title', 'install_path', 'thumb_file_srl',
                         'og_description', 'description',
 						'github_url', 'homepage', 'tags', 'display', 'updatetime', 'regdate'];
-        $aInMemoryAttr = ['package_title', 'version_list'];
+        $aInMemoryAttr = ['package_title', 'type_name', 'version_list'];
         $aTempAttr = ['thumbnail_image'];
         foreach(self::A_APP_HEADER_TYPE as $nTypeIdx => $sHeaderType)
         {
@@ -100,8 +98,18 @@ class svmarketAppAdmin extends svmarket
             $this->_g_oNewAppHeader->module_srl == svmarket::S_NULL_SYMBOL || 
 			$this->_g_oNewAppHeader->title == svmarket::S_NULL_SYMBOL)
 			return new BaseObject(-1,'msg_invalid_request');
-		// if($sMode == 'bulk' ) // excel bulk upload mode
-		// 	;
+        // begin - check app duplication
+        $oTmpArgs = new stdClass();
+        $oTmpArgs->type_srl = $this->_g_oNewAppHeader->type_srl;
+        $oTmpArgs->name = $this->_g_oNewAppHeader->name;
+        $oTmpRst = executeQuery('svmarket.getAdminAppUniqueness', $oTmpArgs);
+        unset($oTmpArgs);
+        if(!$oTmpRst->toBool())
+            return $oTmpRst;
+        if(!is_object($oTmpRst->data) || $oTmpRst->data->count > 0) 
+            return new BaseObject(-1,'msg_duplicate_app_type_name_request');
+        unset($oTmpRst);
+        // end - check app duplication
 		return $this->_insertApp();
 	}
     /**
@@ -128,6 +136,39 @@ class svmarketAppAdmin extends svmarket
 		unset($oModuleInfo);
 		return $oTmpRst;
 	}
+	/**
+	* @brief 기존 앱 설치 경로 생성
+	**/
+	public function _getAppTypeInfo()
+	{
+		$sAppType = 'invalid';
+		if($this->_g_oOldAppHeader->type_srl)
+			$sAppType = array_search($this->_g_oOldAppHeader->type_srl, self::A_APP_TYPE);
+		$sInstallPath = 'unknown';
+		switch($sAppType)
+		{
+			case 'core':
+				$sInstallPath = '/';
+				break;
+			case 'module':
+			case 'addon':
+			case 'widget':
+			case 'layout':
+			case 'm.layout':
+				$sInstallPath = '/'.$sAppType.'s/'.$this->_g_oOldAppHeader->name;
+				break;
+			case 'module/skin':
+			case 'module/m.skin':
+				$aAppName = explode('/',$this->_g_oOldAppHeader->name);
+				$aAppType = explode('/',$sAppType);
+				$sInstallPath = '/modules/'.$aAppName[0].'/'.$aAppType[1].'s/'.$aAppName[1];
+				break;
+			default:
+				var_dump($sAppType);
+				break;
+		}
+		return ['sAppType'=>$sAppType, 'sInstallPath'=>$sInstallPath];
+	}
 /**
 * @brief 기존 앱 상세 정보 적재
 **/
@@ -147,15 +188,15 @@ class svmarketAppAdmin extends svmarket
         // end - breadcrumb info
 
         // begin - load category info
-		if($this->_g_oOldAppHeader->category_node_srl > 0)
-		{
-			$oSvmakretModel = &getModel('svmarket');
-			$nModuleSrl = $this->_g_oOldAppHeader->module_srl;
-			$this->_g_oOldAppHeader->oCatalog = $oSvitemModel->getCatalog($nModuleSrl, $this->_g_oOldAppHeader->category_node_srl);
-			if(strlen($this->_g_oOldAppHeader->enhanced_item_info->ga_category_name) == 0)
-				$this->_g_oOldAppHeader->enhanced_item_info->ga_category_name = $this->_g_oOldAppHeader->oCatalog->current_catalog_info->node_name;
-			unset($nModuleSrl);
-		}
+		// if($this->_g_oOldAppHeader->category_node_srl > 0)
+		// {
+		// 	$oSvmakretModel = &getModel('svmarket');
+		// 	$nModuleSrl = $this->_g_oOldAppHeader->module_srl;
+		// 	$this->_g_oOldAppHeader->oCatalog = $oSvitemModel->getCatalog($nModuleSrl, $this->_g_oOldAppHeader->category_node_srl);
+		// 	if(strlen($this->_g_oOldAppHeader->enhanced_item_info->ga_category_name) == 0)
+		// 		$this->_g_oOldAppHeader->enhanced_item_info->ga_category_name = $this->_g_oOldAppHeader->oCatalog->current_catalog_info->node_name;
+		// 	unset($nModuleSrl);
+		// }
         // end - load category info
 
 		// begin - sns share url
@@ -175,6 +216,12 @@ class svmarketAppAdmin extends svmarket
 		$this->_g_oOldAppHeader->desc_for_editor = htmlentities($this->_g_oOldAppHeader->description);
         if(!$this->_g_oOldAppHeader->og_description)
 			$this->_g_oOldAppHeader->og_description = mb_substr(html_entity_decode(strip_tags($this->_g_oOldAppHeader->description)), 0, 40, 'utf-8');
+		if($this->_g_oOldAppHeader->type_srl)
+		{
+			$aAppInfo = $this->_getAppTypeInfo();
+			$this->_g_oOldAppHeader->type_name = $aAppInfo['sAppType'];
+			$this->_g_oOldAppHeader->install_path = $aAppInfo['sInstallPath'];
+		}
 
 		// begin - load packaged version list
         $oArgs = new stdClass();
@@ -260,7 +307,7 @@ class svmarketAppAdmin extends svmarket
      **/
     private function _insertApp()
     {
-        // begin - retrieve package title 
+        // begin - retrieve package title // admin.controller로 뺴내야 함
         require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_admin.php');
         $oPkgAdmin = new svmarketPkgAdmin();
         $oParams = new stdClass();
@@ -305,7 +352,9 @@ class svmarketAppAdmin extends svmarket
         $oParam->type_srl = $this->_g_oNewAppHeader->type_srl;
         $oParam->title = $this->_g_oNewAppHeader->title;
         $oParam->name = $this->_g_oNewAppHeader->name;
-        $oParam->description = $this->_g_oNewAppHeader->description;
+        $oParam->og_description = $this->_g_oNewAppHeader->og_description;
+		$oParam->description = $this->_g_oNewAppHeader->description;
+		$oParam->github_url = $this->_g_oNewAppHeader->github_url;
         $oParam->homepage = $this->_g_oNewAppHeader->homepage;
         $oParam->display = 'N'; // 최초 등록 시에는 기본 최소 정보이므로 무조건 비공개
         $oParam->list_order = $this->_g_oNewAppHeader->package_srl * -1;
@@ -353,18 +402,19 @@ class svmarketAppAdmin extends svmarket
 		// begin - app info modification
 		$oArgs = new stdClass();
 		$oArgs->app_srl = $this->_g_oOldAppHeader->app_srl; // app_srl은 수정하면 안됨
-		// $oArgs->package_srl = $this->_g_oOldAppHeader->package_srl;
 		if($this->_g_oNewAppHeader->module_srl)
 			$oArgs->module_srl = $this->_g_oNewAppHeader->module_srl;
 		if($this->_g_oNewAppHeader->list_order)
 			$oArgs->list_order = $this->_g_oNewAppHeader->list_order;
 		if($this->_g_oNewAppHeader->category_node_srl)
 			$oArgs->category_node_srl = $this->_g_oNewAppHeader->category_node_srl;
+		if($this->_g_oNewAppHeader->type_srl)
+			$oArgs->type_srl = $this->_g_oNewAppHeader->type_srl;
+		if($this->_g_oNewAppHeader->name)
+			$oArgs->name = $this->_g_oNewAppHeader->name;
 		if($this->_g_oNewAppHeader->title)
 			$oArgs->title = $this->_g_oNewAppHeader->title;
-        if($this->_g_oNewAppHeader->install_path)
-			$oArgs->install_path = $this->_g_oNewAppHeader->install_path;
-		if($this->_g_oNewAppHeader->thumb_file_srl)
+        if($this->_g_oNewAppHeader->thumb_file_srl)
 			$oArgs->thumb_file_srl = $this->_g_oNewAppHeader->thumb_file_srl;
 		if($this->_g_oNewAppHeader->og_description)
 			$oArgs->og_description = $this->_g_oNewAppHeader->og_description;
@@ -376,6 +426,8 @@ class svmarketAppAdmin extends svmarket
 			$oArgs->tags = $this->_g_oNewAppHeader->tags;
 		if($this->_g_oNewAppHeader->display)
 			$oArgs->display = $this->_g_oNewAppHeader->display;
+		// var_dump($oArgs);
+		// exit;
 		$oUpdateRst = executeQuery('svmarket.updateAdminApp', $oArgs);
 		unset($oArgs);
 		if(!$oUpdateRst->toBool())

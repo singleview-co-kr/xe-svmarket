@@ -10,6 +10,7 @@
         <column name="name" var="name" notnull="notnull" />
         <column name="title" var="title" notnull="notnull" />
         <column name="thumb_file_srl" var="thumb_file_srl" />
+        <column name="og_description" var="og_description" />
         <column name="description" var="description" />
 		<column name="github_url" var="github_url"/>
 		<column name="homepage" var="homepage" />

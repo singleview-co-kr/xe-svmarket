@@ -71,8 +71,6 @@ class svmarketPkgAdmin extends svmarket
 		if($this->_g_oNewPkgHeader->module_srl == svmarket::S_NULL_SYMBOL || 
 			$this->_g_oNewPkgHeader->title == svmarket::S_NULL_SYMBOL)
 			return new BaseObject(-1,'msg_invalid_request');
-		// if($sMode == 'bulk' ) // excel bulk upload mode
-		// 	;
 		return $this->_insertPkg();
 	}
 	/**
@@ -104,17 +102,16 @@ class svmarketPkgAdmin extends svmarket
 	{
 		$this->_nullifyHeader();
         // begin - load category info
-		if($this->_g_oOldPkgHeader->category_node_srl > 0)
-		{
-				$oSvmakretModel = &getModel('svmarket');
-			$nModuleSrl = $this->_g_oOldPkgHeader->module_srl;
-			$this->_g_oOldPkgHeader->oCatalog = $oSvitemModel->getCatalog($nModuleSrl, $this->_g_oOldPkgHeader->category_node_srl);
-				if(strlen($this->_g_oOldPkgHeader->enhanced_item_info->ga_category_name) == 0)
-				$this->_g_oOldPkgHeader->enhanced_item_info->ga_category_name = $this->_g_oOldPkgHeader->oCatalog->current_catalog_info->node_name;
-			unset($nModuleSrl);
-		}
+		// if($this->_g_oOldPkgHeader->category_node_srl > 0)
+		// {
+		// 		$oSvmakretModel = &getModel('svmarket');
+		// 	$nModuleSrl = $this->_g_oOldPkgHeader->module_srl;
+		// 	$this->_g_oOldPkgHeader->oCatalog = $oSvitemModel->getCatalog($nModuleSrl, $this->_g_oOldPkgHeader->category_node_srl);
+		// 		if(strlen($this->_g_oOldPkgHeader->enhanced_item_info->ga_category_name) == 0)
+		// 		$this->_g_oOldPkgHeader->enhanced_item_info->ga_category_name = $this->_g_oOldPkgHeader->oCatalog->current_catalog_info->node_name;
+		// 	unset($nModuleSrl);
+		// }
         // end - load category info
-
 		// for sns share
 		// $oDocumentModel = getModel('document');
 		// $oDocument = $oDocumentModel->getDocument($this->_g_oOldPkgHeader->package_srl);
@@ -129,6 +126,9 @@ class svmarketPkgAdmin extends svmarket
 		// unset($oDocumentModel);
 
 		$this->_g_oOldPkgHeader->desc_for_editor = htmlentities($this->_g_oOldPkgHeader->description);
+        $this->_g_oOldPkgHeader->list_order = 0;  // temporarily
+        $this->_g_oOldPkgHeader->downloads = 0;  // temporarily
+        $this->_g_oOldPkgHeader->reviews = 0;  // temporarily
 
 		// begin - load packaged app list
 		$oArgs = new stdClass();
@@ -307,7 +307,7 @@ class svmarketPkgAdmin extends svmarket
         $aBasicAttr = ['package_srl', 'module_srl', 'list_order', 'category_node_srl', 
                         'title', 'thumb_file_srl', 'og_description', 'description', 
 						'homepage', 'tags', 'display', 'updatetime', 'regdate'];
-        $aInMemoryAttr = ['app_list'];
+        $aInMemoryAttr = ['downloads', 'reviews','app_list'];
         $aTempAttr = ['thumbnail_image'];
         foreach(self::A_PKG_HEADER_TYPE as $nTypeIdx => $sHeaderType)
         {
@@ -351,6 +351,7 @@ class svmarketPkgAdmin extends svmarket
         $oParam->package_srl = $this->_g_oNewPkgHeader->package_srl;
         $oParam->module_srl = $this->_g_oNewPkgHeader->module_srl;
         $oParam->title = $this->_g_oNewPkgHeader->title;
+        $oParam->og_description = $this->_g_oNewPkgHeader->og_description;
         $oParam->description = $this->_g_oNewPkgHeader->description;
         $oParam->homepage = $this->_g_oNewPkgHeader->homepage;
         $oParam->display = 'N'; // 최초 등록 시에는 기본 최소 정보이므로 무조건 비공개

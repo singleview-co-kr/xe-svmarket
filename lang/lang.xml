@@ -28,7 +28,12 @@
 	<item name="pkg_title">
 		<value xml:lang="ko"><![CDATA[패키지 제목]]></value>
 	</item>
-
+    <item name="display">
+		<value xml:lang="ko"><![CDATA[진열]]></value>
+	</item>
+    <item name="not_display">
+		<value xml:lang="ko"><![CDATA[숨김]]></value>
+	</item>
 	<item name="title_app_basic_info">
 		<value xml:lang="ko"><![CDATA[앱 기본 정보]]></value>
 	</item>
@@ -40,6 +45,9 @@
 	</item>
     <item name="app_name">
 		<value xml:lang="ko"><![CDATA[앱 설치 제목]]></value>
+	</item>
+	<item name="about_app_name">
+		<value xml:lang="ko"><![CDATA[모듈 스킨은 모듈명/스킨명으로 입력]]></value>
 	</item>
     <item name="app_type">
 		<value xml:lang="ko"><![CDATA[앱 유형]]></value>

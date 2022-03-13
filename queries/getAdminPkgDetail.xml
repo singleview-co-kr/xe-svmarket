@@ -11,6 +11,7 @@
         <column name="og_description" />
 		<column name="description" />
         <column name="homepage"/>
+        <column name="display"/>
         <column name="updatetime" />
         <column name="regdate" />
 	</columns>
