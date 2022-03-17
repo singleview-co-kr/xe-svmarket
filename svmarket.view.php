@@ -159,7 +159,7 @@ class svmarketView extends svmarket
 	 */
     function _showPackageList()
     {
-		$oRst = executeQuery('svmarket.getLatestPkg');
+		$oRst = executeQueryArray('svmarket.getLatestPkg');
 		foreach($oRst->data as $nIdx => $oPackage)
 		{
 			$oPackage->item_screenshot_url = svmarketView::dispThumbnailUrl($oPackage->item_screenshot_url,80);
@@ -190,6 +190,7 @@ class svmarketView extends svmarket
 	 */
     function _pushCoreVersionListXml()
     {
+        //echo __FILE__.':'.__LINE__.'<BR>';
         require_once(_XE_PATH_.'modules/svmarket/svmarket.app_admin.php');
         $oAppAdmin = new svmarketAppAdmin();
         $oArgs = new stdClass();
@@ -218,8 +219,23 @@ class svmarketView extends svmarket
 			return $oDetailRst;
 		unset($oDetailRst);
 
+        $sAppstoreHost = 'http://singleview.co.kr/'.$sMid;
+        $nAppSrl = $oPkgAdmin->app_list[0]->app_srl;
+        // get latest version
+        $sLatestVersion = trim($oPkgAdmin->app_list[0]->version_list[0]->version);
+        $sMid = $this->module_info->mid;
+        $nPkgSrl = $oPkgAdmin->package_srl;
+        $sOutput = '<?xml version="1.0"?>';
+        $sOutput .= '<zbxe_news released_version="'.$sLatestVersion.'" download_link="'.$sAppstoreHost.'/'.$nPkgSrl.'">';
         foreach($oPkgAdmin->app_list[0]->version_list as $nIdx=>$oVersion)
-            var_dump($oVersion->version);
+            $sOutput .= '<item url="'.$sAppstoreHost.'/'.$nAppSrl.'" date="'.$oVersion->regdate.'">XE Core SV ver. '.$oVersion->version.'</item>';
+        $sOutput .= '</zbxe_news>';
+        echo $sOutput;
+
+// <zbxe_news released_version="1.11.6" download_link="https://mp.singleview.co.kr/download&amp;package_id=22756225&amp;release_id=22756181">
+// 	<item url="https://xe1.xpressengine.com/index.php?mid=download&amp;package_id=18325662&amp;release_id=22756225" date="20190402125404">XE Core ver. 1.11.6</item>
+// 	<item url="https://xe1.xpressengine.com/index.php?mid=download&amp;package_id=18325662&amp;release_id=22756181" date="20190402125404">XE Core ver. 1.11.5</item>
+// </zbxe_news>
         exit;
 	}   
 }
