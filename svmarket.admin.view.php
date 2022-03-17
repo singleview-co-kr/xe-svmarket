@@ -91,6 +91,36 @@ class svmarketAdminView extends svmarket
 		$this->setTemplateFile('mod_insert');
 	}
     /**
+	 * @brief 
+	 */
+	public function dispSvmarketAdminUpdateMod() 
+	{
+		// 스킨 목록을 구해옴
+		$oModuleModel = &getModel('module');
+		$skin_list = $oModuleModel->getSkins($this->module_path);
+		Context::set('skin_list',$skin_list);
+		$mskin_list = $oModuleModel->getSkins($this->module_path, "m.skins");
+		Context::set('mskin_list', $mskin_list);
+		// 레이아웃 목록을 구해옴
+		$oLayoutModel = &getModel('layout');
+		$layout_list = $oLayoutModel->getLayoutList();
+		Context::set('layout_list', $layout_list);
+		$mobile_layout_list = $oLayoutModel->getLayoutList(0,"M");
+		Context::set('mlayout_list', $mobile_layout_list);
+		
+		$module_category = $oModuleModel->getModuleCategories();
+		Context::set('module_category', $module_category);
+
+        $oModuleModel = getModel('module');
+		$nModuleSrl = Context::get('module_srl');
+		$oModuleInfo = $oModuleModel->getModuleInfoByModuleSrl($nModuleSrl);
+		Context::set('module_info', $oModuleInfo);
+        unset($oModuleModel);
+
+		// Set a template file
+		$this->setTemplateFile('mod_insert');
+	}
+    /**
      * @brief admin view for item list
      */
 	public function dispSvmarketAdminPkgListByModule() 

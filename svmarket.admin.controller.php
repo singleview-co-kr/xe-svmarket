@@ -129,6 +129,81 @@ class svmarketAdminController extends svmarket
 		}
 	}
     /**
+     * @brief 아이템 목록 화면의 [수정사항적용] 버튼
+     **/
+	public function procSvmarketAdminUpdatePkgList() 
+	{
+		$nModuleSrl = Context::get('module_srl');
+		$aPkgSrl = Context::get('package_srl');
+		$aItemName = Context::get('title');
+		$aDisplay = Context::get('display');
+		$aListOrder = Context::get('list_order');
+		if(count($aItemSrl)) // update package
+		{
+			$aUpdatedItem = [];
+			$oArg = new stdClass();
+			
+			require_once(_XE_PATH_.'modules/svitem/svitem.item_admin.php');
+			$oItemAdmin = new svitemItemAdmin();
+			foreach ($aItemSrl as $nIdx => $nItemSrl) 
+			{
+				$oParams->item_srl = $nItemSrl;
+				$oTmpRst = $oItemAdmin->loadHeader($oParams);
+				if (!$oTmpRst->toBool())
+					return new BaseObject(-1,'msg_invalid_item_request');
+				unset($oParams);
+				unset($oTmpRst);
+
+				$oParams->sUaType = 'og';
+				$oTmpRst = $oItemAdmin->loadDetail($oParams);
+				$oArg->item_srl = null;
+				$oArg->item_name = null;
+				$oArg->display = null;
+				$oArg->list_order = null;
+
+				//$oHeaderInfo = $oItemAdmin->getHeader('old'); // 기존 정보만 가져오기
+				$bUpdated = FALSE;
+				if($aItemName[$nIdx] != $oItemAdmin->item_name)
+				{
+					$oArg->item_name = $aItemName[$nIdx];
+					$bUpdated = TRUE;
+				}
+				if($aDisplay[$nIdx] != $oItemAdmin->display)
+				{
+					$oArg->display = $aDisplay[$nIdx];
+					$bUpdated = TRUE;
+				}
+				if($aListOrder[$nIdx] != $oItemAdmin->list_order)
+				{
+					$oArg->list_order = $aListOrder[$nIdx];
+					$bUpdated = TRUE;
+				}
+				if($bUpdated) // commit update
+				{
+					$oArg->item_srl = $nItemSrl;
+					$oArg->updatetime = date('YmdHis');
+					$oInsertRst = $oItemAdmin->update($oArg);
+					if (!$oInsertRst->toBool())
+						return $oInsertRst;
+					unset($oInsertRst);
+					$aUpdatedItem[] = $oItemAdmin->item_name;
+				}
+			}
+			unset($oItemAdmin);
+		}
+		$this->_resetCache();
+		$sUpdatedItemName = implode(',', $aUpdatedItem);
+		$this->setMessage($sUpdatedItemName.' 품목이 변경되었습니다.'); // 실제로 변경된 품목만 추출하도록 개선해야함
+		if(!in_array(Context::getRequestMethod(),array('XMLRPC','JSON'))) 
+		{
+			$returnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module',Context::get('module')
+				,'act', 'dispSvitemAdminItemListByModule','module_srl',Context::get('module_srl'),'page',Context::get('page')
+				,'category',Context::get('category'),'search_item_name',Context::get('search_item_name'));
+			$this->setRedirectUrl($returnUrl);
+			return;
+		}
+	}
+    /**
      * @brief insert App
      **/
 	public function procSvmarketAdminInsertApp() 

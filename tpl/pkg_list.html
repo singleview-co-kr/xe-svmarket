@@ -1,6 +1,4 @@
-<!--%import("js/jstree.min.js")-->
-<!--%import("js/themes/default/style.min.css")-->
-<!--%import("js/itemlist.js")-->
+<!--%import("js/pkglist.js")-->
 
 <include target="_header.html" />
 
@@ -11,10 +9,9 @@
 	<table>
 	<form action="./" method="post" id="list_form" class="form">
 	<input type="hidden" name="module" value="{$module}" />
-	<input type="hidden" name="act" value="procSvmarketAdminUpdateItemList" />
+	<input type="hidden" name="act" value="procSvmarketAdminUpdatePkgList" />
 	<input type="hidden" name="module_srl" value="{$module_srl}" />
 	<input cond="$page" type="hidden" name="page" value="{$page}" />
-	<input type="hidden" name="category" value="{$category}" />
 		<thead>
 			<tr>
 				<th><input type="checkbox" name="cart" value="" /></th>
@@ -30,7 +27,10 @@
 			<tr loop="$list=>$no,$oPkg" id="record_{$oPkg->package_srl}">
 				<td><input type="hidden" name="package_srl[]" value="{$oPkg->package_srl}" /><input type="checkbox" name="cart" value="{$oPkg->package_srl}" /></td>
 				<td><input type="text" name="list_order[]" style="width:80px;" value="{$oPkg->list_order}" /></td>
-				<td><a href="{getUrl('act','dispSvmarketAdminUpdatePkg','package_srl',$oPkg->package_srl)}"><span style="margin-right:6px;"><img src="{svmarketView::dispThumbnailUrl($oPkg->thumb_file_srl,30)}" /></span></a><input type="text" style="width:250px" name="item_name[]" value="{$oPkg->title}" /></td>
+				<td><a href="{getUrl('act','dispSvmarketAdminUpdatePkg','package_srl',$oPkg->package_srl)}">
+                    <span style="margin-right:6px;"><img src="{svmarketView::dispThumbnailUrl($oPkg->thumb_file_srl,30)}" /></span></a>
+                    <input type="text" style="width:250px" name="title[]" value="{$oPkg->title}" />
+                </td>
 				<td><select name="display[]" style="width:100px">
                     <option value="Y" selected="selected"|cond="$oPkg->display=='Y'">{$lang->display}</option>
                     <option value="N" selected="selected"|cond="$oPkg->display=='N'">{$lang->not_display}</option>
@@ -62,8 +62,6 @@
 		<span class="btn"><button type="submit">{$lang->cmd_search}</button></span>
 		<a href="{getUrl('module','svshopmaster', 'module_srl', $module_srl, 'search_key', '', 'search_item_name', '')}" class="x_btn">{$lang->cmd_cancel}</a>
 		<a href="#" id='btnModifyForm' class="x_btn">수정사항적용</a>
-		<a href="#" onclick="itemListCatalogTab.inviteItems(); return false;" class="x_btn">{$lang->add_into_category}</a>
-		<a href="{getUrl('act','dispSvitemAdminItemListExcelDownload')}" class="x_btn">{$lang->excelfile_download}</a>
 	</form>
 </div>
 <div class="pagenation">

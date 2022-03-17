@@ -71,6 +71,8 @@ class svmarketAdminModel extends svmarket
 		$oTemplate = &TemplateHandler::getInstance();
 		$tpl = $oTemplate->compile($this->module_path.'tpl', 'form_delete_mod');
 		$this->add('tpl', str_replace("\n"," ",$tpl));
+        unset($oTemplate);
+        unset($oModuleModel);
 	}
 }
 /* End of file svmarket.admin.model.php */

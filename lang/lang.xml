@@ -3,6 +3,12 @@
     <item name="appstore_management">
 		<value xml:lang="ko"><![CDATA[싱글뷰 앱스토어 관리]]></value>
 	</item>
+    <item name="page_list">
+		<value xml:lang="ko"><![CDATA[마켓 리스트]]></value>
+	</item>
+    <item name="page_update">
+		<value xml:lang="ko"><![CDATA[마켓 정보 수정]]></value>
+	</item>
 	<item name="desc">
 		<value xml:lang="ko"><![CDATA[설명]]></value>
 	</item>
@@ -15,7 +21,6 @@
 	<item name="homepage">
 		<value xml:lang="ko"><![CDATA[개발사 홈피]]></value>
 	</item>
-	
 	<item name="title_pkg_basic_info">
 		<value xml:lang="ko"><![CDATA[패키지 기본 정보]]></value>
 	</item>
@@ -67,11 +72,9 @@
 	<item name="reviews">
 		<value xml:lang="ko"><![CDATA[리뷰수]]></value>
 	</item>
-
 	<item name="version_download">
 		<value xml:lang="ko"><![CDATA[버전 다운로드]]></value>
 	</item>
-	
 	<item name="title_version_info">
 		<value xml:lang="ko"><![CDATA[추가할 버전 정보]]></value>
 	</item>

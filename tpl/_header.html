@@ -9,7 +9,7 @@
 <ul cond="$module_info" class="x_nav x_nav-tabs">
 	<li class="x_active"|cond="$act=='dispSvmarketAdminModList'"><a href="{getUrl('','module',$module,'act','dispSvmarketAdminModList')}">{$lang->page_list}</a></li>
 	<li cond="$module_srl" class="x_active"><a href="{getUrl('','module',$module,'act','dispSvmarketAdminPkgListByModule','module_srl',$module_srl)}">{$module_info->mid} {$lang->page_management}</a></li>
-	<li class="x_active"|cond="$act=='dispSvmarketAdminInsertMod' && !$module_srl"><a href="{getUrl('','module',$module,'act','dispSvmarketAdminInsertMod')}">{$lang->page_creation}</a></li>
+	<li class="x_active"|cond="$act=='dispSvmarketAdminUpdateMod' && $module_srl"><a href="{getUrl('','module',$module,'act','dispSvmarketAdminUpdateMod', 'module_srl', $module_srl)}">{$lang->page_update}</a></li>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminQnaBoardMgmt'"><a href="{getUrl('','module',$module, 'act','dispSvmarketAdminQnaBoardMgmt')}">{$lang->cmd_qna_board_mgmt}</a></li>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminReviewBoardMgmt'"><a href="{getUrl('','module',$module, 'act','dispSvmarketAdminReviewBoardMgmt')}">{$lang->cmd_review_board_mgmt}</a></li>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminConfig'"><a href="{getUrl('','module',$module, 'act','dispSvmarketAdminConfig','module_srl','')}">{$lang->basic_settings}</a></li>

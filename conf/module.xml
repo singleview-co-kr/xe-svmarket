@@ -13,6 +13,7 @@
 		<!-- admin -->
 		<action name="dispSvmarketAdminModList" type="view" admin_index="true" menu_name="page" menu_index="true" />
         <action name="dispSvmarketAdminInsertMod" type="view" />
+        <action name="dispSvmarketAdminUpdateMod" type="view" />
         <action name="dispSvmarketAdminPkgListByModule" type="view" />
         <action name="dispSvmarketAdminInsertPkg" type="view" />
 		<action name="dispSvmarketAdminUpdatePkg" type="view" />
@@ -24,6 +25,7 @@
         <action name="procSvmarketAdminDeleteMod" type="controller" />
         <action name="procSvmarketAdminInsertPkg" type="controller" />
 		<action name="procSvmarketAdminUpdatePkg" type="controller" />
+        <action name="procSvmarketAdminUpdatePkgList" type="controller" />
         <action name="procSvmarketAdminInsertApp" type="controller" />
 		<action name="procSvmarketAdminUpdateApp" type="controller" />
 		<action name="procSvmarketAdminUpdateVersion" type="controller" />
