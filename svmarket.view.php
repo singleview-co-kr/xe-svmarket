@@ -33,6 +33,11 @@ class svmarketView extends svmarket
 				Context::setResponseMethod("XMLRPC");
                 $this->_pushPackageListXml();
                 exit;
+            case 'checkcore':
+                // Force the result output to be of XMLRPC
+				Context::setResponseMethod("XMLRPC");
+                $this->_pushCoreVersionListXml();
+                exit;
         }
 		if($oArg->document_srl)
 			$this->_showDetail();
@@ -180,6 +185,43 @@ class svmarketView extends svmarket
         $oPkgAdmin = new svmarketPkgAdmin();
         echo $oPkgAdmin->pushPackageListXml();
 	}
+    /**
+	 * @brief core version list XML 통지
+	 */
+    function _pushCoreVersionListXml()
+    {
+        require_once(_XE_PATH_.'modules/svmarket/svmarket.app_admin.php');
+        $oAppAdmin = new svmarketAppAdmin();
+        $oArgs = new stdClass();
+        $oArgs->type_srl = $oAppAdmin::A_APP_TYPE['core'];
+        $oTmpRst = executeQuery('svmarket.getAppByType', $oArgs);
+        unset($oArgs);
+        if(!$oTmpRst->toBool())
+            return $oTmpRst;
+        if(!is_object($oTmpRst->data)) 
+            exit;
+        unset($oAppAdmin);
+
+        $oArgs = new stdClass();
+        $oArgs->package_srl = $oTmpRst->data->package_srl;
+        unset($oTmpRst);
+        require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_admin.php');
+		$oPkgAdmin = new svmarketPkgAdmin();
+		$oArgs->mode = 'retrieve';
+		$oTmpRst = $oPkgAdmin->loadHeader($oArgs);
+        unset($oArgs);
+		if(!$oTmpRst->toBool())
+			return new BaseObject(-1,'msg_invalid_pkg_request');
+		unset($oTmpRst);
+		$oDetailRst = $oPkgAdmin->loadDetail();
+		if(!$oDetailRst->toBool())
+			return $oDetailRst;
+		unset($oDetailRst);
+
+        foreach($oPkgAdmin->app_list[0]->version_list as $nIdx=>$oVersion)
+            var_dump($oVersion->version);
+        exit;
+	}   
 }
 /* End of file svmarket.view.php */
 /* Location: ./modules/svmarket/svmarket.view.php */

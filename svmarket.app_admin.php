@@ -90,7 +90,7 @@ class svmarketAppAdmin extends svmarket
 /**
  * @brief 신규 앱 생성
  **/
-	public function create($oNewAppArgs)
+	public function create($oNewAppArgs, $sPackageTitle)
 	{
 		$this->_initHeader();
 		$this->_matchNewPkgInfo($oNewAppArgs);
@@ -98,19 +98,35 @@ class svmarketAppAdmin extends svmarket
             $this->_g_oNewAppHeader->module_srl == svmarket::S_NULL_SYMBOL || 
 			$this->_g_oNewAppHeader->title == svmarket::S_NULL_SYMBOL)
 			return new BaseObject(-1,'msg_invalid_request');
+        // begin - check core duplication
+        if($this->_g_oNewAppHeader->type_srl == self::A_APP_TYPE['core'])
+        {
+            $oArgs = new stdClass();
+            $oArgs->type_srl = self::A_APP_TYPE['core'];
+            $oTmpRst = executeQuery('svmarket.getAdminAppUniqueness', $oArgs);
+            unset($oArgs);
+            if(!$oTmpRst->toBool())
+                return $oTmpRst;
+            if(!is_object($oTmpRst->data) || $oTmpRst->data->count > 0) 
+                return new BaseObject(-1,'msg_duplicate_core_type_request');
+            unset($oTmpRst);
+            //enforce install_path if valid core registration
+            $this->_g_oNewAppHeader->install_path = '/';  
+        }
+        // end - check core duplication
         // begin - check app duplication
-        $oTmpArgs = new stdClass();
-        $oTmpArgs->type_srl = $this->_g_oNewAppHeader->type_srl;
-        $oTmpArgs->name = $this->_g_oNewAppHeader->name;
-        $oTmpRst = executeQuery('svmarket.getAdminAppUniqueness', $oTmpArgs);
-        unset($oTmpArgs);
+        $oArgs = new stdClass();
+        $oArgs->type_srl = $this->_g_oNewAppHeader->type_srl;
+        $oArgs->name = $this->_g_oNewAppHeader->name;
+        $oTmpRst = executeQuery('svmarket.getAdminAppUniqueness', $oArgs);
+        unset($oArgs);
         if(!$oTmpRst->toBool())
             return $oTmpRst;
         if(!is_object($oTmpRst->data) || $oTmpRst->data->count > 0) 
             return new BaseObject(-1,'msg_duplicate_app_type_name_request');
         unset($oTmpRst);
         // end - check app duplication
-		return $this->_insertApp();
+		return $this->_insertApp($sPackageTitle);
 	}
     /**
  * @brief 기존 앱 정보 적재
@@ -305,26 +321,8 @@ class svmarketAppAdmin extends svmarket
     /**
      * @brief 
      **/
-    private function _insertApp()
+    private function _insertApp($sPackageTitle)
     {
-        // begin - retrieve package title // admin.controller로 뺴내야 함
-        require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_admin.php');
-        $oPkgAdmin = new svmarketPkgAdmin();
-        $oParams = new stdClass();
-        $oParams->package_srl = $this->_g_oNewAppHeader->package_srl;
-        $oParams->mode = 'retrieve';
-        $oTmpRst = $oPkgAdmin->loadHeader($oParams);
-        if(!$oTmpRst->toBool())
-            return new BaseObject(-1,'msg_invalid_pkg_request');
-        unset($oTmpRst);
-        $oDetailRst = $oPkgAdmin->loadDetail();
-        if(!$oDetailRst->toBool())
-            return $oDetailRst;
-        unset($oDetailRst);
-        $sPackageTitle = $oPkgAdmin->title;
-        unset($oPkgAdmin);
-        // end - retrieve package title 
-
         $this->_g_oNewAppHeader->app_srl = getNextSequence();
         $oDocArgs = new stdClass();
         $oDocArgs->document_srl = $this->_g_oNewAppHeader->app_srl;
@@ -358,7 +356,6 @@ class svmarketAppAdmin extends svmarket
         $oParam->homepage = $this->_g_oNewAppHeader->homepage;
         $oParam->display = 'N'; // 최초 등록 시에는 기본 최소 정보이므로 무조건 비공개
         $oParam->list_order = $this->_g_oNewAppHeader->package_srl * -1;
-        
         // save representative thumbnail
         if($this->_g_oNewAppHeader->thumbnail_image['tmp_name']) 
         {

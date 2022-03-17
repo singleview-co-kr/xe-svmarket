@@ -135,70 +135,66 @@ class svmarketAdminController extends svmarket
 	{
 		$nModuleSrl = Context::get('module_srl');
 		$aPkgSrl = Context::get('package_srl');
-		$aItemName = Context::get('title');
+		$aPkgTitle = Context::get('title');
 		$aDisplay = Context::get('display');
 		$aListOrder = Context::get('list_order');
-		if(count($aItemSrl)) // update package
+		if(count($aPkgSrl)) // update package
 		{
-			$aUpdatedItem = [];
-			$oArg = new stdClass();
-			
-			require_once(_XE_PATH_.'modules/svitem/svitem.item_admin.php');
-			$oItemAdmin = new svitemItemAdmin();
-			foreach ($aItemSrl as $nIdx => $nItemSrl) 
+			$aUpdatedPkg = [];
+			$oParams = new stdClass();
+			require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_admin.php');
+			$oPkgAdmin = new svmarketPkgAdmin();
+			foreach($aPkgSrl as $nIdx => $nPkgSrl) 
 			{
-				$oParams->item_srl = $nItemSrl;
-				$oTmpRst = $oItemAdmin->loadHeader($oParams);
-				if (!$oTmpRst->toBool())
-					return new BaseObject(-1,'msg_invalid_item_request');
-				unset($oParams);
+				$oParams->package_srl = $nPkgSrl;
+				$oTmpRst = $oPkgAdmin->loadHeader($oParams);
+				if(!$oTmpRst->toBool())
+					return new BaseObject(-1,'msg_invalid_packagte_request');
 				unset($oTmpRst);
 
-				$oParams->sUaType = 'og';
-				$oTmpRst = $oItemAdmin->loadDetail($oParams);
-				$oArg->item_srl = null;
-				$oArg->item_name = null;
-				$oArg->display = null;
-				$oArg->list_order = null;
-
-				//$oHeaderInfo = $oItemAdmin->getHeader('old'); // 기존 정보만 가져오기
+				$oArg = new stdClass();
 				$bUpdated = FALSE;
-				if($aItemName[$nIdx] != $oItemAdmin->item_name)
+				if($aPkgTitle[$nIdx] != $oPkgAdmin->title)
 				{
-					$oArg->item_name = $aItemName[$nIdx];
+					$oArg->title = $aPkgTitle[$nIdx];
 					$bUpdated = TRUE;
 				}
-				if($aDisplay[$nIdx] != $oItemAdmin->display)
+				if($aDisplay[$nIdx] != $oPkgAdmin->display)
 				{
 					$oArg->display = $aDisplay[$nIdx];
 					$bUpdated = TRUE;
 				}
-				if($aListOrder[$nIdx] != $oItemAdmin->list_order)
+				if($aListOrder[$nIdx] != $oPkgAdmin->list_order)
 				{
 					$oArg->list_order = $aListOrder[$nIdx];
 					$bUpdated = TRUE;
 				}
 				if($bUpdated) // commit update
 				{
-					$oArg->item_srl = $nItemSrl;
-					$oArg->updatetime = date('YmdHis');
-					$oInsertRst = $oItemAdmin->update($oArg);
-					if (!$oInsertRst->toBool())
+					$oArg->package_srl = $nPkgSrl;
+					$oInsertRst = $oPkgAdmin->update($oArg);
+					if(!$oInsertRst->toBool())
 						return $oInsertRst;
 					unset($oInsertRst);
-					$aUpdatedItem[] = $oItemAdmin->item_name;
+					$oUpdateRst = $oPkgAdmin->updateTimestamp();
+					if(!$oUpdateRst->toBool())
+						return $oUpdateRst;
+					unset($oUpdateRst);
+					$aUpdatedPkg[] = $oPkgAdmin->title;
 				}
+				unset($oArg);
 			}
-			unset($oItemAdmin);
+			unset($oParams);
+			unset($oPkgAdmin);
 		}
-		$this->_resetCache();
-		$sUpdatedItemName = implode(',', $aUpdatedItem);
-		$this->setMessage($sUpdatedItemName.' 품목이 변경되었습니다.'); // 실제로 변경된 품목만 추출하도록 개선해야함
+		//$this->_resetCache();
+		$sUpdatedPkgTitle = implode(',', $aUpdatedPkg);
+		$this->setMessage($sUpdatedPkgTitle.' 패키지가 변경되었습니다.'); // 실제로 변경된 품목만 추출하도록 개선해야함
 		if(!in_array(Context::getRequestMethod(),array('XMLRPC','JSON'))) 
 		{
 			$returnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module',Context::get('module')
-				,'act', 'dispSvitemAdminItemListByModule','module_srl',Context::get('module_srl'),'page',Context::get('page')
-				,'category',Context::get('category'),'search_item_name',Context::get('search_item_name'));
+				,'act', 'dispSvmarketAdminPkgListByModule','module_srl',Context::get('module_srl'),'page',Context::get('page')
+				,'search_item_name',Context::get('search_item_name'));
 			$this->setRedirectUrl($returnUrl);
 			return;
 		}
@@ -211,7 +207,31 @@ class svmarketAdminController extends svmarket
 		$oArgs = Context::getRequestVars();
 		require_once(_XE_PATH_.'modules/svmarket/svmarket.app_admin.php');
 		$oAppAdmin = new svmarketAppAdmin();
-		$oInsertRst = $oAppAdmin->create($oArgs);
+
+		// begin - retrieve package title
+        require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_admin.php');
+        $oPkgAdmin = new svmarketPkgAdmin();
+        $oParams = new stdClass();
+        $oParams->package_srl = $oArgs->package_srl;
+        $oParams->mode = 'retrieve';
+        $oTmpRst = $oPkgAdmin->loadHeader($oParams);
+        if(!$oTmpRst->toBool())
+            return new BaseObject(-1,'msg_invalid_pkg_request');
+        unset($oTmpRst);
+        $oDetailRst = $oPkgAdmin->loadDetail();
+        if(!$oDetailRst->toBool())
+            return $oDetailRst;
+        unset($oDetailRst);
+		foreach($oPkgAdmin->app_list as $nIdx=>$oApp)
+		{
+			if($oApp->type_srl == $oAppAdmin::A_APP_TYPE['core'])
+				return new BaseObject(-1,'msg_pkg_already_contains_core');
+		}
+        $sPackageTitle = $oPkgAdmin->title;
+        unset($oPkgAdmin);
+        // end - retrieve package title
+		
+		$oInsertRst = $oAppAdmin->create($oArgs, $sPackageTitle);
 		if(!$oInsertRst->toBool())
 		{
 			unset($oArgs);
