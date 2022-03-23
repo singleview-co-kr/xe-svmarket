@@ -14,13 +14,13 @@
 <form method="post" action="./" class="x_form-horizontal" enctype="multipart/form-data">
 	<input name="module" type="hidden" value="{$module}" />
 	<input name="module_srl" type="hidden" value="{$module_srl}" />
+    <input name="package_srl" type="hidden" value="{$package_srl}" />
     <input name="pkg_description" type="hidden" value="{$oPkgInfo->desc_for_editor}" />
 <block cond="!$package_srl">
 	<input name="act" type="hidden" value="procSvmarketAdminInsertPkg" />
 </block>
 <block cond="$package_srl">
-	<input name="act" type="hidden" value="procSvmarketAdminUpdatePkg" />
-    <input name="package_srl" type="hidden" value="{$package_srl}" />
+	<input name="act" type="hidden" value="procSvmarketAdminUpdatePkg" />    
 </block>
 
 	<h1>{$lang->title_pkg_basic_info}</h1>

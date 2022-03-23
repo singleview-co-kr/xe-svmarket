@@ -31,7 +31,7 @@
                       </li>
                       <li>
                         <span class="name"> Views </span>
-                        <span class="value text-success"> n/a </span>
+                        <span class="value text-success"> {$oAppInfo->readed_count} </span>
                       </li>
                       <li class="hidden-phone">
                         <span class="name"> Download </span>
@@ -39,7 +39,7 @@
                       </li>
                    </ul>
                    <br />
-                   <img src="./images/sv_logo.png" style="height:350px;">
+                   <img src="{svmarketView::dispThumbnailUrl($oAppInfo->thumb_file_srl)}" style="height:350px;">
                    
 
                    <div class="col-md-12">

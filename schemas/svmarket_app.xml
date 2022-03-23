@@ -2,7 +2,8 @@
 	<column name="app_srl" type="number" size="11" notnull="notnull" primary_key="primary_key" />
     <column name="module_srl" type="number" size="11" default="0" notnull="notnull" index="idx_module_srl" />
     <column name="package_srl" type="number" size="11" default="0" notnull="notnull" index="idx_package_srl" />
-	<column name="list_order" type="number" size="11" notnull="notnull" default="1" index="idx_list_order" />
+	<column name="member_srl" type="number" size="11" notnull="notnull" index="idx_member_srl" />
+    <column name="list_order" type="number" size="11" notnull="notnull" default="1" index="idx_list_order" />
 	<column name="category_node_srl" type="number" size="11" default="0" notnull="notnull" index="idx_category_node_srl" />
 	<column name="type_srl" type="number" size="11" default="-1" notnull="notnull" unique="unique_type_srl_name"/>
     <column name="name" type="varchar" size="30" notnull="notnull" unique="unique_type_srl_name" />
@@ -14,6 +15,7 @@
     <column name="thumb_file_srl" type="number" size="11" default="0" notnull="notnull" />
 	<column name="tags" type="varchar" size="250" />
     <column name="display" type="char" size="1" default="N" notnull="notnull" />
+    <column name="ipaddress" type="varchar" size="128" notnull="notnull" index="idx_ipaddress" />
 	<column name="updatetime" type="date" notnull="notnull" index="idx_updatetime" />
 	<column name="regdate" type="date" notnull="notnull" />
 </table>

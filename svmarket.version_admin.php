@@ -125,19 +125,6 @@ class svmarketVersionAdmin extends svmarket
         unset($oTmpRst);
         // end - breadcrumb info
 
-		// begin sns share
-		// $oDocumentModel = getModel('document');
-		// $oDocument = $oDocumentModel->getDocument($this->_g_oOldVersionHeader->package_srl);
-		// $oDbInfo = Context::getDBInfo();
-		// $oSnsInfo = new stdClass();
-		// $oSnsInfo->sPermanentUrl = $oDocument->getPermanentUrl().'?l='.$oDbInfo->lang_type;
-		// $oSnsInfo->sEncodedDocTitle = urlencode($this->_g_oOldVersionHeader->title);
-		// $this->_g_oOldVersionHeader->oSnsInfo = $oSnsInfo;
-		// unset($oDbInfo);
-		// unset($oDocument);
-		// unset($oDocumentModel);
-        // end sns share
-
 		$this->_g_oOldVersionHeader->desc_for_editor = htmlentities($this->_g_oOldVersionHeader->description);
 		if(!$this->_g_oOldVersionHeader->og_description)
 			$this->_g_oOldVersionHeader->og_description = mb_substr(html_entity_decode(strip_tags($this->_g_oOldVersionHeader->description)), 0, 40, 'utf-8');
@@ -169,6 +156,46 @@ class svmarketVersionAdmin extends svmarket
 		return $this->_updateVersion();
 	}
     /**
+	 * Update read counts of the package
+	 * @return bool|void
+	 */
+	function updateReadedCount()
+	{
+		// Pass if Crawler access
+		if(isCrawler()) return false;
+		
+		$nDocumentSrl = $this->_g_oOldVersionHeader->version_srl;
+		$nMemberSrl = $this->_g_oOldVersionHeader->member_srl;
+		// Call a trigger when the read count is updated (before)
+		// Pass if read count is increaded on the session information
+		if($_SESSION['readed_document'][$nDocumentSrl]) return false;
+
+		// Pass if the author's IP address is as same as visitor's.
+		if($this->_g_oOldVersionHeader->ipaddress == $_SERVER['REMOTE_ADDR'])
+		{
+			$_SESSION['readed_document'][$nDocumentSrl] = true;
+			return false;
+		}
+		// Pass ater registering sesscion if the author is a member and has same information as the currently logged-in user.
+		if($nMemberSrl && $this->_g_oLoggedInfo->member_srl == $nMemberSrl)
+		{
+			$_SESSION['readed_document'][$nDocumentSrl] = true;
+			return false;
+		}
+		$oDB = DB::getInstance();
+		$oDB->begin();
+		// Update read counts
+		$args = new stdClass;
+		$args->version_srl = $nDocumentSrl;
+		executeQuery('svmarket.updateVersionReadedCount', $args);
+    	$oDB->commit();
+        unset($args);
+		// Register session
+		if(!$_SESSION['banned_document'][$nDocumentSrl]) 
+			$_SESSION['readed_document'][$nDocumentSrl] = true;
+		return TRUE;
+	}
+    /**
      * @brief 헤더 초기화
      **/
     private function _initHeader()
@@ -180,12 +207,12 @@ class svmarketVersionAdmin extends svmarket
     }
     /**
      * @brief set skeleton svmarket header
-     * svmarket.pkg_consumer.php::_setSkeletonHeader()과 통일성 유지
      **/
     private function _setSkeletonHeader()
     {
         $aBasicAttr = ['version_srl', 'app_srl', 'module_srl', 'package_srl', 
                         'version', 'zip_file_srl', 'og_description', 'description', 
+                        'member_srl', 'readed_count', 'ipaddress',
 						'updatetime', 'regdate'];
         $aInMemoryAttr = ['package_title', 'app_title'];
         $aTempAttr = ['zip_file'];
@@ -208,24 +235,8 @@ class svmarketVersionAdmin extends svmarket
      **/
     private function _insertVersion()
     {
-        $this->_g_oNewVersionHeader->version_srl = getNextSequence();
-        $oDocArgs = new stdClass();
-        $oDocArgs->document_srl = $this->_g_oNewVersionHeader->version_srl;
-        $oDocArgs->module_srl = $this->_g_oNewVersionHeader->module_srl;
-        $oDocArgs->content = $this->_g_oNewVersionHeader->title.'버전의 상세페이지';
-        $oDocArgs->title = $this->_g_oNewVersionHeader->title;
-        $oDocArgs->list_order = $this->_g_oNewVersionHeader->app_srl * -1;
-        $oDocArgs->tags = Context::get('tag');
-        $oDocArgs->allow_comment = 'Y';
-        $oDocumentController = &getController('document');
-        $oDocRst = $oDocumentController->insertDocument($oDocArgs);
-        if(!$oDocRst->toBool())
-            return $oDocRst;
-        unset($oDocumentController);
-        unset($oDocRst);
-        unset($oDocArgs);
-        
         $this->_nullifyHeader();
+        $this->_g_oNewVersionHeader->version_srl = getNextSequence();
         $oParam = new stdClass();
         $oParam->version_srl = $this->_g_oNewVersionHeader->version_srl;
         $oParam->app_srl = $this->_g_oNewVersionHeader->app_srl;
@@ -233,7 +244,8 @@ class svmarketVersionAdmin extends svmarket
         $oParam->module_srl = $this->_g_oNewVersionHeader->module_srl;
         $oParam->version = $this->_g_oNewVersionHeader->version;
         $oParam->description = $this->_g_oNewVersionHeader->description;
-
+        if($this->_g_oLoggedInfo)
+			$oParam->member_srl = $this->_g_oLoggedInfo->member_srl;
         // save version zip file
         if($this->_g_oNewVersionHeader->zip_file['tmp_name']) 
         {
@@ -260,7 +272,6 @@ class svmarketVersionAdmin extends svmarket
 			return $oInsertRst;
         }
         unset($oParam);
-        //$oInsertRst->add('nVersionSrl', $this->_g_oNewVersionHeader->version_srl);
         return $oInsertRst;
     }
 /**

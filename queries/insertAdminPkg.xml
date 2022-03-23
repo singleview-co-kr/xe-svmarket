@@ -5,11 +5,13 @@
 	<columns>
         <column name="package_srl" var="package_srl" notnull="notnull" />
 		<column name="module_srl" var="module_srl" notnull="notnull" />
+        <column name="member_srl" var="member_srl" />
         <column name="title" var="title" notnull="notnull" />
         <column name="og_description" var="og_description" notnull="notnull" />
         <column name="description" var="description" notnull="notnull" />
 		<column name="homepage" var="homepage" />
         <column name="thumb_file_srl" var="thumb_file_srl" />
+        <column name="ipaddress" var="ipaddress" default="ipaddress()" />
 		<column name="updatetime" var="updatetime" default="curdate()" />
 		<column name="regdate" var="regdate" default="curdate()" />
 	</columns>

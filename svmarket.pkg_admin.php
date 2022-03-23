@@ -6,7 +6,6 @@
  */
 class svmarketPkgAdmin extends svmarket
 {
-	// private $_g_oSvmarketModuleConfig = NULL; // svmarket module config 적재
 	private $_g_oLoggedInfo = NULL;
 	private $_g_oOldPkgHeader = NULL; // 정보 수정할 때 과거 상태에 관한 참조일 뿐
 	private $_g_oNewPkgHeader = NULL; // 항상 현재 쓰기의 기준
@@ -18,8 +17,6 @@ class svmarketPkgAdmin extends svmarket
 	public function __construct($oParams=null)
 	{
 		$this->_g_oLoggedInfo = Context::get('logged_info');
-		// if($oParams->oSvmarketModuleConfig)
-		// 	$this->_g_oSvmarketModuleConfig = $oParams->oSvmarketModuleConfig;
 		$this->_setSkeletonHeader();
 	}
 /**
@@ -38,9 +35,13 @@ class svmarketPkgAdmin extends svmarket
 		}
 		else
 		{
-			debugPrint($sName);
-			trigger_error('Undefined property or method: '.$sName);
-			return null;
+			if($sName == 'thumb_file_srl' || $sName == 'readed_count')
+                return 0;
+            else
+            {
+                trigger_error('Undefined property or method: '.$sName);
+			    return null;
+            }
 		}
 	}
 /**
@@ -101,35 +102,16 @@ class svmarketPkgAdmin extends svmarket
 	public function loadDetail()
 	{
 		$this->_nullifyHeader();
-        // begin - load category info
-		// if($this->_g_oOldPkgHeader->category_node_srl > 0)
-		// {
-		// 		$oSvmakretModel = &getModel('svmarket');
-		// 	$nModuleSrl = $this->_g_oOldPkgHeader->module_srl;
-		// 	$this->_g_oOldPkgHeader->oCatalog = $oSvitemModel->getCatalog($nModuleSrl, $this->_g_oOldPkgHeader->category_node_srl);
-		// 		if(strlen($this->_g_oOldPkgHeader->enhanced_item_info->ga_category_name) == 0)
-		// 		$this->_g_oOldPkgHeader->enhanced_item_info->ga_category_name = $this->_g_oOldPkgHeader->oCatalog->current_catalog_info->node_name;
-		// 	unset($nModuleSrl);
-		// }
-        // end - load category info
-		// for sns share
-		// $oDocumentModel = getModel('document');
-		// $oDocument = $oDocumentModel->getDocument($this->_g_oOldPkgHeader->package_srl);
-		// // $this->_g_oOldPkgHeader->enhanced_item_info->item_brief = $oDocument->getContent(false);
-		// $oDbInfo = Context::getDBInfo();
-		// $oSnsInfo = new stdClass();
-		// $oSnsInfo->sPermanentUrl = $oDocument->getPermanentUrl().'?l='.$oDbInfo->lang_type;
-		// $oSnsInfo->sEncodedDocTitle = urlencode($this->_g_oOldPkgHeader->title);
-		// $this->_g_oOldPkgHeader->oSnsInfo = $oSnsInfo;
-		// unset($oDbInfo);
-		// unset($oDocument);
-		// unset($oDocumentModel);
-
 		$this->_g_oOldPkgHeader->desc_for_editor = htmlentities($this->_g_oOldPkgHeader->description);
         $this->_g_oOldPkgHeader->list_order = 0;  // temporarily
         $this->_g_oOldPkgHeader->downloads = 0;  // temporarily
         $this->_g_oOldPkgHeader->reviews = 0;  // temporarily
 
+        $oFileModel = getModel('file');
+        $aFiles = $oFileModel->getFiles($this->_g_oOldPkgHeader->package_srl);
+        $this->_g_oOldPkgHeader->thumb_file_srl = $aFiles[0]->file_srl;
+        unset($aFiles);
+        unset($oFileModel);
 		// begin - load packaged app list
 		$oArgs = new stdClass();
 		$oArgs->package_srl = $this->_g_oOldPkgHeader->package_srl;
@@ -180,6 +162,46 @@ class svmarketPkgAdmin extends svmarket
 		if($this->_g_oNewPkgHeader->module_srl == svmarket::S_NULL_SYMBOL)
 			$this->_g_oNewPkgHeader->module_srl = $this->_g_oOldPkgHeader->module_srl;
 		return $this->_updateItem();
+	}
+    /**
+	 * Update read counts of the package
+	 * @return bool|void
+	 */
+	function updateReadedCount()
+	{
+		// Pass if Crawler access
+		if(isCrawler()) return false;
+		
+		$nDocumentSrl = $this->_g_oOldPkgHeader->package_srl;
+		$nMemberSrl = $this->_g_oOldPkgHeader->member_srl;
+		// Call a trigger when the read count is updated (before)
+		// Pass if read count is increaded on the session information
+		if($_SESSION['readed_document'][$nDocumentSrl]) return false;
+
+		// Pass if the author's IP address is as same as visitor's.
+		if($this->_g_oOldPkgHeader->ipaddress == $_SERVER['REMOTE_ADDR'])
+		{
+			$_SESSION['readed_document'][$nDocumentSrl] = true;
+			return false;
+		}
+		// Pass ater registering sesscion if the author is a member and has same information as the currently logged-in user.
+		if($nMemberSrl && $this->_g_oLoggedInfo->member_srl == $nMemberSrl)
+		{
+			$_SESSION['readed_document'][$nDocumentSrl] = true;
+			return false;
+		}
+		$oDB = DB::getInstance();
+		$oDB->begin();
+		// Update read counts
+		$args = new stdClass;
+		$args->package_srl = $nDocumentSrl;
+		executeQuery('svmarket.updatePkgReadedCount', $args);
+		$oDB->commit();
+        unset($args);
+		// Register session
+		if(!$_SESSION['banned_document'][$nDocumentSrl]) 
+			$_SESSION['readed_document'][$nDocumentSrl] = true;
+		return TRUE;
 	}
     /**
      * @brief 기존 패키지 갱신일 변경
@@ -306,6 +328,7 @@ class svmarketPkgAdmin extends svmarket
     {
         $aBasicAttr = ['package_srl', 'module_srl', 'list_order', 'category_node_srl', 
                         'title', 'thumb_file_srl', 'og_description', 'description', 
+                        'member_srl', 'readed_count', 'ipaddress',
 						'homepage', 'tags', 'display', 'updatetime', 'regdate'];
         $aInMemoryAttr = ['downloads', 'reviews','app_list'];
         $aTempAttr = ['thumbnail_image'];
@@ -328,25 +351,10 @@ class svmarketPkgAdmin extends svmarket
      **/
     private function _insertPkg()
     {
-        // insert document for OG
-        $this->_g_oNewPkgHeader->package_srl = getNextSequence();
-        $oDocArgs = new stdClass();
-        $oDocArgs->document_srl = $this->_g_oNewPkgHeader->package_srl;
-        $oDocArgs->module_srl = $this->_g_oNewPkgHeader->module_srl;
-        $oDocArgs->content = $this->_g_oNewPkgHeader->title.'패키지의 상세페이지';
-        $oDocArgs->title = $this->_g_oNewPkgHeader->title;
-        $oDocArgs->list_order = $this->_g_oNewPkgHeader->package_srl * -1;
-        $oDocArgs->tags = Context::get('tag');
-        $oDocArgs->allow_comment = 'Y';
-        $oDocumentController = &getController('document');
-        $oDocRst = $oDocumentController->insertDocument($oDocArgs);
-        if(!$oDocRst->toBool())
-            return $oDocRst;
-        unset($oDocumentController);
-        unset($oDocRst);
-        unset($oDocArgs);
-        
         $this->_nullifyHeader();
+        if($this->_g_oNewPkgHeader->package_srl == 0)
+            $this->_g_oNewPkgHeader->package_srl = getNextSequence();
+        
         $oParam = new stdClass();
         $oParam->package_srl = $this->_g_oNewPkgHeader->package_srl;
         $oParam->module_srl = $this->_g_oNewPkgHeader->module_srl;
@@ -356,38 +364,8 @@ class svmarketPkgAdmin extends svmarket
         $oParam->homepage = $this->_g_oNewPkgHeader->homepage;
         $oParam->display = 'N'; // 최초 등록 시에는 기본 최소 정보이므로 무조건 비공개
         $oParam->list_order = $this->_g_oNewPkgHeader->package_srl * -1;
-        
-        // save representative thumbnail
-        if($this->_g_oNewPkgHeader->thumbnail_image['tmp_name']) 
-        {
-            $oFileController = &getController('file');
-            if(is_uploaded_file($this->_g_oNewPkgHeader->thumbnail_image['tmp_name'])) // single upload via web interface mode
-            {
-                $oFileRst = $oFileController->insertFile($this->_g_oNewPkgHeader->thumbnail_image, $this->_g_oNewPkgHeader->module_srl, $this->_g_oNewPkgHeader->package_srl);
-                if(!$oFileRst || !$oFileRst->toBool())
-                    return $oFileRst;
-                $oFileController->setFilesValid($this->_g_oNewPkgHeader->package_srl);
-                $oParam->thumb_file_srl = $oFileRst->get('file_srl');
-                unset($oFileRst);
-                unset($oFileController);
-            }
-            elseif($this->_g_oNewPkgHeader->thumbnail_image['size']) // excel bulk mode
-            {
-                echo 'yes img->'.$this->_g_oNewPkgHeader->thumbnail_image['name'].'<BR>';
-                $oFileRst = $oFileController->insertFile($this->_g_oNewPkgHeader->thumbnail_image, $this->_g_oNewPkgHeader->module_srl, $this->_g_oNewPkgHeader->package_srl, 0, true);
-                if(!$oFileRst || !$oFileRst->toBool())
-                    return $oFileRst;
-                $oFileController->setFilesValid($this->_g_oNewPkgHeader->package_srl);
-                $oParam->thumb_file_srl = $oFileRst->get('file_srl');
-                unset($oFileRst);
-                unset($oFileController);
-            }
-            else
-            {
-                echo 'no img->'.$oArgs->thumbnail_image['name'].'<BR>';
-                $oParam->thumb_file_srl = 0;
-            }
-        }
+        if($this->_g_oLoggedInfo)
+			$oParam->member_srl = $this->_g_oLoggedInfo->member_srl;
         $oInsertRst = executeQuery('svmarket.insertAdminPkg', $oParam);
         if(!$oInsertRst->toBool())
         {
@@ -576,95 +554,6 @@ class svmarketPkgAdmin extends svmarket
 		unset($oArgs);
 		return new BaseObject();
 	}
-/**
- * @brief svmarket 스킨에서 호출하는 메쏘드
- */	
-	public function getThumbnailUrl( $nWidth = 80, $nHeight = 0, $sThumbnailType = 'crop' )
-	{
-		$sNoimgUrl = Context::getRequestUri().'/modules/svmarket/tpl/img/no_img_80x80.jpg';
-		if($this->_g_oOldItemHeader->thumb_file_srl == svmarket::S_NULL_SYMBOL || is_null( $this->_g_oOldItemHeader->thumb_file_srl ) ) // 기본 이미지 반환
-			return $sNoimgUrl;
-		
-		if(!$nHeight)
-			$nHeight = $nWidth;
-		
-		// Define thumbnail information
-		$sThumbnailPath = 'files/cache/thumbnails/'.getNumberingPath($this->_g_oOldItemHeader->thumb_file_srl, 3);
-		$sThumbnailFile = $sThumbnailPath.$nWidth.'x'.$nHeight.'.'.$sThumbnailType.'.jpg';
-		$sThumbnailUrl = Context::getRequestUri().$sThumbnailFile;
-		// Return false if thumbnail file exists and its size is 0. Otherwise, return its path
-		if(file_exists($sThumbnailFile) && filesize($sThumbnailFile) > 1 ) 
-			return $sThumbnailUrl;
-
-		// Target File
-		$oFileModel = &getModel('file');
-		$sSourceFile = NULL;
-		$sFile = $oFileModel->getFile($this->_g_oOldItemHeader->thumb_file_srl);
-		if($sFile) 
-			$sSourceFile = $sFile->uploaded_filename;
-
-		if($sSourceFile)
-			$oOutput = FileHandler::createImageFile($sSourceFile, $sThumbnailFile, $nWidth, $nHeight, 'jpg', $sThumbnailType);
-
-		// Return its path if a thumbnail is successfully genetated
-		if($oOutput) 
-			return $sThumbnailUrl;
-		else
-			FileHandler::writeFile($sThumbnailFile, '','w'); // Create an empty file not to re-generate the thumbnail
-		return $sNoimgUrl;
-	}
-/**
- * @brief
- */
-	private function _setReviewCnt()
-	{
-		$nReviewCnt = 0;
-		if( $this->_g_oSvitemModuleConfig->connected_review_board_srl > 0 )
-		{
-			$oDocumentModel = getModel('document');
-			$sCategoryContent = $oDocumentModel->getCategoryPhpFile($this->_g_oSvitemModuleConfig->connected_review_board_srl);
-			unset($oDocumentModel);
-			require($sCategoryContent);	
-			foreach( $this->_g_oSvitemModuleConfig->review_for_item[$this->_g_oOldItemHeader->item_srl] as $key=>$val)
-			{
-				if( $val == 'match' )
-					$nReviewCnt += (int)$menu->list[$key]['document_count'];
-			}
-		}
-		$this->_g_oOldItemHeader->review_count = $nReviewCnt;
-	}
-/**
- * @brief 첨부 이미지 파일 처리
- **/
-	// private function _procThumbnailImages()
-	// {
-	// 	$oFileController = getController('file');
-	// 	// 카탈로그 썸네일 파일 변경
-	// 	if(is_uploaded_file($this->_g_oNewItemHeader->thumbnail_image['tmp_name'])) 
-	// 	{
-	// 		// delete old catalog thumbnail
-	// 		if($this->_g_oOldItemHeader->thumb_file_srl) 
-	// 			$oFileController->deleteFile($this->_g_oOldItemHeader->thumb_file_srl);
-	// 		// attach new catalog thumbnail
-	// 		$oTmpRst = $oFileController->insertFile($this->_g_oNewItemHeader->thumbnail_image, $this->_g_oNewItemHeader->module_srl, $this->_g_oNewItemHeader->item_srl);
-	// 		if(!$oTmpRst || !$oTmpRst->toBool())
-	// 			return $oTmpRst;
-	// 		$this->_g_oNewItemHeader->thumb_file_srl = $oTmpRst->get('file_srl');
-	// 		unset($oTmpRst);
-	// 		$oTmpArgs->item_srl = $this->_g_oNewItemHeader->item_srl;
-	// 		$oTmpArgs->thumb_file_srl = $this->_g_oNewItemHeader->thumb_file_srl;
-	// 		$oUpdateRst = executeQuery('svmarket.updateItemFile', $oTmpArgs);
-	// 		if(!$oUpdateRst->toBool())
-	// 			return $oUpdateRst;
-	// 		unset($oUpdateRst);
-	// 		unset($oTmpArgs);
-	// 		$oFileController->setFilesValid($this->_g_oNewItemHeader->item_srl);
-	// 	}
-	// 	// 갤러리 썸네일 이미지를 첨부한 후 저장한 상황에 대응
-	// 	$oFileController->setFilesValid($this->_g_oNewItemHeader->gallery_doc_srl);
-	// 	unset($oFileController);
-	// 	return new BaseObject();
-	// }
 }
 /* End of file svmarket.pkg_admin.php */
 /* Location: ./modules/svmarket/svmarket.pkg_admin.php */

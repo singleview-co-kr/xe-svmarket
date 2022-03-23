@@ -6,6 +6,7 @@
 		<column name="app_srl" var="app_srl" notnull="notnull" />
         <column name="module_srl" var="module_srl" notnull="notnull" />
         <column name="package_srl" var="package_srl" notnull="notnull" />
+        <column name="member_srl" var="member_srl" />
         <column name="type_srl" var="type_srl" notnull="notnull" />
         <column name="name" var="name" notnull="notnull" />
         <column name="title" var="title" notnull="notnull" />
@@ -17,6 +18,7 @@
 		<column name="display" var="display" />
         <column name="pkg_tags" var="pkg_tags" />
 		<column name="list_order" var="list_order" />
+        <column name="ipaddress" var="ipaddress" default="ipaddress()" />
 		<column name="updatetime" var="updatetime" default="curdate()" />
 		<column name="regdate" var="regdate" default="curdate()" />
 	</columns>

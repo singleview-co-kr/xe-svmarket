@@ -15,13 +15,13 @@
 	<input name="module" type="hidden" value="{$module}" />
 	<input name="module_srl" type="hidden" value="{$module_srl}" />
 	<input name="package_srl" type="hidden" value="{$package_srl}" />
+    <input name="app_srl" type="hidden" value="{$app_srl}" />
 	<input name="app_description" type="hidden" value="{$oAppInfo->desc_for_editor}" />
 <block cond="!$app_srl">
 	<input name="act" type="hidden" value="procSvmarketAdminInsertApp" />
 </block>
 <block cond="$app_srl">
 	<input name="act" type="hidden" value="procSvmarketAdminUpdateApp" />
-	<input name="app_srl" type="hidden" value="{$app_srl}" />
 </block>
 
 	<h1>{$oAppInfo->package_title} - {$oAppInfo->title} {$lang->title_app_basic_info}</h1>

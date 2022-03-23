@@ -1,0 +1,11 @@
+<query id="updateVersionReadedCount" action="update">
+    <tables>
+        <table name="svmarket_version" />
+    </tables>
+    <columns>
+        <column name="readed_count" var="readed_count" default="plus(1)" />
+    </columns>
+    <conditions>
+        <condition operation="equal" column="version_srl" var="version_srl" filter="number" notnull="notnull" />
+    </conditions>
+</query>

@@ -37,9 +37,13 @@ class svmarketAppAdmin extends svmarket
 		}
 		else
 		{
-			debugPrint($sName);
-			trigger_error('Undefined property or method: '.$sName);
-            return null;
+			if($sName == 'thumb_file_srl' || $sName == 'readed_count')
+                return 0;
+            else
+            {
+                trigger_error('Undefined property or method: '.$sName);
+			    return null;
+            }
 		}
 	}
 /**
@@ -62,7 +66,6 @@ class svmarketAppAdmin extends svmarket
 	}
     /**
      * @brief set skeleton svmarket header
-     * svmarket.pkg_consumer.php::_setSkeletonHeader()과 통일성 유지
      **/
     private function _setSkeletonHeader()
     {
@@ -70,6 +73,7 @@ class svmarketAppAdmin extends svmarket
                         'category_node_srl', 'type_srl',
                         'name', 'title', 'install_path', 'thumb_file_srl',
                         'og_description', 'description',
+                        'member_srl', 'readed_count', 'ipaddress',
 						'github_url', 'homepage', 'tags', 'display', 'updatetime', 'regdate'];
         $aInMemoryAttr = ['package_title', 'type_name', 'version_list'];
         $aTempAttr = ['thumbnail_image'];
@@ -144,6 +148,8 @@ class svmarketAppAdmin extends svmarket
 			return new BaseObject(-1,'msg_invalid_app_request');
 					
 		$this->_matchOldAppInfo($oTmpRst->data);
+        // var_dump($this->_g_oOldAppHeader);
+        // exit;
 		//$this->_setReviewCnt(); // 후기수 설정
 		$oModuleModel = getModel('module');
 		$oModuleInfo = $oModuleModel->getModuleInfoByModuleSrl($this->_g_oOldAppHeader->module_srl);
@@ -203,32 +209,6 @@ class svmarketAppAdmin extends svmarket
 		$this->_g_oOldAppHeader->package_title = $oTmpRst->data->title;
         // end - breadcrumb info
 
-        // begin - load category info
-		// if($this->_g_oOldAppHeader->category_node_srl > 0)
-		// {
-		// 	$oSvmakretModel = &getModel('svmarket');
-		// 	$nModuleSrl = $this->_g_oOldAppHeader->module_srl;
-		// 	$this->_g_oOldAppHeader->oCatalog = $oSvitemModel->getCatalog($nModuleSrl, $this->_g_oOldAppHeader->category_node_srl);
-		// 	if(strlen($this->_g_oOldAppHeader->enhanced_item_info->ga_category_name) == 0)
-		// 		$this->_g_oOldAppHeader->enhanced_item_info->ga_category_name = $this->_g_oOldAppHeader->oCatalog->current_catalog_info->node_name;
-		// 	unset($nModuleSrl);
-		// }
-        // end - load category info
-
-		// begin - sns share url
-		// $oDocumentModel = getModel('document');
-		// $oDocument = $oDocumentModel->getDocument($this->_g_oOldAppHeader->package_srl);
-		// // $this->_g_oOldAppHeader->enhanced_item_info->item_brief = $oDocument->getContent(false);
-		// $oDbInfo = Context::getDBInfo();
-		// $oSnsInfo = new stdClass();
-		// $oSnsInfo->sPermanentUrl = $oDocument->getPermanentUrl().'?l='.$oDbInfo->lang_type;
-		// $oSnsInfo->sEncodedDocTitle = urlencode($this->_g_oOldAppHeader->title);
-		// $this->_g_oOldAppHeader->oSnsInfo = $oSnsInfo;
-		// unset($oDbInfo);
-		// unset($oDocument);
-		// unset($oDocumentModel);
-        // end - sns share url
-
 		$this->_g_oOldAppHeader->desc_for_editor = htmlentities($this->_g_oOldAppHeader->description);
         if(!$this->_g_oOldAppHeader->og_description)
 			$this->_g_oOldAppHeader->og_description = mb_substr(html_entity_decode(strip_tags($this->_g_oOldAppHeader->description)), 0, 40, 'utf-8');
@@ -238,6 +218,12 @@ class svmarketAppAdmin extends svmarket
 			$this->_g_oOldAppHeader->type_name = $aAppInfo['sAppType'];
 			$this->_g_oOldAppHeader->install_path = $aAppInfo['sInstallPath'];
 		}
+
+        $oFileModel = getModel('file');
+        $aFiles = $oFileModel->getFiles($this->_g_oOldAppHeader->app_srl);
+        $this->_g_oOldAppHeader->thumb_file_srl = $aFiles[0]->file_srl;
+        unset($aFiles);
+        unset($oFileModel);
 
 		// begin - load packaged version list
         $oArgs = new stdClass();
@@ -289,6 +275,46 @@ class svmarketAppAdmin extends svmarket
 		return $this->_updateApp();
 	}
     /**
+	 * Update read counts of the package
+	 * @return bool|void
+	 */
+	function updateReadedCount()
+	{
+		// Pass if Crawler access
+		if(isCrawler()) return false;
+		
+		$nDocumentSrl = $this->_g_oOldAppHeader->app_srl;
+		$nMemberSrl = $this->_g_oOldAppHeader->member_srl;
+		// Call a trigger when the read count is updated (before)
+		// Pass if read count is increaded on the session information
+		if($_SESSION['readed_document'][$nDocumentSrl]) return false;
+
+		// Pass if the author's IP address is as same as visitor's.
+		if($this->_g_oOldAppHeader->ipaddress == $_SERVER['REMOTE_ADDR'])
+		{
+			$_SESSION['readed_document'][$nDocumentSrl] = true;
+			return false;
+		}
+		// Pass ater registering sesscion if the author is a member and has same information as the currently logged-in user.
+		if($nMemberSrl && $this->_g_oLoggedInfo->member_srl == $nMemberSrl)
+		{
+			$_SESSION['readed_document'][$nDocumentSrl] = true;
+			return false;
+		}
+		$oDB = DB::getInstance();
+		$oDB->begin();
+		// Update read counts
+		$args = new stdClass;
+		$args->app_srl = $nDocumentSrl;
+		executeQuery('svmarket.updateAppReadedCount', $args);
+		$oDB->commit();
+        unset($args);
+		// Register session
+		if(!$_SESSION['banned_document'][$nDocumentSrl]) 
+			$_SESSION['readed_document'][$nDocumentSrl] = true;
+		return TRUE;
+	}
+    /**
      * @brief 기존 앱 갱신일 변경
      **/
 	public function updateTimestamp()
@@ -323,28 +349,12 @@ class svmarketAppAdmin extends svmarket
      **/
     private function _insertApp($sPackageTitle)
     {
-        $this->_g_oNewAppHeader->app_srl = getNextSequence();
-        $oDocArgs = new stdClass();
-        $oDocArgs->document_srl = $this->_g_oNewAppHeader->app_srl;
-        $oDocArgs->module_srl = $this->_g_oNewAppHeader->module_srl;
-        $oDocArgs->content = $this->_g_oNewAppHeader->title.' 앱의 상세페이지 - '.$sPackageTitle.' 패키지';
-        $oDocArgs->title = $this->_g_oNewAppHeader->title.' 앱의 상세페이지 - '.$sPackageTitle.' 패키지';
-        $oDocArgs->list_order = $this->_g_oNewAppHeader->app_srl * -1;
-        $oDocArgs->tags = Context::get('tag');
-        $oDocArgs->allow_comment = 'Y';
-        $oDocumentController = &getController('document');
-        $oDocRst = $oDocumentController->insertDocument($oDocArgs);
-        if(!$oDocRst->toBool())
-            return $oDocRst;
-        unset($oDocumentController);
-        unset($oDocRst);
-        unset($oDocArgs);
-        
         $this->_nullifyHeader();
-        // var_dump($this->_g_oNewAppHeader);
-        // exit;
+        // app_srl is set if file has been appended
+        if($this->_g_oNewAppHeader->app_srl == 0)
+            $this->_g_oNewAppHeader->app_srl = getNextSequence();
         $oParam = new stdClass();
-        $oParam->app_srl = $this->_g_oNewAppHeader->app_srl;
+        $oParam->app_srl = $this->_g_oNewAppHeader->app_srl; // app_srl is document_srl
         $oParam->package_srl = $this->_g_oNewAppHeader->package_srl;
         $oParam->module_srl = $this->_g_oNewAppHeader->module_srl;
         $oParam->type_srl = $this->_g_oNewAppHeader->type_srl;
@@ -356,28 +366,8 @@ class svmarketAppAdmin extends svmarket
         $oParam->homepage = $this->_g_oNewAppHeader->homepage;
         $oParam->display = 'N'; // 최초 등록 시에는 기본 최소 정보이므로 무조건 비공개
         $oParam->list_order = $this->_g_oNewAppHeader->package_srl * -1;
-        // save representative thumbnail
-        if($this->_g_oNewAppHeader->thumbnail_image['tmp_name']) 
-        {
-            if(is_uploaded_file($this->_g_oNewAppHeader->thumbnail_image['tmp_name'])) // single upload via web interface mode
-            {
-                $oFileController = getController('file');
-                $oFileRst = $oFileController->insertFile($this->_g_oNewAppHeader->thumbnail_image, $this->_g_oNewAppHeader->module_srl, $this->_g_oNewAppHeader->app_srl);
-                if(!$oFileRst || !$oFileRst->toBool())
-                    return $oFileRst;
-                $oFileController->setFilesValid($this->_g_oNewAppHeader->app_srl);
-                $oParam->thumb_file_srl = $oFileRst->get('file_srl');
-                unset($oFileRst);
-                unset($oFileController);
-            }
-            else
-            {
-                echo 'no img->'.$oArgs->thumbnail_image['name'].'<BR>';
-                $oParam->thumb_file_srl = 0;
-            }
-        }
-        // var_dump($oParam);
-        // exit;
+        if($this->_g_oLoggedInfo)
+			$oParam->member_srl = $this->_g_oLoggedInfo->member_srl;
         $oInsertRst = executeQuery('svmarket.insertAdminApp', $oParam);
         // var_dump($oInsertRst);
         // exit;
@@ -429,30 +419,6 @@ class svmarketAppAdmin extends svmarket
 		unset($oArgs);
 		if(!$oUpdateRst->toBool())
 			return $oUpdateRst;
-		// 첨부 이미지 파일 처리
-		//$oUpdateRst = $this->_procThumbnailImages();
-		// end - app info modification
-		// if($this->_g_oNewAppHeader->version && $this->_g_oNewAppHeader->version_zip_file)
-		// {
-		// 	$oVersionParam = new stdClass();
-		// 	$oVersionParam->app_srl = $this->_g_oNewAppHeader->app_srl;
-		// 	$oVersionParam->module_srl = $this->_g_oNewAppHeader->module_srl;
-		// 	$oVersionParam->package_srl = $this->_g_oNewAppHeader->package_srl;
-		// 	$oVersionParam->version = $this->_g_oNewAppHeader->version;
-		// 	$oVersionParam->version_zip_file = $this->_g_oNewAppHeader->version_zip_file;
-
-		// 	require_once(_XE_PATH_.'modules/svmarket/svmarket.version_admin.php');
-		// 	$oVersionAdmin = new svmarketVersionAdmin();
-		// 	$oInsertRst = $oVersionAdmin->create($oVersionParam);
-		// 	if(!$oInsertRst->toBool())
-		// 	{
-		// 		unset($oVersionParam);
-		// 		unset($oVersionAdmin);
-		// 		return $oInsertRst;
-		// 	}
-		// 	unset($oVersionParam);
-		// 	unset($oVersionAdmin);
-		// }
 		return $oUpdateRst;
 	}
     /**
@@ -547,9 +513,9 @@ class svmarketAppAdmin extends svmarket
      **/
 	public function deactivate()
 	{
-		if( !$this->_g_oOldItemHeader )
+		if(!$this->_g_oOldItemHeader)
 			return new BaseObject(-1,'msg_required_to_load_old_information_first');
-		if( $this->_g_oOldItemHeader->item_srl == svmarket::S_NULL_SYMBOL )
+		if($this->_g_oOldItemHeader->item_srl == svmarket::S_NULL_SYMBOL)
 			return new BaseObject(-1,'msg_invalid_request');
 		
 		$oArgs->item_srl = $this->_g_oOldItemHeader->item_srl;
@@ -571,7 +537,7 @@ class svmarketAppAdmin extends svmarket
 			return new BaseObject(-1,'msg_invalid_request');
 
 		// delete related file
-		$oFileController = &getController('file');
+		$oFileController = getController('file');
 		$oFileController->deleteFile($this->_g_oOldItemHeader->thumb_file_srl);
 		$oFileController->deleteFile($this->_g_oOldItemHeader->gallery_doc_srl);
 		$oFileController->deleteFile($this->_g_oOldItemHeader->mob_doc_srl);

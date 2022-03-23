@@ -7,9 +7,11 @@
         <column name="app_srl" var="app_srl" notnull="notnull" />
         <column name="module_srl" var="module_srl" notnull="notnull" />
         <column name="package_srl" var="package_srl" notnull="notnull" />
+        <column name="member_srl" var="member_srl" />
         <column name="version" var="version" notnull="notnull" />
         <column name="zip_file_srl" var="zip_file_srl" />
         <column name="description" var="description" />
+        <column name="ipaddress" var="ipaddress" default="ipaddress()" />
 		<column name="regdate" var="regdate" default="curdate()" />
 	</columns>
 </query>

@@ -24,6 +24,9 @@
 	<item name="title_pkg_basic_info">
 		<value xml:lang="ko"><![CDATA[패키지 기본 정보]]></value>
 	</item>
+    <item name="list_pkg">
+		<value xml:lang="ko"><![CDATA[패키지 목록]]></value>
+	</item>
 	<item name="add_pkg">
 		<value xml:lang="ko"><![CDATA[패키지 등록]]></value>
 	</item>

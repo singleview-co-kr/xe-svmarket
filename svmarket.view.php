@@ -58,7 +58,7 @@ class svmarketView extends svmarket
 
         $oSvmarketModel = getModel('svmarket');
         $oRst = $oSvmarketModel->classifyReqByDocumentSrl($this->module_info->module_srl, $oArg->document_srl);
-        if(!$oRst->toBool()) 
+        if(!$oRst->toBool())
             return $oRst;
         $sReqType = $oRst->get('req_type');
         unset($oRst);
@@ -75,6 +75,7 @@ class svmarketView extends svmarket
                 if(!$oPkgDetailRst->toBool())
                     return $oPkgDetailRst;
                 unset($oPkgDetailRst);
+                $oPkgAdmin->updateReadedCount();
                 // set browser title
                 Context::setBrowserTitle(strip_tags($oPkgAdmin->title).' - '.Context::getBrowserTitle());
                 Context::set('oPkgInfo', $oPkgAdmin);
@@ -92,6 +93,7 @@ class svmarketView extends svmarket
                 if(!$oAppDetailRst->toBool())
                     return $oAppDetailRst;
                 unset($oAppDetailRst);
+                $oAppAdmin->updateReadedCount();
                 // set browser title
                 Context::setBrowserTitle(strip_tags($oAppAdmin->title).' - '.Context::getBrowserTitle());
                 Context::set('oAppInfo', $oAppAdmin);
@@ -109,6 +111,7 @@ class svmarketView extends svmarket
                 if(!$oVersionDetailRst->toBool())
                     return $oVersionDetailRst;
                 unset($oVersionDetailRst);
+                $oVersionAdmin->updateReadedCount();
                 // set browser title
                 Context::setBrowserTitle(strip_tags($oVersionAdmin->version).' - '.Context::getBrowserTitle());
                 Context::set('oVersionInfo', $oVersionAdmin);
@@ -117,7 +120,6 @@ class svmarketView extends svmarket
             default:
                 return new BaseObject(-1,'msg_invalid_pkg_request');
         }
-
     }
 	/**
 	 * @brief 스킨에서 호출하는 메쏘드
@@ -125,12 +127,11 @@ class svmarketView extends svmarket
 	 */	
 	public static function dispThumbnailUrl($nThumbFileSrl, $nWidth = 80, $nHeight = 0, $sThumbnailType = 'crop')
 	{
-		$sNoimgUrl = Context::getRequestUri().'/modules/svmarket/tpl/imgs/no_img_55x55.jpg';
+		$sNoimgUrl = Context::getRequestUri().'/modules/svmarket/tpl/imgs/no_img_80x80.jpg';
 		if(!$nThumbFileSrl) // 기본 이미지 반환
 			return $sNoimgUrl;
 		if(!$nHeight)
 			$nHeight = $nWidth;
-		
 		// Define thumbnail information
 		$sThumbnailPath = 'files/cache/thumbnails/'.getNumberingPath($nThumbFileSrl, 3);
 		$sThumbnailFile = $sThumbnailPath.$nWidth.'x'.$nHeight.'.'.$sThumbnailType.'.jpg';
@@ -140,7 +141,7 @@ class svmarketView extends svmarket
 			return $sThumbnailUrl;
 
 		// Target File
-		$oFileModel = &getModel('file');
+		$oFileModel = getModel('file');
 		$sSourceFile = NULL;
 		$sFile = $oFileModel->getFile($nThumbFileSrl);
 		if($sFile) 
@@ -159,12 +160,28 @@ class svmarketView extends svmarket
 	 */
     function _showPackageList()
     {
+        require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_admin.php');
 		$oRst = executeQueryArray('svmarket.getLatestPkg');
+        $oArgs = new stdClass();
+        $aPackageList = [];
 		foreach($oRst->data as $nIdx => $oPackage)
 		{
-			$oPackage->item_screenshot_url = svmarketView::dispThumbnailUrl($oPackage->item_screenshot_url,80);
+            $oArgs->package_srl = $oPackage->package_srl;
+            $oPkgAdmin = new svmarketPkgAdmin();
+            $oTmpRst = $oPkgAdmin->loadHeader($oArgs);
+            if(!$oTmpRst->toBool())
+                return new BaseObject(-1,'msg_invalid_pkg_request');
+            unset($oTmpRst);
+            $oDetailRst = $oPkgAdmin->loadDetail();
+            if(!$oDetailRst->toBool())
+                return $oDetailRst;
+            unset($oDetailRst);
+            $aPackageList[] = $oPkgAdmin;
 		}
-		Context::set('aPackageList', $oRst->data);
+        //$oPackage->item_screenshot_url = svmarketView::dispThumbnailUrl($oPackage->item_screenshot_url,80);
+        unset($oArgs);
+        unset($oRst);
+		Context::set('aPackageList', $aPackageList);
         $this->setTemplateFile('index');
     }
 	/**
@@ -208,7 +225,6 @@ class svmarketView extends svmarket
         unset($oTmpRst);
         require_once(_XE_PATH_.'modules/svmarket/svmarket.pkg_admin.php');
 		$oPkgAdmin = new svmarketPkgAdmin();
-		$oArgs->mode = 'retrieve';
 		$oTmpRst = $oPkgAdmin->loadHeader($oArgs);
         unset($oArgs);
 		if(!$oTmpRst->toBool())
