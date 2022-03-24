@@ -104,6 +104,8 @@ class svmarketPkgAdmin extends svmarket
             unset($oMemberInfo);
 		    unset($oMemberModel);
         }
+        else
+            $this->_g_oOldPkgHeader->nick_name = 'anonymous';
         $oFileModel = getModel('file');
         $aFiles = $oFileModel->getFiles($this->_g_oOldPkgHeader->package_srl);
         $this->_g_oOldPkgHeader->thumb_file_srl = $aFiles[0]->file_srl;

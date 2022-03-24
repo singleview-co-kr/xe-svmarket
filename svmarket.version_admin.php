@@ -148,6 +148,8 @@ class svmarketVersionAdmin extends svmarket
             unset($oMemberInfo);
             unset($oMemberModel);
         }
+        else
+            $this->_g_oOldPkgHeader->nick_name = 'anonymous';
         // begin - get appending file info
         $oFileModel = getModel('file');
         $this->_g_oOldVersionHeader->oVersionFile = $oFileModel->getFile($this->_g_oOldVersionHeader->zip_file_srl);
