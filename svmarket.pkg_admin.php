@@ -37,6 +37,8 @@ class svmarketPkgAdmin extends svmarket
 		{
 			if($sName == 'thumb_file_srl' || $sName == 'readed_count')
                 return 0;
+            elseif($sName == 'tags')
+                return '';
             else
             {
                 trigger_error('Undefined property or method: '.$sName);
