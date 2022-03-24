@@ -96,7 +96,7 @@ class svmarketAppAdmin extends svmarket
 /**
  * @brief 신규 앱 생성
  **/
-	public function create($oNewAppArgs, $sPackageTitle)
+	public function create($oNewAppArgs)
 	{
 		$this->_initHeader();
 		$this->_matchNewPkgInfo($oNewAppArgs);
@@ -132,7 +132,11 @@ class svmarketAppAdmin extends svmarket
             return new BaseObject(-1,'msg_duplicate_app_type_name_request');
         unset($oTmpRst);
         // end - check app duplication
-		return $this->_insertApp($sPackageTitle);
+		$oRst = $this->_insertApp();
+        $oFileController = getController('file');
+        $oFileController->setFilesValid($this->_g_oNewAppHeader->app_srl);
+        unset($oFileController);
+        return $oRst;
 	}
     /**
  * @brief 기존 앱 정보 적재
@@ -283,7 +287,11 @@ class svmarketAppAdmin extends svmarket
 		$this->_g_oNewAppHeader->package_srl = $this->_g_oOldAppHeader->package_srl;
 		if($this->_g_oNewAppHeader->module_srl == svmarket::S_NULL_SYMBOL)
 			$this->_g_oNewAppHeader->module_srl = $this->_g_oOldAppHeader->module_srl;
-		return $this->_updateApp();
+        $oRst = $this->_updateApp();
+        $oFileController = getController('file');
+        $oFileController->setFilesValid($this->_g_oOldAppHeader->app_srl);
+        unset($oFileController);
+        return $oRst;
 	}
     /**
 	 * Update read counts of the package
@@ -358,7 +366,7 @@ class svmarketAppAdmin extends svmarket
     /**
      * @brief 
      **/
-    private function _insertApp($sPackageTitle)
+    private function _insertApp()
     {
         $this->_nullifyHeader();
         // app_srl is set if file has been appended

@@ -74,7 +74,11 @@ class svmarketPkgAdmin extends svmarket
 		if($this->_g_oNewPkgHeader->module_srl == svmarket::S_NULL_SYMBOL || 
 			$this->_g_oNewPkgHeader->title == svmarket::S_NULL_SYMBOL)
 			return new BaseObject(-1,'msg_invalid_request');
-		return $this->_insertPkg();
+		$oRst = $this->_insertPkg();
+        $oFileController = getController('file');
+        $oFileController->setFilesValid($this->_g_oNewPkgHeader->package_srl);
+        unset($oFileController);
+        return $oRst;
 	}
 	/**
 	 * @brief 기존 패키지 정보 적재
@@ -173,7 +177,11 @@ class svmarketPkgAdmin extends svmarket
 		$this->_g_oNewPkgHeader->package_srl = $this->_g_oOldPkgHeader->package_srl;
 		if($this->_g_oNewPkgHeader->module_srl == svmarket::S_NULL_SYMBOL)
 			$this->_g_oNewPkgHeader->module_srl = $this->_g_oOldPkgHeader->module_srl;
-		return $this->_updateItem();
+		$oRst = $this->_updatePkg();
+        $oFileController = getController('file');
+        $dd = $oFileController->setFilesValid($this->_g_oOldPkgHeader->package_srl);
+        unset($oFileController);
+        return $oRst;
 	}
     /**
 	 * Update read counts of the package
@@ -391,7 +399,7 @@ class svmarketPkgAdmin extends svmarket
 	/**
 	 * @brief 
 	 **/
-	private function _updateItem()
+	private function _updatePkg()
 	{
 		$this->_nullifyHeader();
 		// 기본 정보 설정

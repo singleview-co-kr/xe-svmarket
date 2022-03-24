@@ -227,11 +227,10 @@ class svmarketAdminController extends svmarket
 			if($oApp->type_srl == $oAppAdmin::A_APP_TYPE['core'])
 				return new BaseObject(-1,'msg_pkg_already_contains_core');
 		}
-        $sPackageTitle = $oPkgAdmin->title;
         unset($oPkgAdmin);
         // end - retrieve package title
 		
-		$oInsertRst = $oAppAdmin->create($oArgs, $sPackageTitle);
+		$oInsertRst = $oAppAdmin->create($oArgs);
 		if(!$oInsertRst->toBool())
 		{
 			unset($oArgs);
