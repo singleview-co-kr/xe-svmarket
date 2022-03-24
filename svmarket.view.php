@@ -86,6 +86,8 @@ class svmarketView extends svmarket
                 $oParam->sDisplay = $oPkgAdmin->display;
                 $oParam->sAuthor = $oPkgAdmin->nick_name;
                 $oParam->sTags = $oPkgAdmin->tags;
+				$oParam->sRegdate = $oPkgAdmin->regdate;
+				$oParam->sUpdatetime = $oPkgAdmin->updatetime;
                 $oSeoController->loadSeoInfoBeforeDisplay($oParam);
                 unset($oParam);
                 unset($oSeoController);
@@ -119,6 +121,8 @@ class svmarketView extends svmarket
                 $oParam->sDisplay = $oAppAdmin->display;
                 $oParam->sAuthor = $oAppAdmin->nick_name;
                 $oParam->sTags = $oAppAdmin->tags;
+				$oParam->sRegdate = $oAppAdmin->regdate;
+				$oParam->sUpdatetime = $oAppAdmin->updatetime;
                 $oSeoController->loadSeoInfoBeforeDisplay($oParam);
                 unset($oParam);
                 unset($oSeoController);
@@ -149,7 +153,7 @@ class svmarketView extends svmarket
                 $oParam->sOgDesc = $oVersionAdmin->og_description;
                 $oParam->sDisplay = $oVersionAdmin->display;
                 $oParam->sAuthor = $oVersionAdmin->nick_name;
-                //$oParam->sTags = $oVersionAdmin->tags;
+				$oParam->sRegdate = $oVersionAdmin->regdate;
                 $oSeoController->loadSeoInfoBeforeDisplay($oParam);
                 unset($oParam);
                 unset($oSeoController);
