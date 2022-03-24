@@ -277,11 +277,10 @@ class svmarketView extends svmarket
 			return $oDetailRst;
 		unset($oDetailRst);
 
-        $sAppstoreHost = 'http://singleview.co.kr/'.$sMid;
+        $sAppstoreHost = 'http://singleview.co.kr/'.$this->module_info->mid;
         $nAppSrl = $oPkgAdmin->app_list[0]->app_srl;
         // get latest version
         $sLatestVersion = trim($oPkgAdmin->app_list[0]->version_list[0]->version);
-        $sMid = $this->module_info->mid;
         $nPkgSrl = $oPkgAdmin->package_srl;
         $sOutput = '<?xml version="1.0"?>';
         $sOutput .= '<zbxe_news released_version="'.$sLatestVersion.'" download_link="'.$sAppstoreHost.'/'.$nPkgSrl.'">';
