@@ -35,8 +35,13 @@ class svmarketVersionAdmin extends svmarket
 		}
 		else
 		{
-			debugPrint($sName);
-			trigger_error('Undefined property or method: '.$sName);
+			if($sName == 'thumb_file_srl' || $sName == 'readed_count')
+                return 0;
+            else
+            {
+                trigger_error('Undefined property or method: '.$sName);
+			    return null;
+            }
 		}
 	}
 /**
@@ -113,22 +118,36 @@ class svmarketVersionAdmin extends svmarket
 		$this->_g_oOldVersionHeader->package_title = $oTmpRst->data->title;
         unset($oTmpRst);
 
-        $oTmpArgs = new stdClass();
-		$oTmpArgs->app_srl = $this->_g_oOldVersionHeader->app_srl;
-		$oTmpRst = executeQuery('svmarket.getAdminAppDetail', $oTmpArgs);
-        unset($oTmpArgs);
-		if(!$oTmpRst->toBool())
-			return $oTmpRst;
-		if(!is_object($oTmpRst->data))
-			return new BaseObject(-1,'msg_invalid_pkg_request');
-		$this->_g_oOldVersionHeader->app_title = $oTmpRst->data->title;
-        unset($oTmpRst);
-        // end - breadcrumb info
+        // begin - load parent app info
+        $oParams = new stdClass();
+        $oParams->app_srl = $this->_g_oOldVersionHeader->app_srl;
+        require_once(_XE_PATH_.'modules/svmarket/svmarket.app_admin.php');
+        $oAppAdmin = new svmarketAppAdmin();
+        $oAppDetailRst = $oAppAdmin->loadHeader($oParams);
+        if(!$oAppDetailRst->toBool())
+            return $oAppDetailRst;
+        unset($oAppDetailRst);
+        // $oAppAdmin->loadDetail();  // never call this infinite loop
+		$this->_g_oOldVersionHeader->app_title = $oAppAdmin->title;
+        $this->_g_oOldVersionHeader->app_type_name = $oAppAdmin->type_name;
+        $this->_g_oOldVersionHeader->app_thumb_file_srl = $oAppAdmin->thumb_file_srl;
+        $this->_g_oOldVersionHeader->app_install_path = $oAppAdmin->install_path;
+        unset($oAppAdmin);
+        unset($oParams);
+        // end - load parent app info
 
 		$this->_g_oOldVersionHeader->desc_for_editor = htmlentities($this->_g_oOldVersionHeader->description);
 		if(!$this->_g_oOldVersionHeader->og_description)
 			$this->_g_oOldVersionHeader->og_description = mb_substr(html_entity_decode(strip_tags($this->_g_oOldVersionHeader->description)), 0, 40, 'utf-8');
 
+        if($this->_g_oOldVersionHeader->member_srl != svmarket::S_NULL_SYMBOL)
+        {
+            $oMemberModel = getModel('member');
+            $oMemberInfo = $oMemberModel->getMemberInfoByMemberSrl($this->_g_oOldVersionHeader->member_srl);
+            $this->_g_oOldVersionHeader->nick_name = $oMemberInfo->nick_name;
+            unset($oMemberInfo);
+            unset($oMemberModel);
+        }
         // begin - get appending file info
         $oFileModel = getModel('file');
         $this->_g_oOldVersionHeader->oVersionFile = $oFileModel->getFile($this->_g_oOldVersionHeader->zip_file_srl);
@@ -213,8 +232,8 @@ class svmarketVersionAdmin extends svmarket
         $aBasicAttr = ['version_srl', 'app_srl', 'module_srl', 'package_srl', 
                         'version', 'zip_file_srl', 'og_description', 'description', 
                         'member_srl', 'readed_count', 'ipaddress',
-						'updatetime', 'regdate'];
-        $aInMemoryAttr = ['package_title', 'app_title'];
+						'display', 'updatetime', 'regdate'];
+        $aInMemoryAttr = ['package_title', 'app_title', 'nick_name'];
         $aTempAttr = ['zip_file'];
         foreach(self::A_VERSION_HEADER_TYPE as $nTypeIdx => $sHeaderType)
         {

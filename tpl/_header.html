@@ -17,12 +17,13 @@
 <ul cond="$module_srl" class="x_nav x_nav-tabs">
 	<li class="x_active"|cond="$act=='dispSvmarketAdminPkgListByModule'"><a href="{getUrl('','module',$module,'act','dispSvmarketAdminPkgListByModule','module_srl',$module_srl)}">{$lang->list_pkg}</a></li>
     <li class="x_active"|cond="$act=='dispSvmarketAdminInsertPkg'"><a href="{getUrl('act','dispSvmarketAdminInsertPkg','package_srl','')}">{$lang->add_pkg}</a></li>
-	<li cond="$act=='dispSvmarketAdminUpdatePkg'" class="x_active"><a href="{getUrl('act','dispSvmarketAdminUpdatePkg')}">{$lang->update_pkg}</a></li>
-	
-	<block cond="$package_srl">
-		<li class="x_active"|cond="$act=='dispSvmarketAdminInsertApp'"><a href="{getUrl('act','dispSvmarketAdminInsertApp','app_srl','')}">{$lang->add_app}</a></li>
-	</block>
-
+<block cond="$package_srl">
+    <li class="x_active"|cond="$act=='dispSvmarketAdminUpdatePkg'"><a href="{getUrl('act','dispSvmarketAdminUpdatePkg')}">{$oPkgInfo->title} {$lang->update_pkg}</a></li>
+    <li class="x_active"|cond="$act=='dispSvmarketAdminInsertApp'"><a href="{getUrl('act','dispSvmarketAdminInsertApp','app_srl','')}">{$lang->add_app}</a></li>
+</block>
+<block cond="$app_srl">
+    <li class="x_active"|cond="$act=='dispSvmarketAdminUpdateApp'"><a href="{getUrl('act','dispSvmarketAdminUpdateApp')}">{$oAppInfo->title} {$lang->update_app}</a></li>
+</block>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminInsertMod'"><a href="{getUrl('act','dispSvmarketAdminInsertMod')}">{$lang->page_configuration}</a></li>
 	<li class="x_active"|cond="$act=='dispSvmarketAdminSkinInfo'"><a href="{getUrl('act','dispSvmarketAdminSkinInfo')}">{$lang->skin_settings}</a></li>
 	<li cond="$module_info->mskin && $module_info->use_mobile=='Y'" class="x_active"|cond="$act=='dispSvmarketAdminMobileSkinInfo'"><a href="{getUrl('act','dispSvmarketAdminMobileSkinInfo')}">{$lang->mobile_skin}</a></li>

@@ -48,6 +48,9 @@
     <item name="add_app">
 		<value xml:lang="ko"><![CDATA[앱 등록]]></value>
 	</item>
+    <item name="update_app">
+		<value xml:lang="ko"><![CDATA[앱 수정]]></value>
+	</item>
     <item name="app_title_kor">
 		<value xml:lang="ko"><![CDATA[앱 한글 제목]]></value>
 	</item>

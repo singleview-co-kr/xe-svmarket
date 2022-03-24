@@ -239,6 +239,23 @@ class svmarketAdminController extends svmarket
 			return $oInsertRst;
 		}
 		$nAppSrl = $oInsertRst->get('nAppSrl');
+        if($oArgs->version_version && $oArgs->version_zip_file)
+		{
+			$oVersionParam = new stdClass();
+			$oVersionParam->module_srl = $oArgs->module_srl;
+            $oVersionParam->package_srl = $oArgs->package_srl;
+            $oVersionParam->app_srl = $nAppSrl;
+			$oVersionParam->version = $oArgs->version_version;
+			$oVersionParam->zip_file = $oArgs->version_zip_file;
+            $oInsertRst = $this->_addVersion($oVersionParam);
+            if(!$oInsertRst->toBool())
+			{
+				unset($oVersionParam);
+				return $oInsertRst;
+			}
+            unset($oInsertRst);
+			unset($oVersionParam);
+        }
         $this->setMessage('success_registed');
 		unset($oArgs);
 		unset($oAppAdmin);
@@ -287,17 +304,14 @@ class svmarketAdminController extends svmarket
             $oVersionParam->app_srl = $oArgs->app_srl;
 			$oVersionParam->version = $oArgs->version_version;
 			$oVersionParam->zip_file = $oArgs->version_zip_file;
-			require_once(_XE_PATH_.'modules/svmarket/svmarket.version_admin.php');
-			$oVersionAdmin = new svmarketVersionAdmin();
-			$oInsertRst = $oVersionAdmin->create($oVersionParam);
+			$oInsertRst = $this->_addVersion($oVersionParam);
             if(!$oInsertRst->toBool())
 			{
 				unset($oVersionParam);
-				unset($oVersionAdmin);
 				return $oInsertRst;
 			}
 			unset($oVersionParam);
-			unset($oVersionAdmin);
+			unset($oInsertRst);
             // update app updateteim
             $oUpdateRst = $oAppAdmin->updateTimestamp();
             if(!$oUpdateRst->toBool())
@@ -367,7 +381,6 @@ class svmarketAdminController extends svmarket
 			return;
 		}
 	}
-
 	/**
 	* @brief update mid level config
 	* procSvitemAdminInsertModInst 와 병합해야 함
@@ -392,6 +405,17 @@ class svmarketAdminController extends svmarket
 		$oRst = $oModuleController->updateModule($oConfig);
 		return $oRst;
 	}
+    /**
+     * @brief add version
+     **/
+	private function _addVersion($oParam) 
+	{
+        require_once(_XE_PATH_.'modules/svmarket/svmarket.version_admin.php');
+        $oVersionAdmin = new svmarketVersionAdmin();
+        $oInsertRst = $oVersionAdmin->create($oParam);
+        unset($oVersionAdmin);
+        return $oInsertRst;
+    }
 }
 /* End of file svmarket.admin.controller.php */
 /* Location: ./modules/svmarket/svmarket.admin.controller.php */

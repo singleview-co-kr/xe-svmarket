@@ -76,6 +76,21 @@ class svmarketView extends svmarket
                     return $oPkgDetailRst;
                 unset($oPkgDetailRst);
                 $oPkgAdmin->updateReadedCount();
+
+                // begin - load SEO
+                $oSeoController = getController('seo');
+                $oParam = new stdClass();
+                $oParam->bDocument = true;
+                $oParam->sTitle = $oPkgAdmin->title;
+                $oParam->sOgDesc = $oPkgAdmin->og_description;
+                $oParam->sDisplay = $oPkgAdmin->display;
+                $oParam->sAuthor = $oPkgAdmin->nick_name;
+                $oParam->sTags = $oPkgAdmin->tags;
+                $oSeoController->loadSeoInfoBeforeDisplay($oParam);
+                unset($oParam);
+                unset($oSeoController);
+                // end - load SEO
+
                 // set browser title
                 Context::setBrowserTitle(strip_tags($oPkgAdmin->title).' - '.Context::getBrowserTitle());
                 Context::set('oPkgInfo', $oPkgAdmin);
@@ -94,8 +109,22 @@ class svmarketView extends svmarket
                     return $oAppDetailRst;
                 unset($oAppDetailRst);
                 $oAppAdmin->updateReadedCount();
+
+                // begin - load SEO
+                $oSeoController = getController('seo');
+                $oParam = new stdClass();
+                $oParam->bDocument = true;
+                $oParam->sTitle = $oAppAdmin->title;
+                $oParam->sOgDesc = $oAppAdmin->og_description;
+                $oParam->sDisplay = $oAppAdmin->display;
+                $oParam->sAuthor = $oAppAdmin->nick_name;
+                $oParam->sTags = $oAppAdmin->tags;
+                $oSeoController->loadSeoInfoBeforeDisplay($oParam);
+                unset($oParam);
+                unset($oSeoController);
+                // end - load SEO
                 // set browser title
-                Context::setBrowserTitle(strip_tags($oAppAdmin->title).' - '.Context::getBrowserTitle());
+                Context::setBrowserTitle(strip_tags($oAppAdmin->title).' - '.strip_tags($oAppAdmin->package_title).' - '.Context::getBrowserTitle());
                 Context::set('oAppInfo', $oAppAdmin);
                 $this->setTemplateFile('app_detail');
                 break;
@@ -112,8 +141,21 @@ class svmarketView extends svmarket
                     return $oVersionDetailRst;
                 unset($oVersionDetailRst);
                 $oVersionAdmin->updateReadedCount();
+                // begin - load SEO
+                $oSeoController = getController('seo');
+                $oParam = new stdClass();
+                $oParam->bDocument = true;
+                $oParam->sTitle = $oVersionAdmin->version;
+                $oParam->sOgDesc = $oVersionAdmin->og_description;
+                $oParam->sDisplay = $oVersionAdmin->display;
+                $oParam->sAuthor = $oVersionAdmin->nick_name;
+                //$oParam->sTags = $oVersionAdmin->tags;
+                $oSeoController->loadSeoInfoBeforeDisplay($oParam);
+                unset($oParam);
+                unset($oSeoController);
+                // end - load SEO
                 // set browser title
-                Context::setBrowserTitle(strip_tags($oVersionAdmin->version).' - '.Context::getBrowserTitle());
+                Context::setBrowserTitle(strip_tags($oVersionAdmin->version).' - '.strip_tags($oVersionAdmin->app_title).' - '.Context::getBrowserTitle());
                 Context::set('oVersionInfo', $oVersionAdmin);
                 $this->setTemplateFile('version_detail');
                 break;

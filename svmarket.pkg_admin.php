@@ -94,6 +94,19 @@ class svmarketPkgAdmin extends svmarket
 		$this->_g_oOldPkgHeader->mid = $oModuleInfo->mid;
 		unset($oModuleModel);
 		unset($oModuleInfo);
+        if($this->_g_oOldPkgHeader->member_srl != svmarket::S_NULL_SYMBOL)
+        {
+            $oMemberModel = getModel('member');
+            $oMemberInfo = $oMemberModel->getMemberInfoByMemberSrl($this->_g_oOldPkgHeader->member_srl);
+            $this->_g_oOldPkgHeader->nick_name = $oMemberInfo->nick_name;
+            unset($oMemberInfo);
+		    unset($oMemberModel);
+        }
+        $oFileModel = getModel('file');
+        $aFiles = $oFileModel->getFiles($this->_g_oOldPkgHeader->package_srl);
+        $this->_g_oOldPkgHeader->thumb_file_srl = $aFiles[0]->file_srl;
+        unset($aFiles);
+        unset($oFileModel);
 		return $oTmpRst;
 	}
 	/**
@@ -107,11 +120,6 @@ class svmarketPkgAdmin extends svmarket
         $this->_g_oOldPkgHeader->downloads = 0;  // temporarily
         $this->_g_oOldPkgHeader->reviews = 0;  // temporarily
 
-        $oFileModel = getModel('file');
-        $aFiles = $oFileModel->getFiles($this->_g_oOldPkgHeader->package_srl);
-        $this->_g_oOldPkgHeader->thumb_file_srl = $aFiles[0]->file_srl;
-        unset($aFiles);
-        unset($oFileModel);
 		// begin - load packaged app list
 		$oArgs = new stdClass();
 		$oArgs->package_srl = $this->_g_oOldPkgHeader->package_srl;
@@ -282,7 +290,7 @@ class svmarketPkgAdmin extends svmarket
 			$sXmlDoc .= "<package_voted>60</package_voted>";
 			$sXmlDoc .= "<package_downloaded>1039</package_downloaded>";
             $sXmlDoc .= "<nick_name>";
-			$sXmlDoc .= "	<![CDATA[도라미]]>";
+			$sXmlDoc .= "	<![CDATA[singleview.co.kr]]>";
 			$sXmlDoc .= "</nick_name>";
 			$sXmlDoc .= "<item_srl>22756278</item_srl>";
 			$sXmlDoc .= "<item_version>";
@@ -330,7 +338,7 @@ class svmarketPkgAdmin extends svmarket
                         'title', 'thumb_file_srl', 'og_description', 'description', 
                         'member_srl', 'readed_count', 'ipaddress',
 						'homepage', 'tags', 'display', 'updatetime', 'regdate'];
-        $aInMemoryAttr = ['downloads', 'reviews','app_list'];
+        $aInMemoryAttr = ['downloads', 'reviews','app_list', 'nick_name'];
         $aTempAttr = ['thumbnail_image'];
         foreach(self::A_PKG_HEADER_TYPE as $nTypeIdx => $sHeaderType)
         {

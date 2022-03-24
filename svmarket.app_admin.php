@@ -75,7 +75,7 @@ class svmarketAppAdmin extends svmarket
                         'og_description', 'description',
                         'member_srl', 'readed_count', 'ipaddress',
 						'github_url', 'homepage', 'tags', 'display', 'updatetime', 'regdate'];
-        $aInMemoryAttr = ['package_title', 'type_name', 'version_list'];
+        $aInMemoryAttr = ['package_title', 'type_name', 'version_list', 'nick_name'];
         $aTempAttr = ['thumbnail_image'];
         foreach(self::A_APP_HEADER_TYPE as $nTypeIdx => $sHeaderType)
         {
@@ -148,14 +148,33 @@ class svmarketAppAdmin extends svmarket
 			return new BaseObject(-1,'msg_invalid_app_request');
 					
 		$this->_matchOldAppInfo($oTmpRst->data);
-        // var_dump($this->_g_oOldAppHeader);
-        // exit;
 		//$this->_setReviewCnt(); // 후기수 설정
 		$oModuleModel = getModel('module');
 		$oModuleInfo = $oModuleModel->getModuleInfoByModuleSrl($this->_g_oOldAppHeader->module_srl);
 		$this->_g_oOldAppHeader->mid = $oModuleInfo->mid;
 		unset($oModuleModel);
 		unset($oModuleInfo);
+        if($this->_g_oOldAppHeader->type_srl)
+		{
+			$aAppInfo = $this->_getAppTypeInfo();
+			$this->_g_oOldAppHeader->type_name = $aAppInfo['sAppType'];
+			$this->_g_oOldAppHeader->install_path = $aAppInfo['sInstallPath'];
+		}
+        if($this->_g_oOldAppHeader->member_srl != svmarket::S_NULL_SYMBOL)
+        {
+            $oMemberModel = getModel('member');
+            $oMemberInfo = $oMemberModel->getMemberInfoByMemberSrl($this->_g_oOldAppHeader->member_srl);
+            $this->_g_oOldAppHeader->nick_name = $oMemberInfo->nick_name;
+            unset($oMemberInfo);
+		    unset($oMemberModel);
+        }
+
+        $oFileModel = getModel('file');
+        $aFiles = $oFileModel->getFiles($this->_g_oOldAppHeader->app_srl);
+        $this->_g_oOldAppHeader->thumb_file_srl = $aFiles[0]->file_srl;
+        unset($aFiles);
+        unset($oFileModel);
+
 		return $oTmpRst;
 	}
 	/**
@@ -212,18 +231,6 @@ class svmarketAppAdmin extends svmarket
 		$this->_g_oOldAppHeader->desc_for_editor = htmlentities($this->_g_oOldAppHeader->description);
         if(!$this->_g_oOldAppHeader->og_description)
 			$this->_g_oOldAppHeader->og_description = mb_substr(html_entity_decode(strip_tags($this->_g_oOldAppHeader->description)), 0, 40, 'utf-8');
-		if($this->_g_oOldAppHeader->type_srl)
-		{
-			$aAppInfo = $this->_getAppTypeInfo();
-			$this->_g_oOldAppHeader->type_name = $aAppInfo['sAppType'];
-			$this->_g_oOldAppHeader->install_path = $aAppInfo['sInstallPath'];
-		}
-
-        $oFileModel = getModel('file');
-        $aFiles = $oFileModel->getFiles($this->_g_oOldAppHeader->app_srl);
-        $this->_g_oOldAppHeader->thumb_file_srl = $aFiles[0]->file_srl;
-        unset($aFiles);
-        unset($oFileModel);
 
 		// begin - load packaged version list
         $oArgs = new stdClass();
