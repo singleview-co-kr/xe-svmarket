@@ -55,11 +55,14 @@ class svmarketView extends svmarket
 			$oParams->package_srl = $oArg->document_srl;
 		else
 			return new BaseObject(-1,'msg_invalid_pkg_request');
-
+        $oParams->bConsumerMode = true;
         $oSvmarketModel = getModel('svmarket');
         $oRst = $oSvmarketModel->classifyReqByDocumentSrl($this->module_info->module_srl, $oArg->document_srl);
         if(!$oRst->toBool())
+        {
+            $this->setTemplateFile('page_404');
             return $oRst;
+        }
         $sReqType = $oRst->get('req_type');
         unset($oRst);
         switch($sReqType)
@@ -69,11 +72,17 @@ class svmarketView extends svmarket
                 $oPkgAdmin = new svmarketPkgAdmin();
                 $oTmpRst = $oPkgAdmin->loadHeader($oParams);
                 if(!$oTmpRst->toBool())  // display package
+                {
+                    $this->setTemplateFile('page_404');
                     return $oTmpRst;
+                }
                 unset($oTmpRst);
                 $oPkgDetailRst = $oPkgAdmin->loadDetail();
                 if(!$oPkgDetailRst->toBool())
+                {
+                    $this->setTemplateFile('page_404');
                     return $oPkgDetailRst;
+                }
                 unset($oPkgDetailRst);
                 $oPkgAdmin->updateReadedCount();
 
@@ -92,7 +101,6 @@ class svmarketView extends svmarket
                 unset($oParam);
                 unset($oSeoController);
                 // end - load SEO
-
                 // set browser title
                 Context::setBrowserTitle(strip_tags($oPkgAdmin->title).' - '.Context::getBrowserTitle());
                 Context::set('oPkgInfo', $oPkgAdmin);
@@ -104,11 +112,17 @@ class svmarketView extends svmarket
                 $oAppAdmin = new svmarketAppAdmin();
                 $oAppDetailRst = $oAppAdmin->loadHeader($oParams);
                 if(!$oAppDetailRst->toBool())
+                {
+                    $this->setTemplateFile('page_404');
                     return $oAppDetailRst;
+                }
                 unset($oAppDetailRst);
                 $oAppDetailRst = $oAppAdmin->loadDetail();
                 if(!$oAppDetailRst->toBool())
+                {
+                    $this->setTemplateFile('page_404');
                     return $oAppDetailRst;
+                }
                 unset($oAppDetailRst);
                 $oAppAdmin->updateReadedCount();
 
@@ -138,11 +152,17 @@ class svmarketView extends svmarket
                 $oVersionAdmin = new svmarketVersionAdmin();
                 $oVersionDetailRst = $oVersionAdmin->loadHeader($oParams);
                 if(!$oVersionDetailRst->toBool())
+                {
+                    $this->setTemplateFile('page_404');
                     return $oVersionDetailRst;
+                }
                 unset($oVersionDetailRst);
                 $oVersionDetailRst = $oVersionAdmin->loadDetail();
                 if(!$oVersionDetailRst->toBool())
+                {
+                    $this->setTemplateFile('page_404');
                     return $oVersionDetailRst;
+                }
                 unset($oVersionDetailRst);
                 $oVersionAdmin->updateReadedCount();
                 // begin - load SEO
@@ -151,7 +171,7 @@ class svmarketView extends svmarket
                 $oParam->bDocument = true;
                 $oParam->sTitle = $oVersionAdmin->version;
                 $oParam->sOgDesc = $oVersionAdmin->og_description;
-                $oParam->sDisplay = $oVersionAdmin->display;
+                $oParam->sDisplay = 'Y';
                 $oParam->sAuthor = $oVersionAdmin->nick_name;
 				$oParam->sRegdate = $oVersionAdmin->regdate;
                 $oSeoController->loadSeoInfoBeforeDisplay($oParam);
@@ -164,6 +184,7 @@ class svmarketView extends svmarket
                 $this->setTemplateFile('version_detail');
                 break;
             default:
+                $this->setTemplateFile('page_404');
                 return new BaseObject(-1,'msg_invalid_pkg_request');
         }
     }

@@ -19,7 +19,7 @@
 				<th>{$lang->app_title}</th>
 				<th>{$lang->display_or_not}</th>
                 <th>{$lang->downloads}</th>
-				<th>{$lang->reviews}</th>
+				<th>{$lang->readed_count}</th>
 				<th>{$lang->cmd_modify}</th>
 			</tr>
 		</thead>
@@ -37,7 +37,7 @@
                     </select>
                 </td>
 				<td>{number_format($oPkg->downloads)}</td>
-				<td><a href="{getUrl('','document_srl',$oPkg->package_srl)}#content_02" target="_blank">{number_format($oPkg->reviews)}</a></td>
+				<td><a href="{getUrl('','document_srl',$oPkg->package_srl)}#content_02" target="_blank">{number_format($oPkg->readed_count)}</a></td>
 				<td><a href="{getUrl('act','dispSvmarketAdminUpdatePkg','package_srl',$oPkg->package_srl)}">{$lang->cmd_modify}</a></td>
 			</tr>
 			<tr cond="!count($list)">

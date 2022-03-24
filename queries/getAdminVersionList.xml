@@ -7,6 +7,7 @@
 	</columns>
 	<conditions>
 		<condition operation="equal" column="app_srl" var="app_srl" />
+        <condition operation="equal" column="display" var="display" pipe="and"/>
 	</conditions>
     <navigation>
 		<index var="sort_index" default="version_srl" order="desc" />

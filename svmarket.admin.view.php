@@ -168,6 +168,7 @@ class svmarketAdminView extends svmarket
 	public function dispSvmarketAdminInsertPkg() 
 	{
 		$oArg = Context::getRequestVars();
+
 		// editor
 		$oEditorModel = &getModel('editor');
 		Context::set('editor', $oEditorModel->getModuleEditor('document', $oArg->module_srl, 0, 'package_srl', 'pkg_description'));

@@ -9,6 +9,7 @@ class svmarketPkgAdmin extends svmarket
 	private $_g_oLoggedInfo = NULL;
 	private $_g_oOldPkgHeader = NULL; // 정보 수정할 때 과거 상태에 관한 참조일 뿐
 	private $_g_oNewPkgHeader = NULL; // 항상 현재 쓰기의 기준
+	private $_g_bConsumerMode = false; // 일반 방문자 모드
 	const A_PKG_HEADER_TYPE = ['_g_oNewPkgHeader', '_g_oOldPkgHeader'];
 /**
  * @brief 생성자
@@ -85,9 +86,14 @@ class svmarketPkgAdmin extends svmarket
 	 **/
 	public function loadHeader($oParams)
 	{
+		if($oParams->bConsumerMode)
+			$this->_g_bConsumerMode = true;
+
 		$this->_initHeader();
 		$oTmpArgs = new stdClass();
 		$oTmpArgs->package_srl = $oParams->package_srl;
+		if($this->_g_bConsumerMode)
+			$oTmpArgs->display = 'Y';
 		$oTmpRst = executeQuery('svmarket.getAdminPkgDetail', $oTmpArgs);
 		if(!$oTmpRst->toBool())
 			return $oTmpRst;
@@ -131,6 +137,8 @@ class svmarketPkgAdmin extends svmarket
 		// begin - load packaged app list
 		$oArgs = new stdClass();
 		$oArgs->package_srl = $this->_g_oOldPkgHeader->package_srl;
+		if($this->_g_bConsumerMode)
+			$oArgs->display = 'Y';
 		$oListRst = executeQueryArray('svmarket.getAdminAppList', $oArgs);
 		unset($oArgs);
 		if(!$oListRst->toBool())
@@ -178,9 +186,20 @@ class svmarketPkgAdmin extends svmarket
 		if($this->_g_oNewPkgHeader->module_srl == svmarket::S_NULL_SYMBOL)
 			$this->_g_oNewPkgHeader->module_srl = $this->_g_oOldPkgHeader->module_srl;
 		$oRst = $this->_updatePkg();
-        $oFileController = getController('file');
+        
+		// begin - set appended files valid
+		$oFileController = getController('file');
         $dd = $oFileController->setFilesValid($this->_g_oOldPkgHeader->package_srl);
         unset($oFileController);
+		// end - set appended files valid
+		// begin - reset seo image cache
+		$oCacheHandler = CacheHandler::getInstance('object', NULL, TRUE);
+		if($oCacheHandler->isSupport()) {
+			$cache_key_document_images = 'seo:document_images:' . $this->_g_oOldPkgHeader->package_srl;
+			$oCacheHandler->delete($cache_key_document_images);
+		}
+		unset($oCacheHandler);
+		// end - reset seo image cache
         return $oRst;
 	}
     /**

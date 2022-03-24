@@ -10,6 +10,7 @@ class svmarketAppAdmin extends svmarket
 	private $_g_oLoggedInfo = NULL;
 	private $_g_oOldAppHeader = NULL; // 정보 수정할 때 과거 상태에 관한 참조일 뿐
 	private $_g_oNewAppHeader = NULL; // 항상 현재 쓰기의 기준
+	private $_g_bConsumerMode = false; // 일반 방문자 모드
 	const A_APP_HEADER_TYPE = ['_g_oNewAppHeader', '_g_oOldAppHeader'];
     const A_APP_TYPE = ['core'=>1, 'module'=>2, 'addon'=>3, 'widget'=>4, 'layout'=>5, 'm.layout'=>6, 'module/skin'=>7, 'module/m.skin'=>8];
 /**
@@ -66,33 +67,6 @@ class svmarketAppAdmin extends svmarket
 		}
 	    trigger_error("Undefined property $name or method $method_name");
 	}
-    /**
-     * @brief set skeleton svmarket header
-     **/
-    private function _setSkeletonHeader()
-    {
-        $aBasicAttr = ['app_srl', 'module_srl', 'package_srl', 'list_order',
-                        'category_node_srl', 'type_srl',
-                        'name', 'title', 'install_path', 'thumb_file_srl',
-                        'og_description', 'description',
-                        'member_srl', 'readed_count', 'ipaddress',
-						'github_url', 'homepage', 'tags', 'display', 'updatetime', 'regdate'];
-        $aInMemoryAttr = ['package_title', 'type_name', 'version_list', 'nick_name'];
-        $aTempAttr = ['thumbnail_image'];
-        foreach(self::A_APP_HEADER_TYPE as $nTypeIdx => $sHeaderType)
-        {
-            $this->{$sHeaderType} = new stdClass();
-            foreach($aBasicAttr as $nAttrIdx => $sAttrName)
-                $this->{$sHeaderType}->{$sAttrName} = svmarket::S_NULL_SYMBOL;
-            foreach($aInMemoryAttr as $nAttrIdx => $sAttrName)
-                $this->{$sHeaderType}->{$sAttrName} = svmarket::S_NULL_SYMBOL;
-            // temp item info for insertion
-			foreach($aTempAttr as $nAttrIdx => $sAttrName)
-                $this->{$sHeaderType}->{$sAttrName} = svitem::S_NULL_SYMBOL;
-        }
-        unset($aBasicAttr);
-        unset($aInMemoryAttr);
-    }
 /**
  * @brief 신규 앱 생성
  **/
@@ -138,14 +112,19 @@ class svmarketAppAdmin extends svmarket
         unset($oFileController);
         return $oRst;
 	}
-    /**
+/**
  * @brief 기존 앱 정보 적재
  **/
 	public function loadHeader($oParams)
 	{
+		if($oParams->bConsumerMode)
+			$this->_g_bConsumerMode = true;
+
 		$this->_initHeader();
 		$oTmpArgs = new stdClass();
 		$oTmpArgs->app_srl = $oParams->app_srl;
+		if($this->_g_bConsumerMode)
+			$oTmpArgs->display = 'Y';
 		$oTmpRst = executeQuery('svmarket.getAdminAppDetail', $oTmpArgs);
 		unset($oTmpArgs);
 		if(!$oTmpRst->toBool())
@@ -288,9 +267,19 @@ class svmarketAppAdmin extends svmarket
 		if($this->_g_oNewAppHeader->module_srl == svmarket::S_NULL_SYMBOL)
 			$this->_g_oNewAppHeader->module_srl = $this->_g_oOldAppHeader->module_srl;
         $oRst = $this->_updateApp();
-        $oFileController = getController('file');
+        // begin - set appended files valid
+		$oFileController = getController('file');
         $oFileController->setFilesValid($this->_g_oOldAppHeader->app_srl);
         unset($oFileController);
+		// end - set appended files valid
+		// begin - reset seo image cache
+		$oCacheHandler = CacheHandler::getInstance('object', NULL, TRUE);
+		if($oCacheHandler->isSupport()) {
+			$cache_key_document_images = 'seo:document_images:' . $this->_g_oOldAppHeader->app_srl;
+			$oCacheHandler->delete($cache_key_document_images);
+		}
+		unset($oCacheHandler);
+		// end - reset seo image cache
         return $oRst;
 	}
     /**
@@ -362,6 +351,33 @@ class svmarketAppAdmin extends svmarket
             $this->_g_oNewAppHeader->$sTitle = svmarket::S_NULL_SYMBOL;
         foreach($this->_g_oOldAppHeader as $sTitle => $sVal)
             $this->_g_oOldAppHeader->$sTitle = svmarket::S_NULL_SYMBOL;
+    }
+	/**
+     * @brief set skeleton svmarket header
+     **/
+    private function _setSkeletonHeader()
+    {
+        $aBasicAttr = ['app_srl', 'module_srl', 'package_srl', 'list_order',
+                        'category_node_srl', 'type_srl',
+                        'name', 'title', 'install_path', 'thumb_file_srl',
+                        'og_description', 'description',
+                        'member_srl', 'readed_count', 'ipaddress',
+						'github_url', 'homepage', 'tags', 'display', 'updatetime', 'regdate'];
+        $aInMemoryAttr = ['package_title', 'type_name', 'version_list', 'nick_name'];
+        $aTempAttr = ['thumbnail_image'];
+        foreach(self::A_APP_HEADER_TYPE as $nTypeIdx => $sHeaderType)
+        {
+            $this->{$sHeaderType} = new stdClass();
+            foreach($aBasicAttr as $nAttrIdx => $sAttrName)
+                $this->{$sHeaderType}->{$sAttrName} = svmarket::S_NULL_SYMBOL;
+            foreach($aInMemoryAttr as $nAttrIdx => $sAttrName)
+                $this->{$sHeaderType}->{$sAttrName} = svmarket::S_NULL_SYMBOL;
+            // temp item info for insertion
+			foreach($aTempAttr as $nAttrIdx => $sAttrName)
+                $this->{$sHeaderType}->{$sAttrName} = svitem::S_NULL_SYMBOL;
+        }
+        unset($aBasicAttr);
+        unset($aInMemoryAttr);
     }
     /**
      * @brief 

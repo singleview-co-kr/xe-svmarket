@@ -22,8 +22,14 @@
 <block cond="$package_srl">
 	<input name="act" type="hidden" value="procSvmarketAdminUpdatePkg" />    
 </block>
-
-	<h1>{$lang->title_pkg_basic_info}</h1>
+	<h1>{$oPkgInfo->title} - {$lang->title_pkg_basic_info}</h1>
+    <div class="x_control-group">
+		<label class="x_control-label" for="app_display">{$lang->display} <em style="color:red">*</em></label>
+		<div class="x_controls">
+            <label for="display_Y"><input type="radio" name="display" id="display_Y" value="Y" checked="checked"|cond="$oPkgInfo->display=='Y'" />{$lang->display}</label>
+            <label for="display_N"><input type="radio" name="display" id="display_N" value="N" checked="checked"|cond="$oPkgInfo->display=='N'" />{$lang->not_display}</label>
+		</div>
+	</div>
 	<div class="x_control-group">
 		<label class="x_control-label" for="pkg_title">{$lang->pkg_title}</label>
 		<div class="x_controls">
@@ -71,8 +77,9 @@
 	<thead>
 		<tr>
 			<th scope="col"><div>{$lang->no}</div></th>
-			<th scope="col" class="half_wide"><div>{$lang->mid}</div></th>
-			<th scope="col" class="half_wide"><div>{$lang->browser_title}</div></th>
+			<th scope="col" class="half_wide"><div>{$lang->display}</div></th>
+            <th scope="col" class="half_wide"><div>{$lang->mid}</div></th>
+			<th scope="col" class="half_wide"><div>{$lang->readed_count}</div></th>
 			<th scope="col">{$lang->cmd_management}</th>
 			<th scope="col">{$lang->cmd_delete}</th>
 			<th scope="col"><div>{$lang->regdate}</div></th>
@@ -81,11 +88,12 @@
 	<tbody>
 		<tr loop="$oPkgInfo->app_list=>$no,$oAppInfo">
 			<td class="center number">{$no}</td>
-			<td>{htmlspecialchars($oAppInfo->title)}</td>
-			<td><a href="{getSiteUrl($val->domain,'','mid',$val->mid)}" onclick="window.open(this.href); return false;">{$val->browser_title}</a></td>
+			<td>{$oAppInfo->display}</td>
+            <td><a href="{getSiteUrl($val->domain,'','mid',$module_info->mid,'document_srl',$oAppInfo->app_srl)}" onclick="window.open(this.href); return false;">{htmlspecialchars($oAppInfo->title)}</a></td>
+			<td>{number_format($oAppInfo->readed_count)}</td>
 			<td><a href="{getUrl('act','dispSvmarketAdminUpdateApp','app_srl',$oAppInfo->app_srl)}" class="x_btn"><span>{$lang->cmd_management}</span></a></td>
-			<td><a href="#deleteInstance" class="modalAnchor deleteInstance x_btn" data-module-srl="{$val->module_srl}"><span>{$lang->cmd_delete}</span></a></td>
-			<td>{zdate($val->regdate,"Y-m-d")}</td>
+			<td><a href="#deleteInstance" class="modalAnchor deleteInstance x_btn" data-module-srl="{$oAppInfo->module_srl}"><span>{$lang->cmd_delete}</span></a></td>
+			<td>{zdate($oAppInfo->regdate,"Y-m-d")}</td>
 		</tr>
 	</tbody>
 </table>
