@@ -56,6 +56,7 @@ class svmarketModel extends svmarket
             $oRst->add('req_type', 'version');
             return $oRst;
         }
+        return new BaseObject(-1,'msg_invalid_request');
 	}
 }
 /* End of file svmarket.model.php */
