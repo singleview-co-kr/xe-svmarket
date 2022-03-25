@@ -73,7 +73,8 @@ class svmarketVersionAdmin extends svmarket
             $this->_g_oNewVersionHeader->module_srl == svmarket::S_NULL_SYMBOL || 
 			$this->_g_oNewVersionHeader->title == svmarket::S_NULL_SYMBOL)
 			return new BaseObject(-1,'msg_invalid_request');
-		return $this->_insertVersion();
+		$this->_setAppendingFilesValid();
+        return $this->_insertVersion();
 	}
     /**
      * @brief 기존 패키지 정보 적재
@@ -174,7 +175,8 @@ class svmarketVersionAdmin extends svmarket
 		$this->_g_oNewVersionHeader->version_srl = $this->_g_oOldVersionHeader->version_srl;
 		if($this->_g_oNewVersionHeader->module_srl == svmarket::S_NULL_SYMBOL)
 			$this->_g_oNewVersionHeader->module_srl = $this->_g_oOldVersionHeader->module_srl;
-		return $this->_updateVersion();
+        $this->_setAppendingFilesValid();
+        return $this->_updateVersion();
 	}
     /**
 	 * Update read counts of the package
@@ -252,6 +254,19 @@ class svmarketVersionAdmin extends svmarket
         unset($aInMemoryAttr);
     } 
     /**
+     * @brief
+     **/
+	private function _setAppendingFilesValid()
+	{
+        if($this->_g_oOldVersionHeader->version_srl)
+            $nTargetSrl = $this->_g_oOldVersionHeader->version_srl;
+        else
+            $nTargetSrl = $this->_g_oNewVersionHeader->version_srl;
+        $oFileController = getController('file');
+        $oFileController->setFilesValid($nTargetSrl);
+        unset($oFileController);
+    }
+    /**
      * @brief 
      **/
     private function _insertVersion()
@@ -324,6 +339,22 @@ class svmarketVersionAdmin extends svmarket
 			$oArgs->og_description = $this->_g_oNewVersionHeader->og_description;
 		if($this->_g_oNewVersionHeader->description)
 			$oArgs->description = $this->_g_oNewVersionHeader->description;
+        
+        $oFileModel = getModel('file');
+        $aFiles = $oFileModel->getFiles($this->_g_oNewVersionHeader->version_srl);
+        foreach($aFiles as $nIdx=>$oFile)
+        {
+            $aFileInfo = explode('.',$oFile->source_filename);
+            if($aFileInfo[1] == 'zip')
+            {
+                $this->_g_oNewVersionHeader->zip_file_srl = $oFile->file_srl;
+                $oArgs->zip_file_srl = $this->_g_oNewVersionHeader->zip_file_srl;
+                break;
+            }
+        }
+        unset($aFileInfo);
+        unset($aFiles);
+        unset($oFileModel);
 		$oUpdateRst = executeQuery('svmarket.updateAdminVersion', $oArgs);
 		unset($oArgs);
 		if(!$oUpdateRst->toBool())

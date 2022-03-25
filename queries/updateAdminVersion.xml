@@ -6,6 +6,7 @@
 		<column name="version" var="version" />
         <column name="og_description" var="og_description" />
 		<column name="description" var="description" />
+        <column name="zip_file_srl" var="zip_file_srl" />
 	</columns>
 	<conditions>
 		<condition operation="equal" column="version_srl" var="version_srl" notnull="notnull" />

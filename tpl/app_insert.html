@@ -25,7 +25,7 @@
 </block>
 
 	<h1>{$oAppInfo->package_title} - {$oAppInfo->title} {$lang->title_app_basic_info}</h1>
-    <div class="x_control-group">
+    <div cond="$app_srl" class="x_control-group">
 		<label class="x_control-label" for="app_display">{$lang->display} <em style="color:red">*</em></label>
 		<div class="x_controls">
             <label for="display_Y"><input type="radio" name="display" id="display_Y" value="Y" checked="checked"|cond="$oAppInfo->display=='Y'" />{$lang->display}</label>

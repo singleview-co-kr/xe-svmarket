@@ -40,7 +40,7 @@ class svmarketAppAdmin extends svmarket
 		{
 			if($sName == 'thumb_file_srl' || $sName == 'readed_count')
                 return 0;
-            elseif($sName == 'tags')
+            elseif($sName == 'tags' || $sName == 'github_url')
                 return '';
             else
             {
@@ -107,9 +107,7 @@ class svmarketAppAdmin extends svmarket
         unset($oTmpRst);
         // end - check app duplication
 		$oRst = $this->_insertApp();
-        $oFileController = getController('file');
-        $oFileController->setFilesValid($this->_g_oNewAppHeader->app_srl);
-        unset($oFileController);
+        $this->_setAppendingFilesValid();
         return $oRst;
 	}
 /**
@@ -161,45 +159,11 @@ class svmarketAppAdmin extends svmarket
         $this->_g_oOldAppHeader->thumb_file_srl = $aFiles[0]->file_srl;
         unset($aFiles);
         unset($oFileModel);
-
 		return $oTmpRst;
 	}
-	/**
-	* @brief 기존 앱 설치 경로 생성
-	**/
-	public function _getAppTypeInfo()
-	{
-		$sAppType = 'invalid';
-		if($this->_g_oOldAppHeader->type_srl)
-			$sAppType = array_search($this->_g_oOldAppHeader->type_srl, self::A_APP_TYPE);
-		$sInstallPath = 'unknown';
-		switch($sAppType)
-		{
-			case 'core':
-				$sInstallPath = '/';
-				break;
-			case 'module':
-			case 'addon':
-			case 'widget':
-			case 'layout':
-			case 'm.layout':
-				$sInstallPath = '/'.$sAppType.'s/'.$this->_g_oOldAppHeader->name;
-				break;
-			case 'module/skin':
-			case 'module/m.skin':
-				$aAppName = explode('/',$this->_g_oOldAppHeader->name);
-				$aAppType = explode('/',$sAppType);
-				$sInstallPath = '/modules/'.$aAppName[0].'/'.$aAppType[1].'s/'.$aAppName[1];
-				break;
-			default:
-				var_dump($sAppType);
-				break;
-		}
-		return ['sAppType'=>$sAppType, 'sInstallPath'=>$sInstallPath];
-	}
-/**
-* @brief 기존 앱 상세 정보 적재
-**/
+    /**
+    * @brief 기존 앱 상세 정보 적재
+    **/
 	public function loadDetail()
 	{
 		$this->_nullifyHeader();
@@ -267,12 +231,7 @@ class svmarketAppAdmin extends svmarket
 		if($this->_g_oNewAppHeader->module_srl == svmarket::S_NULL_SYMBOL)
 			$this->_g_oNewAppHeader->module_srl = $this->_g_oOldAppHeader->module_srl;
         $oRst = $this->_updateApp();
-        // begin - set appended files valid
-		$oFileController = getController('file');
-        $oFileController->setFilesValid($this->_g_oOldAppHeader->app_srl);
-        unset($oFileController);
-		// end - set appended files valid
-		// begin - reset seo image cache
+        $this->_setAppendingFilesValid();
 		$oCacheHandler = CacheHandler::getInstance('object', NULL, TRUE);
 		if($oCacheHandler->isSupport()) {
 			$cache_key_document_images = 'seo:document_images:' . $this->_g_oOldAppHeader->app_srl;
@@ -351,6 +310,52 @@ class svmarketAppAdmin extends svmarket
             $this->_g_oNewAppHeader->$sTitle = svmarket::S_NULL_SYMBOL;
         foreach($this->_g_oOldAppHeader as $sTitle => $sVal)
             $this->_g_oOldAppHeader->$sTitle = svmarket::S_NULL_SYMBOL;
+    }
+    /**
+	* @brief 기존 앱 설치 경로 생성
+	**/
+	public function _getAppTypeInfo()
+	{
+		$sAppType = 'invalid';
+		if($this->_g_oOldAppHeader->type_srl)
+			$sAppType = array_search($this->_g_oOldAppHeader->type_srl, self::A_APP_TYPE);
+		$sInstallPath = 'unknown';
+		switch($sAppType)
+		{
+			case 'core':
+				$sInstallPath = '/';
+				break;
+			case 'module':
+			case 'addon':
+			case 'widget':
+			case 'layout':
+			case 'm.layout':
+				$sInstallPath = '/'.$sAppType.'s/'.$this->_g_oOldAppHeader->name;
+				break;
+			case 'module/skin':
+			case 'module/m.skin':
+				$aAppName = explode('/',$this->_g_oOldAppHeader->name);
+				$aAppType = explode('/',$sAppType);
+				$sInstallPath = '/modules/'.$aAppName[0].'/'.$aAppType[1].'s/'.$aAppName[1];
+				break;
+			default:
+				var_dump($sAppType);
+				break;
+		}
+		return ['sAppType'=>$sAppType, 'sInstallPath'=>$sInstallPath];
+	}
+    /**
+     * @brief
+     **/
+	private function _setAppendingFilesValid()
+	{
+        if($this->_g_oOldAppHeader->app_srl)
+            $nTargetSrl = $this->_g_oOldAppHeader->app_srl;
+        else
+            $nTargetSrl = $this->_g_oNewAppHeader->app_srl;
+        $oFileController = getController('file');
+        $oFileController->setFilesValid($nTargetSrl);
+        unset($oFileController);
     }
 	/**
      * @brief set skeleton svmarket header
@@ -574,16 +579,8 @@ class svmarketAppAdmin extends svmarket
 		// delete related file
 		$oFileController = getController('file');
 		$oFileController->deleteFile($this->_g_oOldItemHeader->thumb_file_srl);
-		$oFileController->deleteFile($this->_g_oOldItemHeader->gallery_doc_srl);
-		$oFileController->deleteFile($this->_g_oOldItemHeader->mob_doc_srl);
-		$oFileController->deleteFile($this->_g_oOldItemHeader->pc_doc_srl);
 		unset($oFileController);
 		
-		// delete document
-		$oDocumentController = &getController('document');
-		$oDocumentController->deleteDocument($item_info->document_srl);
-		unset($oDocumentController);
-
 		// delete db record
 		$oArgs->item_srl = $item_srl;
 		$oRst = executeQuery('svmarket.deleteItem', $oArgs);
@@ -654,38 +651,6 @@ class svmarketAppAdmin extends svmarket
 		}
 		$this->_g_oOldItemHeader->review_count = $nReviewCnt;
 	}
-/**
- * @brief 첨부 이미지 파일 처리
- **/
-	// private function _procThumbnailImages()
-	// {
-	// 	$oFileController = getController('file');
-	// 	// 카탈로그 썸네일 파일 변경
-	// 	if(is_uploaded_file($this->_g_oNewItemHeader->thumbnail_image['tmp_name'])) 
-	// 	{
-	// 		// delete old catalog thumbnail
-	// 		if($this->_g_oOldItemHeader->thumb_file_srl) 
-	// 			$oFileController->deleteFile($this->_g_oOldItemHeader->thumb_file_srl);
-	// 		// attach new catalog thumbnail
-	// 		$oTmpRst = $oFileController->insertFile($this->_g_oNewItemHeader->thumbnail_image, $this->_g_oNewItemHeader->module_srl, $this->_g_oNewItemHeader->item_srl);
-	// 		if(!$oTmpRst || !$oTmpRst->toBool())
-	// 			return $oTmpRst;
-	// 		$this->_g_oNewItemHeader->thumb_file_srl = $oTmpRst->get('file_srl');
-	// 		unset($oTmpRst);
-	// 		$oTmpArgs->item_srl = $this->_g_oNewItemHeader->item_srl;
-	// 		$oTmpArgs->thumb_file_srl = $this->_g_oNewItemHeader->thumb_file_srl;
-	// 		$oUpdateRst = executeQuery('svmarket.updateItemFile', $oTmpArgs);
-	// 		if(!$oUpdateRst->toBool())
-	// 			return $oUpdateRst;
-	// 		unset($oUpdateRst);
-	// 		unset($oTmpArgs);
-	// 		$oFileController->setFilesValid($this->_g_oNewItemHeader->item_srl);
-	// 	}
-	// 	// 갤러리 썸네일 이미지를 첨부한 후 저장한 상황에 대응
-	// 	$oFileController->setFilesValid($this->_g_oNewItemHeader->gallery_doc_srl);
-	// 	unset($oFileController);
-	// 	return new BaseObject();
-	// }
 }
 /* End of file svmarket.pkg_admin.php */
 /* Location: ./modules/svmarket/svmarket.pkg_admin.php */

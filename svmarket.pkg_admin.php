@@ -76,9 +76,10 @@ class svmarketPkgAdmin extends svmarket
 			$this->_g_oNewPkgHeader->title == svmarket::S_NULL_SYMBOL)
 			return new BaseObject(-1,'msg_invalid_request');
 		$oRst = $this->_insertPkg();
-        $oFileController = getController('file');
-        $oFileController->setFilesValid($this->_g_oNewPkgHeader->package_srl);
-        unset($oFileController);
+        $this->_setAppendingFilesValid();
+        // $oFileController = getController('file');
+        // $oFileController->setFilesValid($this->_g_oNewPkgHeader->package_srl);
+        // unset($oFileController);
         return $oRst;
 	}
 	/**
@@ -186,11 +187,11 @@ class svmarketPkgAdmin extends svmarket
 		if($this->_g_oNewPkgHeader->module_srl == svmarket::S_NULL_SYMBOL)
 			$this->_g_oNewPkgHeader->module_srl = $this->_g_oOldPkgHeader->module_srl;
 		$oRst = $this->_updatePkg();
-        
+        $this->_setAppendingFilesValid();
 		// begin - set appended files valid
-		$oFileController = getController('file');
-        $dd = $oFileController->setFilesValid($this->_g_oOldPkgHeader->package_srl);
-        unset($oFileController);
+		// $oFileController = getController('file');
+        // $dd = $oFileController->setFilesValid($this->_g_oOldPkgHeader->package_srl);
+        // unset($oFileController);
 		// end - set appended files valid
 		// begin - reset seo image cache
 		$oCacheHandler = CacheHandler::getInstance('object', NULL, TRUE);
@@ -386,6 +387,19 @@ class svmarketPkgAdmin extends svmarket
         unset($aInMemoryAttr);
     }
     /**
+     * @brief
+     **/
+	private function _setAppendingFilesValid()
+	{
+        if($this->_g_oOldPkgHeader->package_srl)
+            $nTargetSrl = $this->_g_oOldPkgHeader->package_srl;
+        else
+            $nTargetSrl = $this->_g_oNewPkgHeader->package_srl;
+        $oFileController = getController('file');
+        $oFileController->setFilesValid($nTargetSrl);
+        unset($oFileController);
+    }
+    /**
      * @brief 
      **/
     private function _insertPkg()
@@ -568,18 +582,10 @@ class svmarketPkgAdmin extends svmarket
 			return new BaseObject(-1,'msg_invalid_request');
 
 		// delete related file
-		$oFileController = &getController('file');
+		$oFileController = getController('file');
 		$oFileController->deleteFile($this->_g_oOldItemHeader->thumb_file_srl);
-		$oFileController->deleteFile($this->_g_oOldItemHeader->gallery_doc_srl);
-		$oFileController->deleteFile($this->_g_oOldItemHeader->mob_doc_srl);
-		$oFileController->deleteFile($this->_g_oOldItemHeader->pc_doc_srl);
 		unset($oFileController);
 		
-		// delete document
-		$oDocumentController = &getController('document');
-		$oDocumentController->deleteDocument($item_info->document_srl);
-		unset($oDocumentController);
-
 		// delete db record
 		$oArgs->item_srl = $item_srl;
 		$oRst = executeQuery('svmarket.deleteItem', $oArgs);
