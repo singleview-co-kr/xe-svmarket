@@ -361,8 +361,6 @@ class svmarketAdminController extends svmarket
 		$oUpdateRst = $oVersionAdmin->update($oArgs);
         // var_dump($oUpdateRst);
         // exit;
-
-
 		if(!$oUpdateRst->toBool())
 		{
 			unset($oArgs);

@@ -9,6 +9,7 @@
         <column name="type_srl" var="type_srl" notnull="notnull" />
 		<column name="og_description" var="og_description" />
         <column name="description" var="description" />
+        <column name="github_url" var="github_url" />
         <column name="homepage" var="homepage" />
         <column name="tags" var="tags" />
 		<column name="display" var="display" />

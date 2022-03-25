@@ -409,8 +409,6 @@ class svmarketAppAdmin extends svmarket
         if($this->_g_oLoggedInfo)
 			$oParam->member_srl = $this->_g_oLoggedInfo->member_srl;
         $oInsertRst = executeQuery('svmarket.insertAdminApp', $oParam);
-        // var_dump($oInsertRst);
-        // exit;
         if(!$oInsertRst->toBool())
         {
             unset($oParam);
@@ -441,12 +439,14 @@ class svmarketAppAdmin extends svmarket
 			$oArgs->name = $this->_g_oNewAppHeader->name;
 		if($this->_g_oNewAppHeader->title)
 			$oArgs->title = $this->_g_oNewAppHeader->title;
-        if($this->_g_oNewAppHeader->thumb_file_srl)
-			$oArgs->thumb_file_srl = $this->_g_oNewAppHeader->thumb_file_srl;
+        // if($this->_g_oNewAppHeader->thumb_file_srl)
+		// 	$oArgs->thumb_file_srl = $this->_g_oNewAppHeader->thumb_file_srl;
 		if($this->_g_oNewAppHeader->og_description)
 			$oArgs->og_description = $this->_g_oNewAppHeader->og_description;
 		if($this->_g_oNewAppHeader->description)
 			$oArgs->description = $this->_g_oNewAppHeader->description;
+		if($this->_g_oNewAppHeader->github_url)
+			$oArgs->github_url = $this->_g_oNewAppHeader->github_url;
 		if($this->_g_oNewAppHeader->homepage)
 			$oArgs->homepage = $this->_g_oNewAppHeader->homepage;
 		if($this->_g_oNewAppHeader->tags)

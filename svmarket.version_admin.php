@@ -106,7 +106,6 @@ class svmarketVersionAdmin extends svmarket
 	public function loadDetail()
 	{
 		$this->_nullifyHeader();
-        $this->_nullifyHeader();
         // begin - breadcrumb info
         $oTmpArgs = new stdClass();
 		$oTmpArgs->package_srl = $this->_g_oOldVersionHeader->package_srl;
@@ -131,12 +130,12 @@ class svmarketVersionAdmin extends svmarket
         // $oAppAdmin->loadDetail();  // never call this infinite loop
 		$this->_g_oOldVersionHeader->app_title = $oAppAdmin->title;
         $this->_g_oOldVersionHeader->app_type_name = $oAppAdmin->type_name;
-        $this->_g_oOldVersionHeader->app_thumb_file_srl = $oAppAdmin->thumb_file_srl;
+        // $this->_g_oOldVersionHeader->app_thumb_file_srl = $oAppAdmin->thumb_file_srl;
         $this->_g_oOldVersionHeader->app_install_path = $oAppAdmin->install_path;
+        $this->_g_oOldVersionHeader->app_github_url = $oAppAdmin->github_url;
         unset($oAppAdmin);
         unset($oParams);
         // end - load parent app info
-
 		$this->_g_oOldVersionHeader->desc_for_editor = htmlentities($this->_g_oOldVersionHeader->description);
 		if(!$this->_g_oOldVersionHeader->og_description)
 			$this->_g_oOldVersionHeader->og_description = mb_substr(html_entity_decode(strip_tags($this->_g_oOldVersionHeader->description)), 0, 40, 'utf-8');
@@ -151,13 +150,25 @@ class svmarketVersionAdmin extends svmarket
         }
         else
             $this->_g_oOldPkgHeader->nick_name = 'anonymous';
-        // begin - get appending file info
-        $oFileModel = getModel('file');
-        $this->_g_oOldVersionHeader->oVersionFile = $oFileModel->getFile($this->_g_oOldVersionHeader->zip_file_srl);
+        // begin - get appending zipfile download info
+        // {$oVersionInfo->oVersionFile->download_url
+        if(strpos($this->_g_oOldVersionHeader->app_github_url, 'https://github.com/') !== false)
+        {
+            $this->_g_oOldVersionHeader->oVersionFile = new stdClass();
+            $this->_g_oOldVersionHeader->oVersionFile->download_url = $this->_g_oOldVersionHeader->github_download_url;
+            $this->_g_oOldVersionHeader->oVersionFile->source_filename = 'download from github';
+            $this->_g_oOldVersionHeader->sDetailLink = $this->_g_oOldVersionHeader->github_tag_url;
+        }
+        else
+        {
+            $oFileModel = getModel('file');
+            $this->_g_oOldVersionHeader->oVersionFile = $oFileModel->getFile($this->_g_oOldVersionHeader->zip_file_srl);
+            unset($oFileModel);
+            $this->_g_oOldVersionHeader->sDetailLink = getUrl('document_srl',$this->_g_oOldVersionHeader->version_srl);
+        }
+        // end - get appending zipfile download info
         if(!$this->_g_oOldVersionHeader->description)
             $this->_g_oOldVersionHeader->description = $this->version.'을 다운로드하세요.';
-        unset($oFileModel);
-        // end - get appending file info
 		return new BaseObject();
 	}
     /**
@@ -237,15 +248,16 @@ class svmarketVersionAdmin extends svmarket
                         'version', 'zip_file_srl', 'og_description', 'description', 
                         'member_srl', 'readed_count', 'ipaddress',
 						'display', 'updatetime', 'regdate'];
-        $aInMemoryAttr = ['package_title', 'app_title', 'nick_name'];
+        $aInMemoryAttr = ['package_title', 'app_title', 'nick_name', 'github_tag_url', 
+                            'github_download_url', 'sDetailLink'];
         $aTempAttr = ['zip_file'];
         foreach(self::A_VERSION_HEADER_TYPE as $nTypeIdx => $sHeaderType)
         {
             $this->{$sHeaderType} = new stdClass();
             foreach($aBasicAttr as $nAttrIdx => $sAttrName)
                 $this->{$sHeaderType}->{$sAttrName} = svmarket::S_NULL_SYMBOL;
-            // foreach($aInMemoryAttr as $nAttrIdx => $sAttrName)
-            //     $this->{$sHeaderType}->{$sAttrName} = svmarket::S_NULL_SYMBOL;
+            foreach($aInMemoryAttr as $nAttrIdx => $sAttrName)
+                $this->{$sHeaderType}->{$sAttrName} = svmarket::S_NULL_SYMBOL;
             // temp item info for insertion
 			foreach($aTempAttr as $nAttrIdx => $sAttrName)
                 $this->{$sHeaderType}->{$sAttrName} = svitem::S_NULL_SYMBOL;
@@ -332,10 +344,18 @@ class svmarketVersionAdmin extends svmarket
 	private function _updateVersion()
 	{
 		$this->_nullifyHeader();
+        // var_dump($this->_g_oNewVersionHeader);
+        // exit;
 		// 기본 정보 설정
 		$oArgs = new stdClass();
 		$oArgs->version_srl = $this->_g_oOldVersionHeader->version_srl; // package_srl은 수정하면 안됨
-		if($this->_g_oNewVersionHeader->og_description)
+		if($this->_g_oNewVersionHeader->version)
+			$oArgs->version = $this->_g_oNewVersionHeader->version;
+        if($this->_g_oNewVersionHeader->github_tag_url)
+			$oArgs->github_tag_url = $this->_g_oNewVersionHeader->github_tag_url;
+        if($this->_g_oNewVersionHeader->github_download_url)
+			$oArgs->github_download_url = $this->_g_oNewVersionHeader->github_download_url;
+        if($this->_g_oNewVersionHeader->og_description)
 			$oArgs->og_description = $this->_g_oNewVersionHeader->og_description;
 		if($this->_g_oNewVersionHeader->description)
 			$oArgs->description = $this->_g_oNewVersionHeader->description;

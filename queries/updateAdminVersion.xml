@@ -7,6 +7,8 @@
         <column name="og_description" var="og_description" />
 		<column name="description" var="description" />
         <column name="zip_file_srl" var="zip_file_srl" />
+        <column name="github_tag_url" var="github_tag_url" />
+        <column name="github_download_url" var="github_download_url" />
 	</columns>
 	<conditions>
 		<condition operation="equal" column="version_srl" var="version_srl" notnull="notnull" />

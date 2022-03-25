@@ -62,7 +62,7 @@
                             </ul>
                             <h5 cond="$oAppInfo->github_url">Github URL</h5>
                             <ul class="list-unstyled project_files">
-                                <li><a href="{$oAppInfo->github_url}" target="_new">{$oAppInfo->github_url}</a></li>
+                                <li><a href="{$oAppInfo->github_url}">{$oAppInfo->github_url}</a></li>
                             </ul>
                           </div>
                           <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
@@ -79,8 +79,8 @@
                                             <p class="month">{date("F Y", strtotime((int)$oVersionInfo->regdate))}</p>
                                         </div--->
                                         <div class="message_wrapper">
-                                            <h4 class="heading"><a href="{getUrl('document_srl',$oVersionInfo->version_srl)}">{$oVersionInfo->version}</a>
-                                                <small>@ {$oVersionInfo->regdate} &nbsp;&nbsp; {$oVersionInfo->oVersionFile->download_count} downloaded</small></h4>
+                                            <h4 class="heading"><a href="{$oVersionInfo->sDetailLink}">{$oVersionInfo->version}</a>
+                                                <small>@ {zdate($oVersionInfo->regdate, 'Y-m-d h:i:s')} &nbsp;&nbsp; {$oVersionInfo->oVersionFile->download_count} downloaded</small></h4>
                                             <blockquote class="message">{$oVersionInfo->og_description}</blockquote>
                                             <br />
                                             <p class="url">
