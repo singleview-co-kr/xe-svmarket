@@ -379,7 +379,7 @@ class svmarketAppAdmin extends svmarket
                 $this->{$sHeaderType}->{$sAttrName} = svmarket::S_NULL_SYMBOL;
             // temp item info for insertion
 			foreach($aTempAttr as $nAttrIdx => $sAttrName)
-                $this->{$sHeaderType}->{$sAttrName} = svitem::S_NULL_SYMBOL;
+                $this->{$sHeaderType}->{$sAttrName} = svmarket::S_NULL_SYMBOL;
         }
         unset($aBasicAttr);
         unset($aInMemoryAttr);
