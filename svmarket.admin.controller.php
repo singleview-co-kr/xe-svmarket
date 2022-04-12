@@ -294,7 +294,11 @@ class svmarketAdminController extends svmarket
 		}
         unset($oUpdateRst);
         $this->setMessage('success_registed');
-		
+
+        // zip file is optional if github dependency mode when add a new version
+        if(strpos($oAppAdmin->github_url, 'https://github.com/') !== false && 
+            is_null($oArgs->version_zip_file))
+            $oArgs->version_zip_file = true;
         if($oArgs->version_version && $oArgs->version_zip_file)
 		{
 			$oVersionParam = new stdClass();
@@ -317,6 +321,8 @@ class svmarketAdminController extends svmarket
 				return $oUpdateRst;
             // update package updateteim
 		}
+        elseif($oArgs->version_version && !$oArgs->version_zip_file)
+            return new BaseObject(-1,'msg_invalid_version_request');
         unset($oAppAdmin);
         unset($oArgs);
 		if(!in_array(Context::getRequestMethod(),array('XMLRPC','JSON')))
